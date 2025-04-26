@@ -1,22 +1,16 @@
-
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Home, Calendar, List, CreditCard, Bell, Lightbulb, Cog, User, Check } from 'lucide-react';
 import Navigation from '@/components/Navigation';
+import { Button } from '@/components/ui/button';
+import { Bell, Lightbulb, User, Check, List, Calendar, CreditCard } from 'lucide-react';
+import Widget from '@/components/Widget';
 import FeatureCard from '@/components/FeatureCard';
-import SmartHomeWidget from '@/components/SmartHomeWidget';
-import TaskWidget from '@/components/TaskWidget';
-import CalendarWidget from '@/components/CalendarWidget';
-import FinanceWidget from '@/components/FinanceWidget';
 
 const Index = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Demo user name
   const userName = "Max";
-  
-  // Check if we're on the landing page (not logged in) or dashboard (logged in)
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const featuresList = [
     {
@@ -41,48 +35,92 @@ const Index = () => {
     }
   ];
 
-  // Function to toggle between landing page and dashboard
   const toggleLoggedIn = () => {
     setIsLoggedIn(!isLoggedIn);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navigation isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
       
       {isLoggedIn ? (
         // Dashboard View (after login)
-        <div className="flex-1 md:ml-64 p-4 md:p-8">
-          <header className="mb-8">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold">Willkommen zurück, {userName}!</h1>
-                <p className="text-gray-500 mt-1">Hier ist deine tägliche Übersicht.</p>
+        <div className="md:ml-64 min-h-screen">
+          {/* Main Content Area */}
+          <div className="p-4 md:p-8 pt-20 md:pt-8">
+            <header className="mb-8">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-bold">Willkommen zurück, {userName}!</h1>
+                  <p className="text-gray-500 mt-1">Hier ist deine tägliche Übersicht.</p>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Button onClick={toggleLoggedIn}>Abmelden</Button>
+                </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <Button variant="outline" size="icon">
-                  <Bell className="h-5 w-5" />
-                </Button>
-                <Button variant="outline" size="icon">
-                  <User className="h-5 w-5" />
-                </Button>
-                <Button onClick={toggleLoggedIn}>Abmelden</Button>
-              </div>
+            </header>
+            
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {/* Smart Home Widget */}
+              <Widget
+                title="Smart Home"
+                description="Gerätestatus und Steuerung"
+                icon={<Lightbulb className="h-5 w-5" />}
+              >
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span>Wohnzimmer Licht</span>
+                    <Button variant="outline" size="sm">Ein</Button>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Temperatur</span>
+                    <span className="text-gray-600">22.5°C</span>
+                  </div>
+                </div>
+              </Widget>
+
+              {/* Tasks Widget */}
+              <Widget
+                title="Aufgaben"
+                description="Aktuelle Todos"
+                icon={<Check className="h-5 w-5" />}
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <input type="checkbox" className="mr-2" />
+                    <span>Einkaufsliste erstellen</span>
+                  </div>
+                  <div className="flex items-center">
+                    <input type="checkbox" className="mr-2" />
+                    <span>Rechnungen bezahlen</span>
+                  </div>
+                </div>
+              </Widget>
+
+              {/* Calendar Widget */}
+              <Widget
+                title="Kalender"
+                description="Kommende Termine"
+              >
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span>Arzttermin</span>
+                    <span className="text-sm text-gray-500">14:30</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Meeting</span>
+                    <span className="text-sm text-gray-500">16:00</span>
+                  </div>
+                </div>
+              </Widget>
             </div>
-          </header>
-          
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <SmartHomeWidget />
-            <TaskWidget />
-            <CalendarWidget />
-            <FinanceWidget />
           </div>
         </div>
       ) : (
         // Landing Page (before login)
-        <div className="flex-1 md:ml-0 flex flex-col">
+        <div className="md:ml-0">
           {/* Hero Section */}
-          <section className="py-12 md:py-24 px-6 md:px-12 lg:px-24 bg-white dark:bg-gray-900">
+          <section className="relative py-12 md:py-24 px-6 md:px-12 lg:px-24 bg-white dark:bg-gray-900">
             <div className="container mx-auto">
               <div className="flex flex-col md:flex-row items-center">
                 <div className="md:w-1/2 mb-10 md:mb-0">
@@ -113,7 +151,7 @@ const Index = () => {
                     <div className="bg-white dark:bg-gray-800 rounded-xl p-6">
                       <img 
                         src="https://via.placeholder.com/500x300?text=HomePilot+Dashboard" 
-                        alt="HomePilot Dashboard" 
+                        alt="HomePilot Dashboard Preview" 
                         className="rounded-lg shadow-lg w-full"
                       />
                     </div>
