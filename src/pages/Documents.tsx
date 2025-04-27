@@ -1,21 +1,75 @@
 
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
-import { FileText, Search, Plus, Folder, File, MoreHorizontal } from 'lucide-react';
+import { FileText, Search, Plus, Folder, File, MoreHorizontal, BookText, BarChart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import DocumentCategorization from '@/components/DocumentCategorization';
+import EnergyAnalysis from '@/components/EnergyAnalysis';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { toast } from '@/components/ui/use-toast';
+
+interface Document {
+  id: number;
+  name: string;
+  type: string;
+  size: string;
+  modified: string;
+  category: string;
+}
 
 const Documents = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   
-  const documents = [
+  const documents: Document[] = [
     { id: 1, name: 'Mietvertrag.pdf', type: 'pdf', size: '2.4 MB', modified: '2025-04-10', category: 'Wohnen' },
     { id: 2, name: 'Versicherungspolice.pdf', type: 'pdf', size: '1.8 MB', modified: '2025-03-22', category: 'Versicherung' },
     { id: 3, name: 'Stromvertrag.pdf', type: 'pdf', size: '1.2 MB', modified: '2025-02-15', category: 'Verträge' },
     { id: 4, name: 'Gehaltsabrechnung_März.pdf', type: 'pdf', size: '0.8 MB', modified: '2025-04-01', category: 'Finanzen' },
     { id: 5, name: 'Steuererklärung_2024.xlsx', type: 'excel', size: '3.5 MB', modified: '2025-03-28', category: 'Finanzen' },
+    { id: 6, name: 'Stromrechnung_Q1_2025.pdf', type: 'pdf', size: '1.5 MB', modified: '2025-04-15', category: 'Energieverbrauch' },
+    { id: 7, name: 'Gasrechnung_Q1_2025.pdf', type: 'pdf', size: '1.3 MB', modified: '2025-04-15', category: 'Energieverbrauch' },
+    { id: 8, name: 'Wasserrechnung_Q1_2025.pdf', type: 'pdf', size: '1.1 MB', modified: '2025-04-16', category: 'Energieverbrauch' },
+    { id: 9, name: 'Internetvertrag.pdf', type: 'pdf', size: '1.0 MB', modified: '2025-02-10', category: 'Verträge' },
+    { id: 10, name: 'Handyvertrag.pdf', type: 'pdf', size: '0.9 MB', modified: '2025-01-20', category: 'Verträge' },
   ];
 
+  const filteredDocuments = searchQuery
+    ? documents.filter(doc => 
+        doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        doc.category.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : documents;
+    
+  const downloadDocument = (id: number) => {
+    const doc = documents.find(d => d.id === id);
+    if (doc) {
+      toast({
+        title: "Download gestartet",
+        description: `${doc.name} wird heruntergeladen.`,
+      });
+    }
+  };
+  
+  const shareDocument = (id: number) => {
+    const doc = documents.find(d => d.id === id);
+    if (doc) {
+      toast({
+        title: "Dokument teilen",
+        description: `Teile-Dialog für ${doc.name} geöffnet.`,
+      });
+    }
+  };
+  
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navigation isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
@@ -29,59 +83,122 @@ const Documents = () => {
             <h1 className="text-3xl font-bold">Dokumente</h1>
           </div>
           
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-              <div className="relative w-full md:w-1/3">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input placeholder="Dokumente suchen..." className="pl-10" />
-              </div>
-              
-              <div className="flex space-x-2">
-                <Button variant="outline">
-                  <Folder className="h-4 w-4 mr-2" /> Neuer Ordner
-                </Button>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" /> Upload
-                </Button>
-              </div>
-            </div>
+          <Tabs defaultValue="files" className="space-y-8">
+            <TabsList>
+              <TabsTrigger value="files" className="flex items-center">
+                <File className="h-4 w-4 mr-2" />
+                Dateien
+              </TabsTrigger>
+              <TabsTrigger value="categories" className="flex items-center">
+                <Folder className="h-4 w-4 mr-2" />
+                Kategorien
+              </TabsTrigger>
+              <TabsTrigger value="reports" className="flex items-center">
+                <BarChart className="h-4 w-4 mr-2" />
+                Berichte
+              </TabsTrigger>
+            </TabsList>
             
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200 dark:border-gray-700">
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kategorie</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Größe</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Geändert</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aktionen</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {documents.map((doc) => (
-                    <tr key={doc.id}>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <File className="h-5 w-5 text-gray-400 mr-3" />
-                          <span className="font-medium text-gray-900 dark:text-gray-100">{doc.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300">{doc.category}</td>
-                      <td className="px-4 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300">{doc.size}</td>
-                      <td className="px-4 py-4 whitespace-nowrap text-gray-600 dark:text-gray-300">
-                        {new Date(doc.modified).toLocaleDateString('de-DE')}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button className="text-gray-400 hover:text-gray-500">
-                          <MoreHorizontal className="h-5 w-5" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+            <TabsContent value="files">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                  <div className="relative w-full md:w-1/3">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input 
+                      placeholder="Dokumente suchen..." 
+                      className="pl-10" 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="flex space-x-2">
+                    <Button variant="outline">
+                      <Folder className="h-4 w-4 mr-2" /> Neuer Ordner
+                    </Button>
+                    <Button>
+                      <Plus className="h-4 w-4 mr-2" /> Upload
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Kategorie</TableHead>
+                        <TableHead>Größe</TableHead>
+                        <TableHead>Geändert</TableHead>
+                        <TableHead className="text-right">Aktionen</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredDocuments.length > 0 ? (
+                        filteredDocuments.map((doc) => (
+                          <TableRow key={doc.id}>
+                            <TableCell>
+                              <div className="flex items-center">
+                                <File className="h-5 w-5 text-gray-400 mr-3" />
+                                <span className="font-medium text-gray-900 dark:text-gray-100">{doc.name}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>{doc.category}</TableCell>
+                            <TableCell>{doc.size}</TableCell>
+                            <TableCell>
+                              {new Date(doc.modified).toLocaleDateString('de-DE')}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end space-x-2">
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon"
+                                  onClick={() => downloadDocument(doc.id)}
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" x2="12" y1="15" y2="3" />
+                                  </svg>
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon"
+                                  onClick={() => shareDocument(doc.id)}
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
+                                    <circle cx="18" cy="5" r="3" />
+                                    <circle cx="6" cy="12" r="3" />
+                                    <circle cx="18" cy="19" r="3" />
+                                    <line x1="8.59" x2="15.42" y1="13.51" y2="17.49" />
+                                    <line x1="15.41" x2="8.59" y1="6.51" y2="10.49" />
+                                  </svg>
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                            {searchQuery ? 'Keine Dokumente gefunden.' : 'Keine Dokumente vorhanden.'}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="categories">
+              <DocumentCategorization />
+            </TabsContent>
+            
+            <TabsContent value="reports">
+              <EnergyAnalysis />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>

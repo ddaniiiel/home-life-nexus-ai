@@ -1,23 +1,95 @@
 
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
-import { List, Check, Plus } from 'lucide-react';
+import { List, Check, Plus, Filter, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AppleRemindersSync from '@/components/AppleRemindersSync';
+import BringAppSync from '@/components/BringAppSync';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { de } from 'date-fns/locale';
+
+interface Task {
+  id: number;
+  title: string;
+  completed: boolean;
+  priority: 'low' | 'medium' | 'high';
+  dueDate: string;
+  list?: string;
+  synced?: boolean;
+}
 
 const Tasks = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [tasks, setTasks] = useState([
-    { id: 1, title: 'Wäsche waschen', completed: false, priority: 'medium', dueDate: '2025-05-01' },
-    { id: 2, title: 'Einkaufen gehen', completed: false, priority: 'high', dueDate: '2025-04-29' },
-    { id: 3, title: 'Rechnungen bezahlen', completed: true, priority: 'high', dueDate: '2025-04-25' },
-    { id: 4, title: 'Pflanzen gießen', completed: false, priority: 'low', dueDate: '2025-04-30' },
+  const [tasks, setTasks] = useState<Task[]>([
+    { id: 1, title: 'Wäsche waschen', completed: false, priority: 'medium', dueDate: '2025-05-01', list: 'Haushalt', synced: true },
+    { id: 2, title: 'Einkaufen gehen', completed: false, priority: 'high', dueDate: '2025-04-29', list: 'Einkaufen', synced: true },
+    { id: 3, title: 'Rechnungen bezahlen', completed: true, priority: 'high', dueDate: '2025-04-25', list: 'Finanzen' },
+    { id: 4, title: 'Pflanzen gießen', completed: false, priority: 'low', dueDate: '2025-04-30', list: 'Haushalt', synced: true },
+    { id: 5, title: 'Batterie Rauchmelder prüfen', completed: false, priority: 'medium', dueDate: '2025-05-10', list: 'Haushalt' },
+    { id: 6, title: 'Müll rausbringen', completed: false, priority: 'medium', dueDate: '2025-04-28', list: 'Haushalt', synced: true },
   ]);
+
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskPriority, setNewTaskPriority] = useState<'low' | 'medium' | 'high'>('medium');
+  const [newTaskDate, setNewTaskDate] = useState<Date>();
+  const [newTaskList, setNewTaskList] = useState('Haushalt');
+  const [filter, setFilter] = useState('all');
 
   const toggleTaskStatus = (id: number) => {
     setTasks(tasks.map(task => 
       task.id === id ? { ...task, completed: !task.completed } : task
     ));
   };
+
+  const addTask = () => {
+    if (!newTaskTitle.trim()) return;
+
+    const newTask: Task = {
+      id: tasks.length + 1,
+      title: newTaskTitle,
+      completed: false,
+      priority: newTaskPriority,
+      dueDate: newTaskDate ? format(newTaskDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
+      list: newTaskList
+    };
+
+    setTasks([...tasks, newTask]);
+    setNewTaskTitle('');
+    setNewTaskPriority('medium');
+    setNewTaskDate(undefined);
+  };
+
+  const taskLists = ['Haushalt', 'Einkaufen', 'Finanzen', 'Arbeit', 'Persönlich'];
+  
+  const filteredTasks = tasks.filter(task => {
+    if (filter === 'all') return true;
+    if (filter === 'completed') return task.completed;
+    if (filter === 'pending') return !task.completed;
+    if (filter === 'today') {
+      const today = format(new Date(), 'yyyy-MM-dd');
+      return task.dueDate === today;
+    }
+    if (filter === 'upcoming') {
+      const today = new Date();
+      const taskDate = new Date(task.dueDate);
+      return taskDate > today;
+    }
+    if (filter === 'overdue') {
+      const today = new Date();
+      const taskDate = new Date(task.dueDate);
+      return taskDate < today && !task.completed;
+    }
+    if (taskLists.includes(filter)) {
+      return task.list === filter;
+    }
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -32,49 +104,182 @@ const Tasks = () => {
             <h1 className="text-3xl font-bold">Aufgaben</h1>
           </div>
           
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-semibold">Aufgabenliste</h2>
-              <Button className="flex items-center">
-                <Plus className="h-4 w-4 mr-2" /> Neue Aufgabe
-              </Button>
-            </div>
+          <Tabs defaultValue="tasks" className="space-y-8">
+            <TabsList>
+              <TabsTrigger value="tasks">Aufgaben</TabsTrigger>
+              <TabsTrigger value="sync">Synchronisation</TabsTrigger>
+            </TabsList>
             
-            <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              {tasks.map((task) => (
-                <div key={task.id} className={`py-4 flex items-center ${task.completed ? 'opacity-60' : ''}`}>
-                  <button 
-                    onClick={() => toggleTaskStatus(task.id)}
-                    className={`flex-shrink-0 w-6 h-6 rounded-full border ${
-                      task.completed 
-                        ? 'bg-green-500 border-green-500 text-white' 
-                        : 'border-gray-300 dark:border-gray-600'
-                    } mr-4 flex items-center justify-center`}
-                  >
-                    {task.completed && <Check className="h-4 w-4" />}
-                  </button>
+            <TabsContent value="tasks">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+                <div className="flex flex-wrap gap-4 items-center justify-between mb-6">
+                  <h2 className="text-2xl font-semibold">Aufgabenliste</h2>
                   
-                  <div className="flex-1">
-                    <p className={`text-base ${task.completed ? 'line-through text-gray-500' : 'text-gray-900 dark:text-gray-100'}`}>
-                      {task.title}
-                    </p>
-                    <p className="text-sm text-gray-500">Fällig: {task.dueDate}</p>
-                  </div>
-                  
-                  <div className="flex-shrink-0">
-                    <span className={`inline-block px-2 py-1 text-xs rounded-full
-                      ${task.priority === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : 
-                       task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 
-                       'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'}`
-                    }>
-                      {task.priority === 'high' ? 'Hoch' : 
-                       task.priority === 'medium' ? 'Mittel' : 'Niedrig'}
-                    </span>
+                  <div className="flex gap-2">
+                    <Select defaultValue="all" onValueChange={setFilter}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Filter" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Alle Aufgaben</SelectItem>
+                        <SelectItem value="pending">Ausstehend</SelectItem>
+                        <SelectItem value="completed">Erledigt</SelectItem>
+                        <SelectItem value="today">Heute</SelectItem>
+                        <SelectItem value="upcoming">Anstehend</SelectItem>
+                        <SelectItem value="overdue">Überfällig</SelectItem>
+                        <SelectItem value="Haushalt">Haushalt</SelectItem>
+                        <SelectItem value="Einkaufen">Einkaufen</SelectItem>
+                        <SelectItem value="Finanzen">Finanzen</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button>
+                          <Plus className="h-4 w-4 mr-2" /> Neue Aufgabe
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Neue Aufgabe erstellen</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <div className="space-y-2">
+                            <label htmlFor="title" className="text-sm font-medium">Titel</label>
+                            <Input
+                              id="title"
+                              value={newTaskTitle}
+                              onChange={(e) => setNewTaskTitle(e.target.value)}
+                              placeholder="Was muss erledigt werden?"
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <label htmlFor="list" className="text-sm font-medium">Liste</label>
+                            <Select defaultValue={newTaskList} onValueChange={setNewTaskList}>
+                              <SelectTrigger id="list">
+                                <SelectValue placeholder="Liste auswählen" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {taskLists.map(list => (
+                                  <SelectItem key={list} value={list}>{list}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <label htmlFor="priority" className="text-sm font-medium">Priorität</label>
+                              <Select 
+                                defaultValue={newTaskPriority} 
+                                onValueChange={(value) => setNewTaskPriority(value as 'low' | 'medium' | 'high')}
+                              >
+                                <SelectTrigger id="priority">
+                                  <SelectValue placeholder="Priorität" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="low">Niedrig</SelectItem>
+                                  <SelectItem value="medium">Mittel</SelectItem>
+                                  <SelectItem value="high">Hoch</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium">Fälligkeitsdatum</label>
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    className="w-full justify-start text-left font-normal"
+                                  >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {newTaskDate ? format(newTaskDate, 'P', { locale: de }) : "Datum wählen"}
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                  <Calendar
+                                    mode="single"
+                                    selected={newTaskDate}
+                                    onSelect={setNewTaskDate}
+                                    locale={de}
+                                    initialFocus
+                                  />
+                                </PopoverContent>
+                              </Popover>
+                            </div>
+                          </div>
+                          
+                          <Button onClick={addTask} className="w-full">
+                            Aufgabe erstellen
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
+                
+                <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                  {filteredTasks.length > 0 ? (
+                    filteredTasks.map((task) => (
+                      <div key={task.id} className={`py-4 flex items-center ${task.completed ? 'opacity-60' : ''}`}>
+                        <button 
+                          onClick={() => toggleTaskStatus(task.id)}
+                          className={`flex-shrink-0 w-6 h-6 rounded-full border ${
+                            task.completed 
+                              ? 'bg-green-500 border-green-500 text-white' 
+                              : 'border-gray-300 dark:border-gray-600'
+                          } mr-4 flex items-center justify-center`}
+                        >
+                          {task.completed && <Check className="h-4 w-4" />}
+                        </button>
+                        
+                        <div className="flex-1">
+                          <div className="flex items-center">
+                            <p className={`text-base ${task.completed ? 'line-through text-gray-500' : 'text-gray-900 dark:text-gray-100'}`}>
+                              {task.title}
+                            </p>
+                            {task.synced && (
+                              <span className="ml-2 px-1.5 py-0.5 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded">
+                                Synced
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center text-sm text-gray-500">
+                            <span className="mr-3">Fällig: {format(new Date(task.dueDate), 'P', { locale: de })}</span>
+                            {task.list && <span className="mr-3">Liste: {task.list}</span>}
+                          </div>
+                        </div>
+                        
+                        <div className="flex-shrink-0">
+                          <span className={`inline-block px-2 py-1 text-xs rounded-full
+                            ${task.priority === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : 
+                             task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 
+                             'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'}`
+                          }>
+                            {task.priority === 'high' ? 'Hoch' : 
+                             task.priority === 'medium' ? 'Mittel' : 'Niedrig'}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="py-8 text-center text-gray-500">
+                      Keine Aufgaben gefunden.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="sync">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <AppleRemindersSync />
+                <BringAppSync />
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
