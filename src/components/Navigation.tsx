@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Calendar, List, Settings, Menu, X, CreditCard, BarChart3, Lightbulb, Package, FileText, Bell, User } from 'lucide-react';
+import { Home, Calendar, List, Settings, Menu, X, CreditCard, BarChart3, Lightbulb, Package, FileText, Bell, User, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -15,7 +14,8 @@ const Navigation: React.FC<NavigationProps> = ({ isMobileMenuOpen, setIsMobileMe
   const currentPath = location.pathname;
   
   const navItems = [
-    { name: 'Dashboard', icon: <Home className="h-5 w-5" />, path: '/', current: currentPath === '/' },
+    { name: 'Home', icon: <Home className="h-5 w-5" />, path: '/', current: currentPath === '/' },
+    { name: 'Dashboard', icon: <LayoutDashboard className="h-5 w-5" />, path: '/dashboard', current: currentPath === '/dashboard' },
     { name: 'Smart Home', icon: <Lightbulb className="h-5 w-5" />, path: '/smart-home', current: currentPath === '/smart-home' },
     { name: 'Aufgaben', icon: <List className="h-5 w-5" />, path: '/tasks', current: currentPath === '/tasks' },
     { name: 'Kalender', icon: <Calendar className="h-5 w-5" />, path: '/calendar', current: currentPath === '/calendar' },
