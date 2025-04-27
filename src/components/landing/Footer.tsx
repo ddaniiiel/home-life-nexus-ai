@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Github, Mail, Facebook, Instagram, Twitter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -34,20 +35,20 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Produkt</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">Features</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">Preise</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">FAQ</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">Roadmap</a></li>
+              <li><Link to="/smart-home" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">Features</Link></li>
+              <li><Link to="/finances" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">Preise</Link></li>
+              <li><Link to="/documents" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">FAQ</Link></li>
+              <li><Link to="/reports" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">Roadmap</Link></li>
             </ul>
           </div>
           
           <div>
             <h3 className="text-lg font-semibold mb-4">Ressourcen</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">Dokumentation</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">Blog</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">Community</a></li>
-              <li><a href="#" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">Support</a></li>
+              <li><Link to="/documents" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">Dokumentation</Link></li>
+              <li><Link to="/reports" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">Blog</Link></li>
+              <li><Link to="/tasks" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">Community</Link></li>
+              <li><Link to="/settings" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">Support</Link></li>
             </ul>
           </div>
           
@@ -69,9 +70,9 @@ const Footer = () => {
             © {currentYear} HomePilot • Das KI-gestützte Zuhause- und Lebens-Dashboard
           </p>
           <div className="flex space-x-4">
-            <a href="#" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">Datenschutz</a>
-            <a href="#" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">AGB</a>
-            <a href="#" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">Impressum</a>
+            <Link to="/settings" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">Datenschutz</Link>
+            <Link to="/settings" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">AGB</Link>
+            <Link to="/settings" className="text-gray-600 hover:text-homepilot-primary dark:text-gray-300">Impressum</Link>
           </div>
         </div>
       </div>

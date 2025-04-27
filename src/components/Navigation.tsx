@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Home, Calendar, List, Settings, Menu, X, CreditCard, BarChart3, Lightbulb, Package, FileText, Bell, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -10,16 +11,19 @@ interface NavigationProps {
 }
 
 const Navigation: React.FC<NavigationProps> = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+  
   const navItems = [
-    { name: 'Dashboard', icon: <Home className="h-5 w-5" />, current: true },
-    { name: 'Smart Home', icon: <Lightbulb className="h-5 w-5" />, current: false },
-    { name: 'Aufgaben', icon: <List className="h-5 w-5" />, current: false },
-    { name: 'Kalender', icon: <Calendar className="h-5 w-5" />, current: false },
-    { name: 'Dokumente', icon: <FileText className="h-5 w-5" />, current: false },
-    { name: 'Finanzen', icon: <CreditCard className="h-5 w-5" />, current: false },
-    { name: 'Vorräte', icon: <Package className="h-5 w-5" />, current: false },
-    { name: 'Berichte', icon: <BarChart3 className="h-5 w-5" />, current: false },
-    { name: 'Einstellungen', icon: <Settings className="h-5 w-5" />, current: false },
+    { name: 'Dashboard', icon: <Home className="h-5 w-5" />, path: '/', current: currentPath === '/' },
+    { name: 'Smart Home', icon: <Lightbulb className="h-5 w-5" />, path: '/smart-home', current: currentPath === '/smart-home' },
+    { name: 'Aufgaben', icon: <List className="h-5 w-5" />, path: '/tasks', current: currentPath === '/tasks' },
+    { name: 'Kalender', icon: <Calendar className="h-5 w-5" />, path: '/calendar', current: currentPath === '/calendar' },
+    { name: 'Dokumente', icon: <FileText className="h-5 w-5" />, path: '/documents', current: currentPath === '/documents' },
+    { name: 'Finanzen', icon: <CreditCard className="h-5 w-5" />, path: '/finances', current: currentPath === '/finances' },
+    { name: 'Vorräte', icon: <Package className="h-5 w-5" />, path: '/inventory', current: currentPath === '/inventory' },
+    { name: 'Berichte', icon: <BarChart3 className="h-5 w-5" />, path: '/reports', current: currentPath === '/reports' },
+    { name: 'Einstellungen', icon: <Settings className="h-5 w-5" />, path: '/settings', current: currentPath === '/settings' },
   ];
 
   return (
@@ -27,14 +31,14 @@ const Navigation: React.FC<NavigationProps> = ({ isMobileMenuOpen, setIsMobileMe
       {/* Desktop Navigation */}
       <nav className="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-sm z-30">
         <div className="flex items-center h-16 px-6 border-b border-gray-200 dark:border-gray-800">
-          <span className="text-2xl font-bold text-homepilot-primary">HomePilot</span>
+          <Link to="/" className="text-2xl font-bold text-homepilot-primary">HomePilot</Link>
         </div>
         
         <div className="flex-1 overflow-y-auto py-4 px-3">
           {navItems.map((item) => (
-            <a
+            <Link
               key={item.name}
-              href="#"
+              to={item.path}
               className={cn(
                 "flex items-center px-4 py-3 text-base font-medium rounded-lg mb-1 transition-colors duration-200",
                 item.current
@@ -44,7 +48,7 @@ const Navigation: React.FC<NavigationProps> = ({ isMobileMenuOpen, setIsMobileMe
             >
               {item.icon}
               <span className="ml-3">{item.name}</span>
-            </a>
+            </Link>
           ))}
         </div>
 
@@ -80,7 +84,7 @@ const Navigation: React.FC<NavigationProps> = ({ isMobileMenuOpen, setIsMobileMe
 
       {/* Mobile Header */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-center z-40">
-        <span className="text-xl font-bold text-homepilot-primary">HomePilot</span>
+        <Link to="/" className="text-xl font-bold text-homepilot-primary">HomePilot</Link>
         <div className="absolute right-4 flex items-center space-x-2">
           <Button variant="ghost" size="icon">
             <Bell className="h-5 w-5" />
@@ -99,7 +103,7 @@ const Navigation: React.FC<NavigationProps> = ({ isMobileMenuOpen, setIsMobileMe
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-800">
-              <span className="text-2xl font-bold text-homepilot-primary">HomePilot</span>
+              <Link to="/" className="text-2xl font-bold text-homepilot-primary">HomePilot</Link>
               <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)}>
                 <X className="h-5 w-5" />
               </Button>
@@ -107,9 +111,9 @@ const Navigation: React.FC<NavigationProps> = ({ isMobileMenuOpen, setIsMobileMe
             
             <div className="py-4 px-3">
               {navItems.map((item) => (
-                <a
+                <Link
                   key={item.name}
-                  href="#"
+                  to={item.path}
                   className={cn(
                     "flex items-center px-4 py-3 text-base font-medium rounded-lg mb-1 transition-colors duration-200",
                     item.current
@@ -120,7 +124,7 @@ const Navigation: React.FC<NavigationProps> = ({ isMobileMenuOpen, setIsMobileMe
                 >
                   {item.icon}
                   <span className="ml-3">{item.name}</span>
-                </a>
+                </Link>
               ))}
             </div>
 
