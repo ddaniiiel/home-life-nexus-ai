@@ -67,7 +67,7 @@ const FloorPlanLayout = () => {
               <path
                 key={index}
                 d={room.path}
-                style={{ ...JSON.parse(`{"${room.style}"}`), cursor: 'pointer' }}
+                style={{ fill: room.style.split(':')[1].split(';')[0], stroke: room.style.split(':')[2] }}
                 className="hover:fill-gray-200 transition-colors duration-200"
               >
                 <title>{room.name}</title>
