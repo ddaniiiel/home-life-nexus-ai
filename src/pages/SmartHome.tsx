@@ -1,11 +1,12 @@
 
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
-import { Lightbulb, Plus, Settings, Home, Thermometer, LineChart } from 'lucide-react';
+import { Lightbulb, Plus, Settings, Home, Thermometer, LineChart, Wifi } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import FloorPlanLayout from '@/components/FloorPlanLayout';
 import DeviceStatistics from '@/components/DeviceStatistics';
+import IoTIntegration from '@/components/IoTIntegration';
 import {
   BarChart,
   Bar,
@@ -65,6 +66,10 @@ const SmartHome = () => {
               <TabsTrigger value="devices" className="flex items-center">
                 <Lightbulb className="h-4 w-4 mr-2" />
                 Geräte
+              </TabsTrigger>
+              <TabsTrigger value="iot" className="flex items-center">
+                <Wifi className="h-4 w-4 mr-2" />
+                IoT & Sensoren
               </TabsTrigger>
               <TabsTrigger value="automation" className="flex items-center">
                 <Settings className="h-4 w-4 mr-2" />
@@ -128,6 +133,12 @@ const SmartHome = () => {
                     </div>
                   ))}
                 </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="iot">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+                <IoTIntegration />
               </div>
             </TabsContent>
             

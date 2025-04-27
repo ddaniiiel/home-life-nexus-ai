@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Calendar, List, Settings, Menu, X, CreditCard, BarChart3, Lightbulb, Package, FileText, Bell, User, LayoutDashboard } from 'lucide-react';
+import { Home, Calendar, List, Settings, Menu, X, CreditCard, BarChart3, Lightbulb, Package, FileText, Bell, User, LayoutDashboard, Newspaper } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -22,6 +23,7 @@ const Navigation: React.FC<NavigationProps> = ({ isMobileMenuOpen, setIsMobileMe
     { name: 'Dokumente', icon: <FileText className="h-5 w-5" />, path: '/documents', current: currentPath === '/documents' },
     { name: 'Finanzen', icon: <CreditCard className="h-5 w-5" />, path: '/finances', current: currentPath === '/finances' },
     { name: 'Vorräte', icon: <Package className="h-5 w-5" />, path: '/inventory', current: currentPath === '/inventory' },
+    { name: 'Nachrichten', icon: <Newspaper className="h-5 w-5" />, path: '/news', current: currentPath === '/news' },
     { name: 'Berichte', icon: <BarChart3 className="h-5 w-5" />, path: '/reports', current: currentPath === '/reports' },
     { name: 'Einstellungen', icon: <Settings className="h-5 w-5" />, path: '/settings', current: currentPath === '/settings' },
   ];

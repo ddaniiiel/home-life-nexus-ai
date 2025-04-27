@@ -15,6 +15,7 @@ import Inventory from "./pages/Inventory";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Home from "./pages/Home";
+import News from "./pages/News";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/documents" element={<Documents />} />
           <Route path="/finances" element={<Finances />} />
           <Route path="/inventory" element={<Inventory />} />
+          <Route path="/news" element={<News />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />

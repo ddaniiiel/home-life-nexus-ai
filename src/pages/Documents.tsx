@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
-import { FileText, Search, Plus, Folder, File, BarChart } from 'lucide-react';
+import { FileText, Search, Plus, Folder, File, BarChart, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,6 +16,10 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { toast } from '@/components/ui/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
 
 interface Document {
   id: number;
@@ -29,6 +33,10 @@ interface Document {
 const Documents = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadFiles, setUploadFiles] = useState<File[]>([]);
+  const [newCategory, setNewCategory] = useState('');
   
   const documents: Document[] = [
     { id: 1, name: 'Mietvertrag.pdf', type: 'pdf', size: '2.4 MB', modified: '2025-04-10', category: 'Wohnen' },
@@ -68,6 +76,39 @@ const Documents = () => {
         description: `Teile-Dialog für ${doc.name} geöffnet.`,
       });
     }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setUploadFiles(Array.from(e.target.files));
+    }
+  };
+  
+  const removeFile = (index: number) => {
+    setUploadFiles(uploadFiles.filter((_, i) => i !== index));
+  };
+  
+  const simulateUpload = () => {
+    setIsUploading(true);
+    setUploadProgress(0);
+    
+    const interval = setInterval(() => {
+      setUploadProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            setIsUploading(false);
+            toast({
+              title: "Upload erfolgreich",
+              description: `${uploadFiles.length} Datei(en) wurden erfolgreich hochgeladen.`,
+            });
+            setUploadFiles([]);
+          }, 500);
+          return 100;
+        }
+        return prev + 5;
+      });
+    }, 200);
   };
   
   return (
@@ -116,9 +157,96 @@ const Documents = () => {
                     <Button variant="outline">
                       <Folder className="h-4 w-4 mr-2" /> Neuer Ordner
                     </Button>
-                    <Button>
-                      <Plus className="h-4 w-4 mr-2" /> Upload
-                    </Button>
+                    
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button>
+                          <Plus className="h-4 w-4 mr-2" /> Upload
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Dokumente hochladen</DialogTitle>
+                        </DialogHeader>
+                        
+                        <div className="space-y-4">
+                          <div className="border-2 border-dashed rounded-lg p-6 text-center">
+                            <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                            <p className="mb-2 text-sm">Dateien hier ablegen oder</p>
+                            <Label htmlFor="document-upload" className="cursor-pointer">
+                              <span className="bg-homepilot-primary text-white px-4 py-2 rounded text-sm">Durchsuchen</span>
+                              <Input 
+                                id="document-upload" 
+                                type="file" 
+                                className="hidden" 
+                                onChange={handleFileSelect} 
+                                multiple 
+                              />
+                            </Label>
+                          </div>
+                          
+                          {uploadFiles.length > 0 && (
+                            <div className="space-y-2">
+                              <p className="text-sm font-medium">Ausgewählte Dateien:</p>
+                              {uploadFiles.map((file, index) => (
+                                <div key={index} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 p-2 rounded">
+                                  <div className="flex items-center">
+                                    <File className="h-4 w-4 mr-2 text-gray-500" />
+                                    <span className="text-sm truncate max-w-[200px]">{file.name}</span>
+                                  </div>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    onClick={() => removeFile(index)}
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          
+                          {isUploading && (
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-xs">
+                                <span>Uploading...</span>
+                                <span>{uploadProgress}%</span>
+                              </div>
+                              <Progress value={uploadProgress} className="w-full" />
+                            </div>
+                          )}
+                          
+                          {uploadFiles.length > 0 && !isUploading && (
+                            <div className="space-y-3">
+                              <div className="flex flex-col space-y-2">
+                                <Label htmlFor="doc-category">Kategorie</Label>
+                                <Select onValueChange={setNewCategory}>
+                                  <SelectTrigger id="doc-category">
+                                    <SelectValue placeholder="Kategorie auswählen" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Verträge">Verträge</SelectItem>
+                                    <SelectItem value="Energieverbrauch">Energieverbrauch</SelectItem>
+                                    <SelectItem value="Finanzen">Finanzen</SelectItem>
+                                    <SelectItem value="Versicherung">Versicherung</SelectItem>
+                                    <SelectItem value="Wohnen">Wohnen</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              
+                              <div className="flex justify-end gap-3">
+                                <DialogClose asChild>
+                                  <Button variant="outline">Abbrechen</Button>
+                                </DialogClose>
+                                <Button onClick={simulateUpload}>
+                                  Hochladen
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </div>
                 
@@ -146,7 +274,7 @@ const Documents = () => {
                             <TableCell>{doc.category}</TableCell>
                             <TableCell>{doc.size}</TableCell>
                             <TableCell>
-                              {new Date(doc.modified).toLocaleDateString('de-DE')}
+                              {new Date(doc.modified).toLocaleDateString('de-CH')}
                             </TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end space-x-2">
