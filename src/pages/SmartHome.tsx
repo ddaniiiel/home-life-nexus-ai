@@ -6,6 +6,16 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import FloorPlanLayout from '@/components/FloorPlanLayout';
 import DeviceStatistics from '@/components/DeviceStatistics';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
 
 const SmartHome = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

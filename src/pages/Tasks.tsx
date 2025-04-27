@@ -255,11 +255,11 @@ const Tasks = () => {
                         <div className="flex-shrink-0">
                           <span className={`inline-block px-2 py-1 text-xs rounded-full
                             ${task.priority === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : 
-                             task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 
-                             'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'}`
+                            task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 
+                            'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'}`
                           }>
                             {task.priority === 'high' ? 'Hoch' : 
-                             task.priority === 'medium' ? 'Mittel' : 'Niedrig'}
+                            task.priority === 'medium' ? 'Mittel' : 'Niedrig'}
                           </span>
                         </div>
                       </div>

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Bank, Upload, FileCheck, AlertCircle, ChevronDown } from 'lucide-react';
+import { Landmark, Upload, FileCheck, AlertCircle, ChevronDown } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -104,7 +104,7 @@ const BankStatementImport = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center">
-          <Bank className="mr-2 h-5 w-5" /> Bankauszüge importieren
+          <Landmark className="mr-2 h-5 w-5" /> Bankauszüge importieren
         </CardTitle>
         <CardDescription>
           Lade deine Bankauszüge hoch, um deine Finanzen zu analysieren

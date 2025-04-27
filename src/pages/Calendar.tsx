@@ -1,114 +1,137 @@
 
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
-import { Calendar as CalendarIcon, Plus, Clock, Tag, AlertCircle } from 'lucide-react';
-import { Calendar as CalendarComponent } from '@/components/ui/calendar';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { format } from 'date-fns';
+import { CalendarIcon, ChevronLeft, ChevronRight, Plus, Tag } from 'lucide-react';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addDays, isBefore, isToday } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppleCalendarSync from '@/components/AppleCalendarSync';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 interface Event {
   id: number;
   title: string;
-  date: string;
-  time: string;
-  endTime?: string;
-  category: 'work' | 'personal' | 'health' | 'errands' | 'family';
-  location?: string;
-  description?: string;
+  start: Date;
+  end: Date;
+  allDay: boolean;
+  calendar: string;
+  color: string;
   synced?: boolean;
-  allDay?: boolean;
 }
 
-const CalendarPage = () => {
+interface CalendarFilter {
+  name: string;
+  color: string;
+  active: boolean;
+}
+
+const Calendar = () => {
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [date, setDate] = useState<Date | undefined>(new Date());
   
+  // Sample calendar events
   const [events, setEvents] = useState<Event[]>([
-    { id: 1, title: 'Arzttermin', date: '2025-04-28', time: '10:00', endTime: '11:00', category: 'health', location: 'Praxis Dr. Müller', synced: true },
-    { id: 2, title: 'Meeting mit Team', date: '2025-04-28', time: '14:00', endTime: '15:30', category: 'work', location: 'Online', synced: true },
-    { id: 3, title: 'Geburtstag Anna', date: '2025-04-30', time: '', category: 'personal', allDay: true, synced: true },
-    { id: 4, title: 'Autoreparatur', date: '2025-05-02', time: '09:30', endTime: '11:00', category: 'errands', location: 'Werkstatt', description: 'Ölwechsel und Inspektion' },
-    { id: 5, title: 'Elternabend', date: '2025-05-03', time: '19:00', endTime: '21:00', category: 'family', location: 'Schule' },
-    { id: 6, title: 'Müllabholung', date: '2025-05-04', time: '07:00', category: 'errands', allDay: true },
-  ]);
-  
-  const [newEvent, setNewEvent] = useState<{
-    title: string;
-    date: Date | undefined;
-    time: string;
-    endTime: string;
-    category: Event['category'];
-    location: string;
-    description: string;
-    allDay: boolean;
-  }>({
-    title: '',
-    date: new Date(),
-    time: '',
-    endTime: '',
-    category: 'personal',
-    location: '',
-    description: '',
-    allDay: false
-  });
-
-  const addEvent = () => {
-    if (!newEvent.title.trim() || !newEvent.date) return;
-    
-    const newEventEntry: Event = {
-      id: events.length + 1,
-      title: newEvent.title,
-      date: format(newEvent.date, 'yyyy-MM-dd'),
-      time: newEvent.allDay ? '' : newEvent.time,
-      endTime: newEvent.allDay ? '' : newEvent.endTime,
-      category: newEvent.category,
-      location: newEvent.location || undefined,
-      description: newEvent.description || undefined,
-      allDay: newEvent.allDay
-    };
-    
-    setEvents([...events, newEventEntry]);
-    
-    // Reset form
-    setNewEvent({
-      title: '',
-      date: new Date(),
-      time: '',
-      endTime: '',
-      category: 'personal',
-      location: '',
-      description: '',
-      allDay: false
-    });
-  };
-  
-  const selectedDateStr = date ? 
-    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` 
-    : '';
-  
-  const todaysEvents = events.filter(event => event.date === selectedDateStr);
-
-  // Helper function to add events to calendar dates
-  const isDayWithEvents = (day: Date) => {
-    const dayStr = format(day, 'yyyy-MM-dd');
-    return events.some(event => event.date === dayStr);
-  };
-  
-  // Group events by time for better display
-  const groupedEvents = todaysEvents.reduce((acc, event) => {
-    const timeKey = event.allDay ? 'ganztägig' : event.time;
-    if (!acc[timeKey]) {
-      acc[timeKey] = [];
+    {
+      id: 1,
+      title: 'Zahnarzttermin',
+      start: addDays(new Date(), 2),
+      end: addDays(new Date(), 2),
+      allDay: true,
+      calendar: 'Privat',
+      color: 'blue',
+      synced: true
+    },
+    {
+      id: 2,
+      title: 'Meeting mit Team',
+      start: addDays(new Date(), -1),
+      end: addDays(new Date(), -1),
+      allDay: false,
+      calendar: 'Arbeit',
+      color: 'green',
+      synced: true
+    },
+    {
+      id: 3,
+      title: 'Geburtstag von Max',
+      start: addDays(new Date(), 5),
+      end: addDays(new Date(), 5),
+      allDay: true,
+      calendar: 'Familie',
+      color: 'purple',
+      synced: true
+    },
+    {
+      id: 4,
+      title: 'Autowerkstatt',
+      start: addDays(new Date(), 3),
+      end: addDays(new Date(), 3),
+      allDay: true,
+      calendar: 'Privat',
+      color: 'blue'
+    },
+    {
+      id: 5,
+      title: 'Telefonkonferenz',
+      start: new Date(),
+      end: new Date(),
+      allDay: false,
+      calendar: 'Arbeit',
+      color: 'green',
+      synced: true
     }
-    acc[timeKey].push(event);
-    return acc;
-  }, {} as Record<string, Event[]>);
+  ]);
+
+  // Calendar filters
+  const [calendarFilters, setCalendarFilters] = useState<CalendarFilter[]>([
+    { name: 'Privat', color: 'blue', active: true },
+    { name: 'Arbeit', color: 'green', active: true },
+    { name: 'Familie', color: 'purple', active: true }
+  ]);
+
+  const toggleCalendarFilter = (name: string) => {
+    setCalendarFilters(calendarFilters.map(filter => 
+      filter.name === name ? { ...filter, active: !filter.active } : filter
+    ));
+  };
+
+  // Navigate months
+  const goToPreviousMonth = () => setCurrentDate(subMonths(currentDate, 1));
+  const goToNextMonth = () => setCurrentDate(addMonths(currentDate, 1));
+  const goToToday = () => setCurrentDate(new Date());
+
+  // Get days of month
+  const monthStart = startOfMonth(currentDate);
+  const monthEnd = endOfMonth(currentDate);
+  const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
+
+  // Filter events based on selected calendars
+  const filteredEvents = events.filter(event => 
+    calendarFilters.find(filter => filter.name === event.calendar)?.active
+  );
+
+  // Get events for a specific day
+  const getEventsForDay = (day: Date) => {
+    return filteredEvents.filter(event => isSameDay(day, event.start));
+  };
+
+  // Get color class for calendar events
+  const getColorClass = (color: string) => {
+    switch (color) {
+      case 'blue':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 border-blue-300 dark:border-blue-700';
+      case 'green':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border-green-300 dark:border-green-700';
+      case 'purple':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 border-purple-300 dark:border-purple-700';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -126,266 +149,170 @@ const CalendarPage = () => {
           <Tabs defaultValue="calendar" className="space-y-8">
             <TabsList>
               <TabsTrigger value="calendar">Kalender</TabsTrigger>
-              <TabsTrigger value="sync">Synchronisation</TabsTrigger>
+              <TabsTrigger value="sync">Synchronisierung</TabsTrigger>
             </TabsList>
             
             <TabsContent value="calendar">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-1 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold">Datum wählen</h2>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button size="sm">
-                          <Plus className="h-4 w-4 mr-2" /> Neuer Termin
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Neuen Termin erstellen</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4 py-4">
-                          <div className="space-y-2">
-                            <label htmlFor="event-title" className="text-sm font-medium">Titel</label>
-                            <Input
-                              id="event-title"
-                              value={newEvent.title}
-                              onChange={(e) => setNewEvent({...newEvent, title: e.target.value})}
-                              placeholder="Titel des Termins"
-                            />
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <label className="text-sm font-medium">Datum</label>
-                            <div className="border rounded-md p-2">
-                              <CalendarComponent
-                                mode="single"
-                                selected={newEvent.date}
-                                onSelect={(date) => setNewEvent({...newEvent, date})}
-                                locale={de}
-                                className="w-full"
-                              />
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              id="allDay"
-                              checked={newEvent.allDay}
-                              onChange={(e) => setNewEvent({...newEvent, allDay: e.target.checked})}
-                              className="rounded border-gray-300"
-                            />
-                            <label htmlFor="allDay" className="text-sm font-medium">Ganztägig</label>
-                          </div>
-                          
-                          {!newEvent.allDay && (
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <label htmlFor="start-time" className="text-sm font-medium">Beginn</label>
-                                <Input
-                                  id="start-time"
-                                  type="time"
-                                  value={newEvent.time}
-                                  onChange={(e) => setNewEvent({...newEvent, time: e.target.value})}
-                                />
-                              </div>
-                              
-                              <div className="space-y-2">
-                                <label htmlFor="end-time" className="text-sm font-medium">Ende</label>
-                                <Input
-                                  id="end-time"
-                                  type="time"
-                                  value={newEvent.endTime}
-                                  onChange={(e) => setNewEvent({...newEvent, endTime: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                          )}
-                          
-                          <div className="space-y-2">
-                            <label htmlFor="category" className="text-sm font-medium">Kategorie</label>
-                            <Select
-                              value={newEvent.category}
-                              onValueChange={(value) => setNewEvent({...newEvent, category: value as Event['category']})}
-                            >
-                              <SelectTrigger id="category">
-                                <SelectValue placeholder="Kategorie wählen" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="work">Arbeit</SelectItem>
-                                <SelectItem value="personal">Persönlich</SelectItem>
-                                <SelectItem value="health">Gesundheit</SelectItem>
-                                <SelectItem value="errands">Erledigungen</SelectItem>
-                                <SelectItem value="family">Familie</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <label htmlFor="location" className="text-sm font-medium">Ort (optional)</label>
-                            <Input
-                              id="location"
-                              value={newEvent.location}
-                              onChange={(e) => setNewEvent({...newEvent, location: e.target.value})}
-                              placeholder="Ort des Termins"
-                            />
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <label htmlFor="description" className="text-sm font-medium">Beschreibung (optional)</label>
-                            <Input
-                              id="description"
-                              value={newEvent.description}
-                              onChange={(e) => setNewEvent({...newEvent, description: e.target.value})}
-                              placeholder="Beschreibung des Termins"
-                            />
-                          </div>
-                          
-                          <Button onClick={addEvent} className="w-full mt-2">
-                            Termin erstellen
-                          </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                  <div className="flex justify-center mb-4">
-                    <CalendarComponent
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                      className="rounded-md border"
-                      locale={de}
-                      modifiersClassNames={{
-                        selected: "bg-homepilot-primary text-primary-foreground",
-                        today: "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100",
-                      }}
-                      modifiers={{
-                        withEvents: (date) => isDayWithEvents(date)
-                      }}
-                      modifiersStyles={{
-                        withEvents: {
-                          fontWeight: "bold",
-                          textDecoration: "underline"
-                        }
-                      }}
-                    />
-                  </div>
-                  
-                  <div className="mt-6">
-                    <h3 className="text-md font-medium mb-2">Kommende Termine</h3>
-                    <div className="space-y-2">
-                      {events.slice(0, 3).map((event) => (
-                        <div key={event.id} className="p-2 bg-gray-50 dark:bg-gray-700 rounded-md text-sm">
-                          <div className="font-medium">{event.title}</div>
-                          <div className="text-gray-500 dark:text-gray-400">
-                            {format(new Date(event.date), 'P', { locale: de })}
-                            {event.time && `, ${event.time} Uhr`}
-                            {event.synced && (
-                              <span className="ml-2 inline-block px-1 py-0.5 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded">
-                                Synced
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md mb-8">
+                <div className="p-6">
+                  {/* Calendar Header */}
+                  <div className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between mb-6">
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="icon" onClick={goToPreviousMonth}>
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" onClick={goToToday}>
+                        Heute
+                      </Button>
+                      <Button variant="outline" size="icon" onClick={goToNextMonth}>
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                      <h2 className="text-xl font-medium">
+                        {format(currentDate, 'MMMM yyyy', { locale: de })}
+                      </h2>
                     </div>
+                    <Button>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Termin erstellen
+                    </Button>
                   </div>
-                </div>
-                
-                <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-                  <h2 className="text-xl font-semibold mb-4">
-                    Termine für {date?.toLocaleDateString('de-DE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                  </h2>
                   
-                  {Object.keys(groupedEvents).length > 0 ? (
-                    <div className="space-y-6">
-                      {Object.keys(groupedEvents).sort((a, b) => {
-                        if (a === 'ganztägig') return -1;
-                        if (b === 'ganztägig') return 1;
-                        return a.localeCompare(b);
-                      }).map((timeKey) => (
-                        <div key={timeKey}>
-                          <div className="flex items-center mb-2">
-                            <Clock className="h-4 w-4 mr-2 text-gray-500" />
-                            <span className="font-medium">{timeKey === 'ganztägig' ? 'Ganztägig' : `${timeKey} Uhr`}</span>
+                  {/* Calendar Filters */}
+                  <div className="flex flex-wrap gap-3 mb-6">
+                    {calendarFilters.map((filter) => (
+                      <div key={filter.name} className="flex items-center gap-2">
+                        <Switch 
+                          id={`calendar-${filter.name}`} 
+                          checked={filter.active}
+                          onCheckedChange={() => toggleCalendarFilter(filter.name)}
+                        />
+                        <Label htmlFor={`calendar-${filter.name}`} className="flex items-center text-sm">
+                          <span 
+                            className={`w-3 h-3 rounded-full mr-1.5 ${filter.color === 'blue' ? 'bg-blue-500' : filter.color === 'green' ? 'bg-green-500' : 'bg-purple-500'}`}
+                          ></span>
+                          {filter.name}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Calendar Grid */}
+                  <div className="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-700 rounded-md overflow-hidden">
+                    {/* Day Headers */}
+                    {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map((day, index) => (
+                      <div 
+                        key={day} 
+                        className="bg-gray-100 dark:bg-gray-800 py-2 text-center text-sm font-medium"
+                      >
+                        {day}
+                      </div>
+                    ))}
+                    
+                    {/* Empty cells for days before the first of the month */}
+                    {Array.from({ length: (monthStart.getDay() || 7) - 1 }).map((_, index) => (
+                      <div key={`empty-start-${index}`} className="bg-white dark:bg-gray-800 h-24 sm:h-36 p-1" />
+                    ))}
+                    
+                    {/* Days of the month */}
+                    {daysInMonth.map((day, index) => {
+                      const dayEvents = getEventsForDay(day);
+                      const isPast = isBefore(day, new Date()) && !isToday(day);
+                      
+                      return (
+                        <div 
+                          key={day.toISOString()} 
+                          className={cn(
+                            "bg-white dark:bg-gray-800 h-24 sm:h-36 p-1 overflow-hidden",
+                            isToday(day) ? "bg-blue-50 dark:bg-blue-900/20" : "",
+                            isPast ? "opacity-60" : ""
+                          )}
+                        >
+                          <div className="flex justify-between items-start mb-1">
+                            <span className={cn(
+                              "text-sm font-medium h-6 w-6 flex items-center justify-center",
+                              isToday(day) ? "bg-homepilot-primary text-white rounded-full" : ""
+                            )}>
+                              {format(day, 'd')}
+                            </span>
                           </div>
-                          <div className="ml-6 space-y-3">
-                            {groupedEvents[timeKey].map((event) => (
-                              <div key={event.id} className="border p-3 rounded-md">
-                                <div className="flex justify-between items-start">
-                                  <div>
-                                    <h3 className="font-medium text-lg">{event.title}</h3>
-                                    
-                                    <div className="mt-1 space-y-1 text-sm text-gray-600 dark:text-gray-300">
-                                      {event.location && (
-                                        <div className="flex items-center">
-                                          <span className="w-20 text-gray-500">Ort:</span>
-                                          <span>{event.location}</span>
-                                        </div>
-                                      )}
-                                      
-                                      {!event.allDay && event.endTime && (
-                                        <div className="flex items-center">
-                                          <span className="w-20 text-gray-500">Zeit:</span>
-                                          <span>{event.time} - {event.endTime} Uhr</span>
-                                        </div>
-                                      )}
-                                      
-                                      {event.description && (
-                                        <div className="flex items-start">
-                                          <span className="w-20 text-gray-500">Notiz:</span>
-                                          <span>{event.description}</span>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                  
-                                  <div className="flex items-center space-x-2">
-                                    <span className={`inline-block px-2 py-1 text-xs rounded-full
-                                      ${event.category === 'work' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 
-                                       event.category === 'personal' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' :
-                                       event.category === 'health' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
-                                       event.category === 'family' ? 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200' :
-                                       'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'}`
-                                    }>
-                                      {event.category === 'work' ? 'Arbeit' : 
-                                       event.category === 'personal' ? 'Persönlich' :
-                                       event.category === 'health' ? 'Gesundheit' : 
-                                       event.category === 'family' ? 'Familie' :
-                                       'Erledigungen'}
-                                    </span>
-                                    
-                                    {event.synced && (
-                                      <span className="inline-block px-1.5 py-0.5 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded">
-                                        Synced
-                                      </span>
-                                    )}
-                                  </div>
+                          
+                          {/* Events */}
+                          <div className="space-y-1">
+                            {dayEvents.map((event) => (
+                              <div
+                                key={event.id}
+                                className={cn(
+                                  "px-2 py-0.5 text-xs rounded border-l-2 truncate",
+                                  getColorClass(event.color)
+                                )}
+                              >
+                                <div className="flex items-center">
+                                  <span className="truncate">
+                                    {event.title}
+                                  </span>
+                                  {event.synced && (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-2.5 w-2.5 ml-1 text-blue-500 dark:text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                      <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                                      <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd" />
+                                    </svg>
+                                  )}
                                 </div>
                               </div>
                             ))}
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12 border border-dashed rounded-md">
-                      <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                      <p className="text-gray-500 text-lg">Keine Termine für diesen Tag</p>
-                      <Button className="mt-4" variant="outline">
-                        <Plus className="h-4 w-4 mr-2" /> Termin hinzufügen
-                      </Button>
-                    </div>
-                  )}
+                      );
+                    })}
+                    
+                    {/* Empty cells for days after the end of the month */}
+                    {Array.from({ length: 7 - ((monthEnd.getDay() || 7) - 1) }).map((_, index) => (
+                      <div key={`empty-end-${index}`} className="bg-white dark:bg-gray-800 h-24 sm:h-36 p-1" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Upcoming Events */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <h3 className="text-lg font-medium mb-4">Anstehende Termine</h3>
+                <div className="space-y-3">
+                  {filteredEvents
+                    .filter(event => !isBefore(event.start, new Date()) || isToday(event.start))
+                    .sort((a, b) => a.start.getTime() - b.start.getTime())
+                    .slice(0, 5)
+                    .map(event => (
+                      <div key={event.id} className="flex items-start p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md">
+                        <div className={cn(
+                          "w-2 h-2 mt-1.5 rounded-full mr-3",
+                          event.color === 'blue' ? 'bg-blue-500' : 
+                          event.color === 'green' ? 'bg-green-500' : 
+                          'bg-purple-500'
+                        )} />
+                        <div className="flex-1">
+                          <div className="flex items-center">
+                            <p className="font-medium">{event.title}</p>
+                            {event.synced && (
+                              <Badge variant="outline" className="ml-2 text-xs bg-blue-50 text-blue-800 dark:bg-blue-900 dark:text-blue-200 border-blue-200 dark:border-blue-800">
+                                Synced
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-500">
+                            {isToday(event.start) ? 'Heute' : format(event.start, 'EEEE, d. MMMM', { locale: de })}
+                            {!event.allDay && `, ${format(event.start, 'HH:mm', { locale: de })} Uhr`}
+                          </p>
+                        </div>
+                        <Badge variant="outline" className="text-xs">
+                          {event.calendar}
+                        </Badge>
+                      </div>
+                    ))}
                 </div>
               </div>
             </TabsContent>
             
             <TabsContent value="sync">
-              <div className="grid grid-cols-1 gap-6">
-                <AppleCalendarSync />
-              </div>
+              <AppleCalendarSync />
             </TabsContent>
           </Tabs>
         </div>
@@ -394,4 +321,4 @@ const CalendarPage = () => {
   );
 };
 
-export default CalendarPage;
+export default Calendar;

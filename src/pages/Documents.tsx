@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
-import { FileText, Search, Plus, Folder, File, MoreHorizontal, BookText, BarChart } from 'lucide-react';
+import { FileText, Search, Plus, Folder, File, BarChart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';

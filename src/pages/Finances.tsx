@@ -4,6 +4,8 @@ import Navigation from '@/components/Navigation';
 import { CreditCard, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import BankStatementImport from '@/components/BankStatementImport';
 import {
   BarChart,
   Bar,
@@ -61,130 +63,143 @@ const Finances = () => {
             <h1 className="text-3xl font-bold">Finanzen</h1>
           </div>
           
-          {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Monatliches Einkommen</span>
-                  <div className="p-2 bg-green-100 dark:bg-green-900 rounded-full">
-                    <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold mb-1">3.500,00 €</h3>
-                <p className="text-xs text-green-600 dark:text-green-400">+5,7% seit letztem Monat</p>
-              </CardContent>
-            </Card>
+          <Tabs defaultValue="overview" className="space-y-8">
+            <TabsList>
+              <TabsTrigger value="overview">Übersicht</TabsTrigger>
+              <TabsTrigger value="import">Bankauszüge</TabsTrigger>
+            </TabsList>
             
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Monatliche Ausgaben</span>
-                  <div className="p-2 bg-red-100 dark:bg-red-900 rounded-full">
-                    <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold mb-1">2.600,00 €</h3>
-                <p className="text-xs text-red-600 dark:text-red-400">-3,2% seit letztem Monat</p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Ersparnisse</span>
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-full">
-                    <DollarSign className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold mb-1">12.450,00 €</h3>
-                <p className="text-xs text-blue-600 dark:text-blue-400">+900 € seit letztem Monat</p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Sparrate</span>
-                  <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-full">
-                    <DollarSign className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold mb-1">25,7%</h3>
-                <p className="text-xs text-purple-600 dark:text-purple-400">+2,1% seit letztem Monat</p>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <Card className="col-span-1">
-              <CardContent className="pt-6">
-                <h3 className="text-lg font-semibold mb-4">Einkommen & Ausgaben</h3>
-                <div className="h-72">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={monthlyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="income" name="Einkommen" fill="#82ca9d" />
-                      <Bar dataKey="expenses" name="Ausgaben" fill="#8884d8" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="col-span-1">
-              <CardContent className="pt-6">
-                <h3 className="text-lg font-semibold mb-4">Ausgabenkategorien</h3>
-                <div className="h-72 flex justify-center">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={expensesData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {expensesData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Budget tracking */}
-          <Card>
-            <CardContent className="pt-6">
-              <h3 className="text-lg font-semibold mb-6">Budget-Tracking</h3>
-              <div className="space-y-6">
-                {budgetCategories.map((item, index) => (
-                  <div key={index}>
-                    <div className="flex justify-between mb-1">
-                      <span className="font-medium">{item.category}</span>
-                      <span className="text-gray-500">
-                        {item.spent} € / {item.budget} €
-                      </span>
+            <TabsContent value="overview">
+              {/* Summary Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Monatliches Einkommen</span>
+                      <div className="p-2 bg-green-100 dark:bg-green-900 rounded-full">
+                        <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
+                      </div>
                     </div>
-                    <Progress value={item.percent} className="h-2" />
-                  </div>
-                ))}
+                    <h3 className="text-2xl font-bold mb-1">3.500,00 €</h3>
+                    <p className="text-xs text-green-600 dark:text-green-400">+5,7% seit letztem Monat</p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Monatliche Ausgaben</span>
+                      <div className="p-2 bg-red-100 dark:bg-red-900 rounded-full">
+                        <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-bold mb-1">2.600,00 €</h3>
+                    <p className="text-xs text-red-600 dark:text-red-400">-3,2% seit letztem Monat</p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Ersparnisse</span>
+                      <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-full">
+                        <DollarSign className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-bold mb-1">12.450,00 €</h3>
+                    <p className="text-xs text-blue-600 dark:text-blue-400">+900 € seit letztem Monat</p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Sparrate</span>
+                      <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-full">
+                        <DollarSign className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-bold mb-1">25,7%</h3>
+                    <p className="text-xs text-purple-600 dark:text-purple-400">+2,1% seit letztem Monat</p>
+                  </CardContent>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
+              
+              {/* Charts */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <Card className="col-span-1">
+                  <CardContent className="pt-6">
+                    <h3 className="text-lg font-semibold mb-4">Einkommen & Ausgaben</h3>
+                    <div className="h-72">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={monthlyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" />
+                          <YAxis />
+                          <Tooltip />
+                          <Legend />
+                          <Bar dataKey="income" name="Einkommen" fill="#82ca9d" />
+                          <Bar dataKey="expenses" name="Ausgaben" fill="#8884d8" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="col-span-1">
+                  <CardContent className="pt-6">
+                    <h3 className="text-lg font-semibold mb-4">Ausgabenkategorien</h3>
+                    <div className="h-72 flex justify-center">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={expensesData}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                            outerRadius={80}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            {expensesData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                          <Legend />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              {/* Budget tracking */}
+              <Card>
+                <CardContent className="pt-6">
+                  <h3 className="text-lg font-semibold mb-6">Budget-Tracking</h3>
+                  <div className="space-y-6">
+                    {budgetCategories.map((item, index) => (
+                      <div key={index}>
+                        <div className="flex justify-between mb-1">
+                          <span className="font-medium">{item.category}</span>
+                          <span className="text-gray-500">
+                            {item.spent} € / {item.budget} €
+                          </span>
+                        </div>
+                        <Progress value={item.percent} className="h-2" />
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="import">
+              <BankStatementImport />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
