@@ -22,8 +22,14 @@ const Hero: React.FC<HeroProps> = ({ onLogin }) => {
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row justify-center gap-3">
-            <Button size="lg" onClick={onLogin} className="gap-2">
-              Jetzt starten <ArrowRight className="h-4 w-4" />
+            <Button
+              size="lg"
+              asChild
+              className="gap-2"
+            >
+              <Link to="/dashboard">
+                Jetzt starten <ArrowRight className="h-4 w-4" />
+              </Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <a href="#features">Features entdecken</a>
