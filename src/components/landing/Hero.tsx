@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 
@@ -9,8 +9,12 @@ interface HeroProps {
 }
 
 const Hero: React.FC<HeroProps> = ({ onLogin }) => {
+  const navigate = useNavigate();
+
   const handleStart = () => {
-    onLogin(); // This ensures we set the login state before navigation
+    // Set login state first, then navigate
+    onLogin();
+    navigate('/dashboard');
   };
 
   return (
@@ -31,9 +35,7 @@ const Hero: React.FC<HeroProps> = ({ onLogin }) => {
               onClick={handleStart}
               className="gap-2"
             >
-              <Link to="/dashboard">
-                Jetzt starten <ArrowRight className="h-4 w-4" />
-              </Link>
+              Jetzt starten <ArrowRight className="h-4 w-4" />
             </Button>
             <Button size="lg" variant="outline" asChild>
               <a href="#features">Features entdecken</a>
@@ -79,3 +81,4 @@ const Hero: React.FC<HeroProps> = ({ onLogin }) => {
 };
 
 export default Hero;
+
