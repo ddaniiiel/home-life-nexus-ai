@@ -9,6 +9,10 @@ interface HeroProps {
 }
 
 const Hero: React.FC<HeroProps> = ({ onLogin }) => {
+  const handleStart = () => {
+    onLogin(); // This ensures we set the login state before navigation
+  };
+
   return (
     <div className="relative overflow-hidden bg-white dark:bg-gray-900">
       <div className="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
@@ -22,9 +26,9 @@ const Hero: React.FC<HeroProps> = ({ onLogin }) => {
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row justify-center gap-3">
-            <Button
+            <Button 
               size="lg"
-              asChild
+              onClick={handleStart}
               className="gap-2"
             >
               <Link to="/dashboard">
