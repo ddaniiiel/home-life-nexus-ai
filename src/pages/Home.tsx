@@ -1,23 +1,20 @@
 
 import React, { useState } from 'react';
 import LandingPage from '@/components/landing/LandingPage';
-import Dashboard from '@/components/dashboard/Dashboard';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const userName = "Max"; // This would come from authentication in a real app
+  const navigate = useNavigate();
 
-  const toggleLoggedIn = () => {
-    setIsLoggedIn(!isLoggedIn);
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    navigate('/');
   };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {isLoggedIn ? (
-        <Dashboard userName={userName} onLogout={toggleLoggedIn} />
-      ) : (
-        <LandingPage onLogin={toggleLoggedIn} />
-      )}
+      <LandingPage onLogin={handleLogin} />
     </div>
   );
 };

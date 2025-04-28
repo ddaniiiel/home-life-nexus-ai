@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Calendar, List, Settings, Menu, X, CreditCard, BarChart3, Lightbulb, Package, FileText, Bell, User, LayoutDashboard, Newspaper, Wallet } from 'lucide-react';
+import { Home, Calendar, List, Settings, Menu, X, CreditCard, BarChart3, Lightbulb, Package, FileText, Bell, User, LayoutDashboard, Newspaper, Wallet, LineChart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -15,17 +14,15 @@ const Navigation: React.FC<NavigationProps> = ({ isMobileMenuOpen, setIsMobileMe
   const currentPath = location.pathname;
   
   const navItems = [
-    { name: 'Home', icon: <Home className="h-5 w-5" />, path: '/', current: currentPath === '/' },
-    { name: 'Dashboard', icon: <LayoutDashboard className="h-5 w-5" />, path: '/dashboard', current: currentPath === '/dashboard' },
+    { name: 'Übersicht', icon: <Home className="h-5 w-5" />, path: '/', current: currentPath === '/' },
     { name: 'Smart Home', icon: <Lightbulb className="h-5 w-5" />, path: '/smart-home', current: currentPath === '/smart-home' },
+    { name: 'Familienkalender', icon: <Calendar className="h-5 w-5" />, path: '/calendar', current: currentPath === '/calendar' },
     { name: 'Aufgaben', icon: <List className="h-5 w-5" />, path: '/tasks', current: currentPath === '/tasks' },
-    { name: 'Kalender', icon: <Calendar className="h-5 w-5" />, path: '/calendar', current: currentPath === '/calendar' },
     { name: 'Dokumente', icon: <FileText className="h-5 w-5" />, path: '/documents', current: currentPath === '/documents' },
     { name: 'Finanzen', icon: <CreditCard className="h-5 w-5" />, path: '/finances', current: currentPath === '/finances' },
-    { name: 'Investitionen', icon: <Wallet className="h-5 w-5" />, path: '/investments', current: currentPath === '/investments' },
-    { name: 'Vorräte', icon: <Package className="h-5 w-5" />, path: '/inventory', current: currentPath === '/inventory' },
+    { name: 'Haushalt', icon: <Package className="h-5 w-5" />, path: '/inventory', current: currentPath === '/inventory' },
+    { name: 'Berichte', icon: <LineChart className="h-5 w-5" />, path: '/reports', current: currentPath === '/reports' },
     { name: 'Nachrichten', icon: <Newspaper className="h-5 w-5" />, path: '/news', current: currentPath === '/news' },
-    { name: 'Berichte', icon: <BarChart3 className="h-5 w-5" />, path: '/reports', current: currentPath === '/reports' },
     { name: 'Einstellungen', icon: <Settings className="h-5 w-5" />, path: '/settings', current: currentPath === '/settings' },
   ];
 
