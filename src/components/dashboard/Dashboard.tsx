@@ -5,7 +5,7 @@ import SmartHomeWidget from '@/components/SmartHomeWidget';
 import TaskWidget from '@/components/TaskWidget';
 import CalendarWidget from '@/components/CalendarWidget';
 import FinanceWidget from '@/components/FinanceWidget';
-import { FileText, Package, Newspaper } from 'lucide-react';
+import { FileText, Package, Newspaper, Wallet } from 'lucide-react';
 import Widget from '@/components/Widget';
 import { Link } from 'react-router-dom';
 
@@ -27,7 +27,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onLogout }) => {
         </div>
         
         <h2 className="text-xl font-semibold mb-4 mt-8">Finanzen & Dokumente</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-6">
           <FinanceWidget />
           
           <Widget title="Dokumente" icon={<FileText className="h-5 w-5" />}>
@@ -60,6 +60,42 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onLogout }) => {
             </div>
           </Widget>
           
+          <Widget title="Investitionen" icon={<Wallet className="h-5 w-5" />}>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center p-2 border-b">
+                <span className="text-sm font-medium">Gesamtvermögen</span>
+                <span className="font-semibold">CHF 479'700</span>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Swissquote</span>
+                  <span className="text-sm">CHF 245'000</span>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Saxo Bank</span>
+                  <span className="text-sm">CHF 178'500</span>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Raiffeisen</span>
+                  <span className="text-sm">CHF 35'000</span>
+                </div>
+              </div>
+              
+              <div className="flex justify-between items-center pt-2 border-t">
+                <span className="text-sm font-medium">Hypotheken</span>
+                <span className="font-semibold">CHF 1'200'000</span>
+              </div>
+              
+              <Link to="/investments" className="text-xs text-homepilot-primary hover:underline mt-2 block">Zum Portfoliomanager →</Link>
+            </div>
+          </Widget>
+        </div>
+        
+        <h2 className="text-xl font-semibold mb-4 mt-8">Vorräte & Updates</h2>
+        <div className="grid gap-6 md:grid-cols-3">
           <Widget title="Vorräte" icon={<Package className="h-5 w-5" />}>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
@@ -104,10 +140,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onLogout }) => {
               <Link to="/inventory" className="text-xs text-homepilot-primary hover:underline mt-2 block">Zum Vorratsmanager →</Link>
             </div>
           </Widget>
-        </div>
-        
-        <h2 className="text-xl font-semibold mb-4 mt-8">News & Updates</h2>
-        <div className="grid gap-6 md:grid-cols-3">
+          
           <Widget title="Aktuelle News" icon={<Newspaper className="h-5 w-5" />}>
             <div className="space-y-3">
               <div className="p-2 rounded-md border border-gray-200 dark:border-gray-700">
