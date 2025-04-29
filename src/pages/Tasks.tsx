@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
 import { List, Check, Plus, Filter, Calendar as CalendarIcon, User, Users } from 'lucide-react';
@@ -189,8 +188,8 @@ const Tasks = () => {
                         <SelectItem value="Einkaufen">Einkaufen</SelectItem>
                         <SelectItem value="Finanzen">Finanzen</SelectItem>
                         
-                        {/* Family member filters */}
-                        <SelectItem disabled className="font-semibold text-gray-500">
+                        {/* Family member filters - Fix here: Adding value property to SelectItem */}
+                        <SelectItem value="family-header" disabled className="font-semibold text-gray-500">
                           Familienmitglieder
                         </SelectItem>
                         {familyMembers.map(member => (
