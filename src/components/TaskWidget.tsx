@@ -5,34 +5,30 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Widget from './Widget';
+import { Task } from '@/components/tasks/TaskItem';
+import { format } from 'date-fns';
 
 interface FamilyMember {
   id: number;
   name: string;
   avatar?: string;
   initials: string;
-}
-
-interface Task {
-  id: number;
-  title: string;
-  completed: boolean;
-  assignedTo?: FamilyMember;
+  email?: string;
 }
 
 const TaskWidget = () => {
   const [familyMembers] = useState<FamilyMember[]>([
-    { id: 1, name: 'Max Mustermann', initials: 'MM' },
-    { id: 2, name: 'Anna Mustermann', initials: 'AM' },
-    { id: 3, name: 'Tim Mustermann', initials: 'TM' },
-    { id: 4, name: 'Lea Mustermann', initials: 'LM' },
+    { id: 1, name: 'Max Mustermann', initials: 'MM', email: 'max@example.com' },
+    { id: 2, name: 'Anna Mustermann', initials: 'AM', email: 'anna@example.com' },
+    { id: 3, name: 'Tim Mustermann', initials: 'TM', email: 'tim@example.com' },
+    { id: 4, name: 'Lea Mustermann', initials: 'LM', email: 'lea@example.com' },
   ]);
 
   const [tasks, setTasks] = useState<Task[]>([
-    { id: 1, title: 'Müll rausbringen', completed: false, assignedTo: familyMembers[0] },
-    { id: 2, title: 'Pflanzen gießen', completed: true, assignedTo: familyMembers[1] },
-    { id: 3, title: 'Batterie Rauchmelder prüfen', completed: false, assignedTo: familyMembers[2] },
-    { id: 4, title: 'Einkaufsliste erstellen', completed: false, assignedTo: familyMembers[3] },
+    { id: 1, title: 'Müll rausbringen', completed: false, priority: 'medium', dueDate: format(new Date(), 'yyyy-MM-dd'), list: 'Haushalt', assignedTo: familyMembers[0] },
+    { id: 2, title: 'Pflanzen gießen', completed: true, priority: 'low', dueDate: format(new Date(), 'yyyy-MM-dd'), list: 'Haushalt', assignedTo: familyMembers[1] },
+    { id: 3, title: 'Batterie Rauchmelder prüfen', completed: false, priority: 'high', dueDate: format(new Date(Date.now() + 86400000), 'yyyy-MM-dd'), list: 'Haushalt', assignedTo: familyMembers[2] },
+    { id: 4, title: 'Einkaufsliste erstellen', completed: false, priority: 'medium', dueDate: format(new Date(Date.now() - 86400000), 'yyyy-MM-dd'), list: 'Einkaufen', assignedTo: familyMembers[3] },
   ]);
 
   const toggleTask = (id: number) => {
