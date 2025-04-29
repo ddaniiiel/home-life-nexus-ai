@@ -1,19 +1,17 @@
+
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
-import { List, Check, Plus, Filter, Calendar as CalendarIcon, User, Users } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { List } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import AppleRemindersSync from '@/components/AppleRemindersSync';
-import BringAppSync from '@/components/BringAppSync';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
 import { toast } from '@/components/ui/use-toast';
+
+// Import refactored components
+import TaskList from '@/components/tasks/TaskList';
+import NewTaskForm from '@/components/tasks/NewTaskForm';
+import TaskFilters from '@/components/tasks/TaskFilters';
+import SyncTabs from '@/components/tasks/SyncTabs';
+import { Task } from '@/components/tasks/TaskItem';
 
 interface FamilyMember {
   id: number;
@@ -21,17 +19,6 @@ interface FamilyMember {
   avatar?: string;
   initials: string;
   email?: string;
-}
-
-interface Task {
-  id: number;
-  title: string;
-  completed: boolean;
-  priority: 'low' | 'medium' | 'high';
-  dueDate: string;
-  list?: string;
-  synced?: boolean;
-  assignedTo?: FamilyMember;
 }
 
 const Tasks = () => {
@@ -52,12 +39,8 @@ const Tasks = () => {
     { id: 6, title: 'Müll rausbringen', completed: false, priority: 'medium', dueDate: '2025-04-28', list: 'Haushalt', synced: true, assignedTo: familyMembers[2] },
   ]);
 
-  const [newTaskTitle, setNewTaskTitle] = useState('');
-  const [newTaskPriority, setNewTaskPriority] = useState<'low' | 'medium' | 'high'>('medium');
-  const [newTaskDate, setNewTaskDate] = useState<Date>();
-  const [newTaskList, setNewTaskList] = useState('Haushalt');
-  const [newTaskAssignee, setNewTaskAssignee] = useState<string>('');
   const [filter, setFilter] = useState('all');
+  const taskLists = ['Haushalt', 'Einkaufen', 'Finanzen', 'Arbeit', 'Persönlich'];
 
   const toggleTaskStatus = (id: number) => {
     setTasks(tasks.map(task => 
@@ -70,28 +53,30 @@ const Tasks = () => {
     });
   };
 
-  const addTask = () => {
-    if (!newTaskTitle.trim()) return;
+  const addTask = (
+    title: string,
+    priority: 'low' | 'medium' | 'high',
+    dueDate: Date | undefined,
+    list: string,
+    assigneeId: string
+  ) => {
+    if (!title.trim()) return;
 
-    const assignee = newTaskAssignee 
-      ? familyMembers.find(member => member.id === parseInt(newTaskAssignee)) 
+    const assignee = assigneeId 
+      ? familyMembers.find(member => member.id === parseInt(assigneeId)) 
       : undefined;
 
     const newTask: Task = {
       id: tasks.length + 1,
-      title: newTaskTitle,
+      title: title,
       completed: false,
-      priority: newTaskPriority,
-      dueDate: newTaskDate ? format(newTaskDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
-      list: newTaskList,
+      priority: priority,
+      dueDate: dueDate ? format(dueDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
+      list: list,
       assignedTo: assignee
     };
 
     setTasks([...tasks, newTask]);
-    setNewTaskTitle('');
-    setNewTaskPriority('medium');
-    setNewTaskDate(undefined);
-    setNewTaskAssignee('');
     
     toast({
       title: "Aufgabe erstellt",
@@ -118,8 +103,6 @@ const Tasks = () => {
         : "Die Zuweisung wurde entfernt.",
     });
   };
-
-  const taskLists = ['Haushalt', 'Einkaufen', 'Finanzen', 'Arbeit', 'Persönlich'];
   
   const filteredTasks = tasks.filter(task => {
     if (filter === 'all') return true;
@@ -173,256 +156,32 @@ const Tasks = () => {
                   <h2 className="text-2xl font-semibold">Aufgabenliste</h2>
                   
                   <div className="flex gap-2">
-                    <Select defaultValue="all" onValueChange={setFilter}>
-                      <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Filter" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Alle Aufgaben</SelectItem>
-                        <SelectItem value="pending">Ausstehend</SelectItem>
-                        <SelectItem value="completed">Erledigt</SelectItem>
-                        <SelectItem value="today">Heute</SelectItem>
-                        <SelectItem value="upcoming">Anstehend</SelectItem>
-                        <SelectItem value="overdue">Überfällig</SelectItem>
-                        <SelectItem value="Haushalt">Haushalt</SelectItem>
-                        <SelectItem value="Einkaufen">Einkaufen</SelectItem>
-                        <SelectItem value="Finanzen">Finanzen</SelectItem>
-                        
-                        {/* Family member filters - Fix here: Adding value property to SelectItem */}
-                        <SelectItem value="family-header" disabled className="font-semibold text-gray-500">
-                          Familienmitglieder
-                        </SelectItem>
-                        {familyMembers.map(member => (
-                          <SelectItem 
-                            key={member.id} 
-                            value={member.id.toString()}
-                            className="flex items-center"
-                          >
-                            <span>{member.name}</span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <TaskFilters 
+                      familyMembers={familyMembers} 
+                      taskLists={taskLists}
+                      currentFilter={filter}
+                      onFilterChange={setFilter}
+                    />
                     
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button>
-                          <Plus className="h-4 w-4 mr-2" /> Neue Aufgabe
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Neue Aufgabe erstellen</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4 py-4">
-                          <div className="space-y-2">
-                            <label htmlFor="title" className="text-sm font-medium">Titel</label>
-                            <Input
-                              id="title"
-                              value={newTaskTitle}
-                              onChange={(e) => setNewTaskTitle(e.target.value)}
-                              placeholder="Was muss erledigt werden?"
-                            />
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <label htmlFor="list" className="text-sm font-medium">Liste</label>
-                            <Select defaultValue={newTaskList} onValueChange={setNewTaskList}>
-                              <SelectTrigger id="list">
-                                <SelectValue placeholder="Liste auswählen" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {taskLists.map(list => (
-                                  <SelectItem key={list} value={list}>{list}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div className="space-y-2">
-                            <label htmlFor="assignee" className="text-sm font-medium">Zugewiesen an</label>
-                            <Select value={newTaskAssignee} onValueChange={setNewTaskAssignee}>
-                              <SelectTrigger id="assignee">
-                                <SelectValue placeholder="Wähle ein Familienmitglied" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {familyMembers.map(member => (
-                                  <SelectItem
-                                    key={member.id}
-                                    value={member.id.toString()}
-                                    className="flex items-center"
-                                  >
-                                    <div className="flex items-center">
-                                      <Avatar className="h-6 w-6 mr-2">
-                                        <AvatarImage src={member.avatar} />
-                                        <AvatarFallback className="text-xs">{member.initials}</AvatarFallback>
-                                      </Avatar>
-                                      <span>{member.name}</span>
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <label htmlFor="priority" className="text-sm font-medium">Priorität</label>
-                              <Select 
-                                defaultValue={newTaskPriority} 
-                                onValueChange={(value) => setNewTaskPriority(value as 'low' | 'medium' | 'high')}
-                              >
-                                <SelectTrigger id="priority">
-                                  <SelectValue placeholder="Priorität" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="low">Niedrig</SelectItem>
-                                  <SelectItem value="medium">Mittel</SelectItem>
-                                  <SelectItem value="high">Hoch</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium">Fälligkeitsdatum</label>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    className="w-full justify-start text-left font-normal"
-                                  >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {newTaskDate ? format(newTaskDate, 'P', { locale: de }) : "Datum wählen"}
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                  <Calendar
-                                    mode="single"
-                                    selected={newTaskDate}
-                                    onSelect={setNewTaskDate}
-                                    locale={de}
-                                    initialFocus
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                            </div>
-                          </div>
-                          
-                          <Button onClick={addTask} className="w-full">
-                            Aufgabe erstellen
-                          </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                    <NewTaskForm 
+                      familyMembers={familyMembers}
+                      taskLists={taskLists}
+                      onAddTask={addTask}
+                    />
                   </div>
                 </div>
                 
-                <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {filteredTasks.length > 0 ? (
-                    filteredTasks.map((task) => (
-                      <div key={task.id} className={`py-4 flex items-center ${task.completed ? 'opacity-60' : ''}`}>
-                        <button 
-                          onClick={() => toggleTaskStatus(task.id)}
-                          className={`flex-shrink-0 w-6 h-6 rounded-full border ${
-                            task.completed 
-                              ? 'bg-green-500 border-green-500 text-white' 
-                              : 'border-gray-300 dark:border-gray-600'
-                          } mr-4 flex items-center justify-center`}
-                        >
-                          {task.completed && <Check className="h-4 w-4" />}
-                        </button>
-                        
-                        <div className="flex-1">
-                          <div className="flex items-center">
-                            <p className={`text-base ${task.completed ? 'line-through text-gray-500' : 'text-gray-900 dark:text-gray-100'}`}>
-                              {task.title}
-                            </p>
-                            {task.synced && (
-                              <span className="ml-2 px-1.5 py-0.5 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded">
-                                Synced
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center text-sm text-gray-500">
-                            <span className="mr-3">Fällig: {format(new Date(task.dueDate), 'P', { locale: de })}</span>
-                            {task.list && <span className="mr-3">Liste: {task.list}</span>}
-                          </div>
-                        </div>
-                        
-                        <div className="flex-shrink-0 flex items-center gap-3">
-                          <Select 
-                            value={task.assignedTo ? task.assignedTo.id.toString() : ''} 
-                            onValueChange={(value) => assignTask(task.id, value)}
-                          >
-                            <SelectTrigger className="w-40 h-8">
-                              <SelectValue placeholder="Nicht zugewiesen">
-                                {task.assignedTo ? (
-                                  <div className="flex items-center">
-                                    <Avatar className="h-5 w-5 mr-1">
-                                      <AvatarImage src={task.assignedTo.avatar} />
-                                      <AvatarFallback className="text-xs bg-homepilot-primary/10 text-homepilot-primary">
-                                        {task.assignedTo.initials}
-                                      </AvatarFallback>
-                                    </Avatar>
-                                    <span className="text-sm truncate">{task.assignedTo.name}</span>
-                                  </div>
-                                ) : (
-                                  <div className="flex items-center">
-                                    <User className="h-4 w-4 mr-1" />
-                                    <span className="text-sm">Zuweisen</span>
-                                  </div>
-                                )}
-                              </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="">
-                                <div className="flex items-center">
-                                  <User className="h-4 w-4 mr-2" />
-                                  <span>Nicht zugewiesen</span>
-                                </div>
-                              </SelectItem>
-                              {familyMembers.map(member => (
-                                <SelectItem 
-                                  key={member.id} 
-                                  value={member.id.toString()}
-                                >
-                                  <div className="flex items-center">
-                                    <Avatar className="h-5 w-5 mr-2">
-                                      <AvatarImage src={member.avatar} />
-                                      <AvatarFallback className="text-xs">{member.initials}</AvatarFallback>
-                                    </Avatar>
-                                    <span>{member.name}</span>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          
-                          <span className={`inline-block px-2 py-1 text-xs rounded-full
-                            ${task.priority === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : 
-                            task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 
-                            'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'}`
-                          }>
-                            {task.priority === 'high' ? 'Hoch' : 
-                            task.priority === 'medium' ? 'Mittel' : 'Niedrig'}
-                          </span>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="py-8 text-center text-gray-500">
-                      Keine Aufgaben gefunden.
-                    </div>
-                  )}
-                </div>
+                <TaskList 
+                  tasks={filteredTasks}
+                  familyMembers={familyMembers}
+                  onToggleStatus={toggleTaskStatus}
+                  onAssignTask={assignTask}
+                />
               </div>
             </TabsContent>
             
             <TabsContent value="sync">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <AppleRemindersSync />
-                <BringAppSync />
-              </div>
+              <SyncTabs />
             </TabsContent>
           </Tabs>
         </div>
