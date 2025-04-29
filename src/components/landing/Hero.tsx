@@ -12,8 +12,9 @@ const Hero: React.FC<HeroProps> = ({ onLogin }) => {
   const navigate = useNavigate();
 
   const handleStart = () => {
-    // Set login state first, then navigate
+    // Set login state first
     onLogin();
+    // Then navigate to dashboard
     navigate('/dashboard');
   };
 
@@ -81,4 +82,3 @@ const Hero: React.FC<HeroProps> = ({ onLogin }) => {
 };
 
 export default Hero;
-

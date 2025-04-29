@@ -12,22 +12,16 @@ const Home = () => {
     const savedLoginState = localStorage.getItem('homepilot_logged_in');
     if (savedLoginState === 'true') {
       setIsLoggedIn(true);
+      navigate('/dashboard');
     }
-  }, []);
+  }, [navigate]);
 
   const handleLogin = () => {
     // Save login state to localStorage for persistence
     localStorage.setItem('homepilot_logged_in', 'true');
     setIsLoggedIn(true);
-    navigate('/');
+    navigate('/dashboard');
   };
-
-  // Redirect to dashboard if already logged in
-  useEffect(() => {
-    if (isLoggedIn) {
-      navigate('/dashboard');
-    }
-  }, [isLoggedIn, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
