@@ -96,11 +96,14 @@ const Tasks = () => {
         : task
     ));
     
+    const task = tasks.find(t => t.id === taskId);
+    const member = memberId ? familyMembers.find(m => m.id === parseInt(memberId)) : null;
+    
     toast({
       title: "Aufgabe zugewiesen",
-      description: memberId 
-        ? `Die Aufgabe wurde ${familyMembers.find(member => member.id === parseInt(memberId))?.name} zugewiesen.` 
-        : "Die Zuweisung wurde entfernt.",
+      description: memberId && member
+        ? `Die Aufgabe "${task?.title}" wurde ${member.name} zugewiesen.` 
+        : `Die Zuweisung für "${task?.title}" wurde entfernt.`,
     });
   };
   
@@ -122,12 +125,18 @@ const Tasks = () => {
       const taskDate = new Date(task.dueDate);
       return taskDate < today && !task.completed;
     }
-    if (familyMembers.some(member => member.id === parseInt(filter))) {
-      return task.assignedTo?.id === parseInt(filter);
+    
+    // Wenn filter eine Zahl ist (als String), dann nach Familienmitglied filtern
+    if (filter.match(/^\d+$/)) {
+      const memberId = parseInt(filter);
+      return task.assignedTo?.id === memberId;
     }
+    
+    // Nach Liste filtern
     if (taskLists.includes(filter)) {
       return task.list === filter;
     }
+    
     return true;
   });
 
