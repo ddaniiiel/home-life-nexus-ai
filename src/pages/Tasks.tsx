@@ -1,18 +1,28 @@
 
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
-import { List, Check, Plus, Filter, Calendar as CalendarIcon } from 'lucide-react';
+import { List, Check, Plus, Filter, Calendar as CalendarIcon, User, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppleRemindersSync from '@/components/AppleRemindersSync';
 import BringAppSync from '@/components/BringAppSync';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { toast } from '@/components/ui/use-toast';
+
+interface FamilyMember {
+  id: number;
+  name: string;
+  avatar?: string;
+  initials: string;
+  email?: string;
+}
 
 interface Task {
   id: number;
@@ -22,33 +32,51 @@ interface Task {
   dueDate: string;
   list?: string;
   synced?: boolean;
+  assignedTo?: FamilyMember;
 }
 
 const Tasks = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [familyMembers] = useState<FamilyMember[]>([
+    { id: 1, name: 'Max Mustermann', initials: 'MM', email: 'max@example.com' },
+    { id: 2, name: 'Anna Mustermann', initials: 'AM', email: 'anna@example.com' },
+    { id: 3, name: 'Tim Mustermann', initials: 'TM', email: 'tim@example.com' },
+    { id: 4, name: 'Lea Mustermann', initials: 'LM', email: 'lea@example.com' },
+  ]);
+  
   const [tasks, setTasks] = useState<Task[]>([
-    { id: 1, title: 'Wäsche waschen', completed: false, priority: 'medium', dueDate: '2025-05-01', list: 'Haushalt', synced: true },
-    { id: 2, title: 'Einkaufen gehen', completed: false, priority: 'high', dueDate: '2025-04-29', list: 'Einkaufen', synced: true },
-    { id: 3, title: 'Rechnungen bezahlen', completed: true, priority: 'high', dueDate: '2025-04-25', list: 'Finanzen' },
-    { id: 4, title: 'Pflanzen gießen', completed: false, priority: 'low', dueDate: '2025-04-30', list: 'Haushalt', synced: true },
-    { id: 5, title: 'Batterie Rauchmelder prüfen', completed: false, priority: 'medium', dueDate: '2025-05-10', list: 'Haushalt' },
-    { id: 6, title: 'Müll rausbringen', completed: false, priority: 'medium', dueDate: '2025-04-28', list: 'Haushalt', synced: true },
+    { id: 1, title: 'Wäsche waschen', completed: false, priority: 'medium', dueDate: '2025-05-01', list: 'Haushalt', synced: true, assignedTo: familyMembers[1] },
+    { id: 2, title: 'Einkaufen gehen', completed: false, priority: 'high', dueDate: '2025-04-29', list: 'Einkaufen', synced: true, assignedTo: familyMembers[0] },
+    { id: 3, title: 'Rechnungen bezahlen', completed: true, priority: 'high', dueDate: '2025-04-25', list: 'Finanzen', assignedTo: familyMembers[0] },
+    { id: 4, title: 'Pflanzen gießen', completed: false, priority: 'low', dueDate: '2025-04-30', list: 'Haushalt', synced: true, assignedTo: familyMembers[2] },
+    { id: 5, title: 'Batterie Rauchmelder prüfen', completed: false, priority: 'medium', dueDate: '2025-05-10', list: 'Haushalt', assignedTo: familyMembers[3] },
+    { id: 6, title: 'Müll rausbringen', completed: false, priority: 'medium', dueDate: '2025-04-28', list: 'Haushalt', synced: true, assignedTo: familyMembers[2] },
   ]);
 
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskPriority, setNewTaskPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [newTaskDate, setNewTaskDate] = useState<Date>();
   const [newTaskList, setNewTaskList] = useState('Haushalt');
+  const [newTaskAssignee, setNewTaskAssignee] = useState<string>('');
   const [filter, setFilter] = useState('all');
 
   const toggleTaskStatus = (id: number) => {
     setTasks(tasks.map(task => 
       task.id === id ? { ...task, completed: !task.completed } : task
     ));
+    
+    toast({
+      title: "Aufgabe aktualisiert",
+      description: "Der Status der Aufgabe wurde aktualisiert.",
+    });
   };
 
   const addTask = () => {
     if (!newTaskTitle.trim()) return;
+
+    const assignee = newTaskAssignee 
+      ? familyMembers.find(member => member.id === parseInt(newTaskAssignee)) 
+      : undefined;
 
     const newTask: Task = {
       id: tasks.length + 1,
@@ -56,13 +84,40 @@ const Tasks = () => {
       completed: false,
       priority: newTaskPriority,
       dueDate: newTaskDate ? format(newTaskDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
-      list: newTaskList
+      list: newTaskList,
+      assignedTo: assignee
     };
 
     setTasks([...tasks, newTask]);
     setNewTaskTitle('');
     setNewTaskPriority('medium');
     setNewTaskDate(undefined);
+    setNewTaskAssignee('');
+    
+    toast({
+      title: "Aufgabe erstellt",
+      description: `${newTask.title} wurde erstellt und ${assignee ? 'an ' + assignee.name + ' zugewiesen' : 'niemandem zugewiesen'}.`,
+    });
+  };
+
+  const assignTask = (taskId: number, memberId: string) => {
+    setTasks(tasks.map(task => 
+      task.id === taskId 
+        ? { 
+            ...task, 
+            assignedTo: memberId 
+              ? familyMembers.find(member => member.id === parseInt(memberId)) 
+              : undefined 
+          } 
+        : task
+    ));
+    
+    toast({
+      title: "Aufgabe zugewiesen",
+      description: memberId 
+        ? `Die Aufgabe wurde ${familyMembers.find(member => member.id === parseInt(memberId))?.name} zugewiesen.` 
+        : "Die Zuweisung wurde entfernt.",
+    });
   };
 
   const taskLists = ['Haushalt', 'Einkaufen', 'Finanzen', 'Arbeit', 'Persönlich'];
@@ -84,6 +139,9 @@ const Tasks = () => {
       const today = new Date();
       const taskDate = new Date(task.dueDate);
       return taskDate < today && !task.completed;
+    }
+    if (familyMembers.some(member => member.id === parseInt(filter))) {
+      return task.assignedTo?.id === parseInt(filter);
     }
     if (taskLists.includes(filter)) {
       return task.list === filter;
@@ -130,6 +188,20 @@ const Tasks = () => {
                         <SelectItem value="Haushalt">Haushalt</SelectItem>
                         <SelectItem value="Einkaufen">Einkaufen</SelectItem>
                         <SelectItem value="Finanzen">Finanzen</SelectItem>
+                        
+                        {/* Family member filters */}
+                        <SelectItem disabled className="font-semibold text-gray-500">
+                          Familienmitglieder
+                        </SelectItem>
+                        {familyMembers.map(member => (
+                          <SelectItem 
+                            key={member.id} 
+                            value={member.id.toString()}
+                            className="flex items-center"
+                          >
+                            <span>{member.name}</span>
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     
@@ -163,6 +235,32 @@ const Tasks = () => {
                               <SelectContent>
                                 {taskLists.map(list => (
                                   <SelectItem key={list} value={list}>{list}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="space-y-2">
+                            <label htmlFor="assignee" className="text-sm font-medium">Zugewiesen an</label>
+                            <Select value={newTaskAssignee} onValueChange={setNewTaskAssignee}>
+                              <SelectTrigger id="assignee">
+                                <SelectValue placeholder="Wähle ein Familienmitglied" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {familyMembers.map(member => (
+                                  <SelectItem
+                                    key={member.id}
+                                    value={member.id.toString()}
+                                    className="flex items-center"
+                                  >
+                                    <div className="flex items-center">
+                                      <Avatar className="h-6 w-6 mr-2">
+                                        <AvatarImage src={member.avatar} />
+                                        <AvatarFallback className="text-xs">{member.initials}</AvatarFallback>
+                                      </Avatar>
+                                      <span>{member.name}</span>
+                                    </div>
+                                  </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
@@ -252,7 +350,55 @@ const Tasks = () => {
                           </div>
                         </div>
                         
-                        <div className="flex-shrink-0">
+                        <div className="flex-shrink-0 flex items-center gap-3">
+                          <Select 
+                            value={task.assignedTo ? task.assignedTo.id.toString() : ''} 
+                            onValueChange={(value) => assignTask(task.id, value)}
+                          >
+                            <SelectTrigger className="w-40 h-8">
+                              <SelectValue placeholder="Nicht zugewiesen">
+                                {task.assignedTo ? (
+                                  <div className="flex items-center">
+                                    <Avatar className="h-5 w-5 mr-1">
+                                      <AvatarImage src={task.assignedTo.avatar} />
+                                      <AvatarFallback className="text-xs bg-homepilot-primary/10 text-homepilot-primary">
+                                        {task.assignedTo.initials}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <span className="text-sm truncate">{task.assignedTo.name}</span>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center">
+                                    <User className="h-4 w-4 mr-1" />
+                                    <span className="text-sm">Zuweisen</span>
+                                  </div>
+                                )}
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="">
+                                <div className="flex items-center">
+                                  <User className="h-4 w-4 mr-2" />
+                                  <span>Nicht zugewiesen</span>
+                                </div>
+                              </SelectItem>
+                              {familyMembers.map(member => (
+                                <SelectItem 
+                                  key={member.id} 
+                                  value={member.id.toString()}
+                                >
+                                  <div className="flex items-center">
+                                    <Avatar className="h-5 w-5 mr-2">
+                                      <AvatarImage src={member.avatar} />
+                                      <AvatarFallback className="text-xs">{member.initials}</AvatarFallback>
+                                    </Avatar>
+                                    <span>{member.name}</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          
                           <span className={`inline-block px-2 py-1 text-xs rounded-full
                             ${task.priority === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : 
                             task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 

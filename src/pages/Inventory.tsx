@@ -1,13 +1,13 @@
 
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
-import { Package, ShoppingCart, Search, Plus, ArrowDownUp, Filter, Minus, Edit, Trash2 } from 'lucide-react';
+import { Package, ShoppingCart, Search, Plus, ArrowDownUp, Filter, Minus, Edit, Trash2, Check, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import BringAppSync from '@/components/BringAppSync';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/components/ui/use-toast';
@@ -24,9 +24,9 @@ const Inventory = () => {
   ]);
 
   const [shoppingList, setShoppingList] = useState([
-    { id: 1, name: 'Milch', category: 'Lebensmittel', quantity: 2, checked: false },
-    { id: 2, name: 'Brot', category: 'Lebensmittel', quantity: 1, checked: true },
-    { id: 3, name: 'Äpfel', category: 'Lebensmittel', quantity: 6, checked: false },
+    { id: 1, name: 'Milch', category: 'Lebensmittel', quantity: 2, checked: false, inventoryId: 2 },
+    { id: 2, name: 'Brot', category: 'Lebensmittel', quantity: 1, checked: true, inventoryId: null },
+    { id: 3, name: 'Äpfel', category: 'Lebensmittel', quantity: 6, checked: false, inventoryId: null },
   ]);
 
   const [editingItem, setEditingItem] = useState(null);
@@ -36,6 +36,12 @@ const Inventory = () => {
     quantity: 1,
     minQuantity: 1,
     unit: ''
+  });
+  
+  const [purchaseDialog, setPurchaseDialog] = useState({
+    isOpen: false,
+    item: null,
+    quantity: 0
   });
 
   const filteredItems = searchQuery 
@@ -61,11 +67,68 @@ const Inventory = () => {
   };
 
   const toggleShoppingItem = (id) => {
+    const item = shoppingList.find(item => item.id === id);
+    if (item) {
+      if (!item.checked) {
+        // If marking as checked (purchased), open dialog to update inventory
+        if (item.inventoryId) {
+          setPurchaseDialog({
+            isOpen: true,
+            item: item,
+            quantity: item.quantity
+          });
+        } else {
+          // If no inventoryId, just mark as checked
+          setShoppingList(list => 
+            list.map(item => 
+              item.id === id ? { ...item, checked: true } : item
+            )
+          );
+          toast({
+            title: "Artikel gekauft",
+            description: `${item.name} wurde als gekauft markiert.`,
+          });
+        }
+      } else {
+        // Just uncheck the item
+        setShoppingList(list => 
+          list.map(item => 
+            item.id === id ? { ...item, checked: false } : item
+          )
+        );
+      }
+    }
+  };
+
+  const handlePurchaseComplete = () => {
+    if (!purchaseDialog.item) return;
+    
+    const { item, quantity } = purchaseDialog;
+    
+    // Update shopping list
     setShoppingList(list => 
-      list.map(item => 
-        item.id === id ? { ...item, checked: !item.checked } : item
+      list.map(i => 
+        i.id === item.id ? { ...i, checked: true } : i
       )
     );
+    
+    // Update inventory
+    if (item.inventoryId) {
+      setInventoryItems(items => 
+        items.map(i => 
+          i.id === item.inventoryId 
+            ? { ...i, quantity: i.quantity + quantity } 
+            : i
+        )
+      );
+      
+      toast({
+        title: "Inventar aktualisiert",
+        description: `${item.name} wurde gekauft und dem Inventar hinzugefügt.`,
+      });
+    }
+    
+    setPurchaseDialog({ isOpen: false, item: null, quantity: 0 });
   };
 
   const addToShoppingList = (inventoryItem) => {
@@ -85,7 +148,8 @@ const Inventory = () => {
         name: inventoryItem.name,
         category: inventoryItem.category,
         quantity: 1,
-        checked: false
+        checked: false,
+        inventoryId: inventoryItem.id
       };
       
       setShoppingList(list => [...list, newShoppingItem]);
@@ -94,6 +158,42 @@ const Inventory = () => {
     toast({
       title: "Zur Einkaufsliste hinzugefügt",
       description: `${inventoryItem.name} wurde zur Einkaufsliste hinzugefügt.`,
+    });
+  };
+
+  const addNewShoppingItem = () => {
+    if (!newItem.name.trim()) {
+      toast({
+        title: "Fehlerhafte Eingabe", 
+        description: "Bitte Namen eingeben", 
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const newShoppingItem = {
+      id: Date.now(),
+      name: newItem.name,
+      category: newItem.category || "Sonstiges",
+      quantity: newItem.quantity || 1,
+      checked: false,
+      inventoryId: null
+    };
+    
+    setShoppingList([...shoppingList, newShoppingItem]);
+    
+    toast({
+      title: "Artikel hinzugefügt",
+      description: `${newItem.name} wurde zur Einkaufsliste hinzugefügt.`,
+    });
+    
+    // Reset form
+    setNewItem({
+      name: '',
+      category: '',
+      quantity: 1,
+      minQuantity: 1,
+      unit: ''
     });
   };
 
@@ -148,9 +248,83 @@ const Inventory = () => {
   const handleDeleteItem = (id) => {
     setInventoryItems(items => items.filter(item => item.id !== id));
     
+    // Also remove from shopping list if it's there
+    setShoppingList(list => list.filter(item => item.inventoryId !== id));
+    
     toast({
       title: "Artikel gelöscht",
       description: "Der Artikel wurde aus dem Inventar entfernt.",
+    });
+  };
+  
+  const removeFromShoppingList = (id) => {
+    setShoppingList(list => list.filter(item => item.id !== id));
+    
+    toast({
+      title: "Artikel entfernt",
+      description: "Der Artikel wurde von der Einkaufsliste entfernt.",
+    });
+  };
+
+  const moveCheckedToInventory = () => {
+    // Find all checked items that are not in inventory yet
+    const checkedItems = shoppingList.filter(item => item.checked && !item.inventoryId);
+    
+    if (checkedItems.length === 0) {
+      toast({
+        title: "Keine Artikel",
+        description: "Es gibt keine gekauften Artikel, die dem Inventar hinzugefügt werden können.",
+      });
+      return;
+    }
+    
+    // Add each to inventory
+    let newInventoryItems = [...inventoryItems];
+    
+    checkedItems.forEach(item => {
+      const newId = Math.max(0, ...newInventoryItems.map(i => i.id)) + 1;
+      
+      newInventoryItems.push({
+        id: newId,
+        name: item.name,
+        category: item.category,
+        quantity: item.quantity,
+        minQuantity: Math.max(1, Math.floor(item.quantity / 2)),
+        unit: 'Stück'
+      });
+      
+      // Update shopping list item with inventory ID
+      setShoppingList(list => 
+        list.map(i => 
+          i.id === item.id ? { ...i, inventoryId: newId } : i
+        )
+      );
+    });
+    
+    setInventoryItems(newInventoryItems);
+    
+    toast({
+      title: "Inventar aktualisiert",
+      description: `${checkedItems.length} Artikel wurden dem Inventar hinzugefügt.`,
+    });
+  };
+
+  const clearCheckedItems = () => {
+    const checkedCount = shoppingList.filter(item => item.checked).length;
+    
+    if (checkedCount === 0) {
+      toast({
+        title: "Keine Artikel",
+        description: "Es gibt keine gekauften Artikel zum Entfernen.",
+      });
+      return;
+    }
+    
+    setShoppingList(list => list.filter(item => !item.checked));
+    
+    toast({
+      title: "Liste bereinigt",
+      description: `${checkedCount} gekaufte Artikel wurden von der Einkaufsliste entfernt.`,
     });
   };
 
@@ -544,28 +718,121 @@ const Inventory = () => {
                     <ShoppingCart className="h-5 w-5 mr-2 text-gray-500" />
                     Einkaufsliste
                   </h2>
-                  <Button size="sm">
-                    <Plus className="h-3 w-3 mr-1" /> Hinzufügen
-                  </Button>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button size="sm">
+                        <Plus className="h-3 w-3 mr-1" /> Hinzufügen
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Artikel zur Einkaufsliste hinzufügen</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="shopping-name">Artikelname</Label>
+                          <Input
+                            id="shopping-name"
+                            value={newItem.name}
+                            onChange={(e) => setNewItem({...newItem, name: e.target.value})}
+                            placeholder="z.B. Milch"
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="shopping-category">Kategorie</Label>
+                          <Select
+                            value={newItem.category}
+                            onValueChange={(value) => setNewItem({...newItem, category: value})}
+                          >
+                            <SelectTrigger id="shopping-category">
+                              <SelectValue placeholder="Kategorie wählen" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Lebensmittel">Lebensmittel</SelectItem>
+                              <SelectItem value="Badezimmer">Badezimmer</SelectItem>
+                              <SelectItem value="Reinigung">Reinigung</SelectItem>
+                              <SelectItem value="Sonstiges">Sonstiges</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="shopping-quantity">Menge</Label>
+                          <Input
+                            id="shopping-quantity"
+                            type="number"
+                            min="1"
+                            value={newItem.quantity}
+                            onChange={(e) => setNewItem({...newItem, quantity: parseInt(e.target.value) || 1})}
+                          />
+                        </div>
+                        
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button variant="outline">Abbrechen</Button>
+                          </DialogClose>
+                          <DialogClose asChild>
+                            <Button onClick={addNewShoppingItem}>Hinzufügen</Button>
+                          </DialogClose>
+                        </DialogFooter>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
                 
                 <div className="space-y-3">
-                  {shoppingList.map((item) => (
-                    <div key={item.id} className="flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
-                      <input
-                        type="checkbox"
-                        checked={item.checked}
-                        onChange={() => toggleShoppingItem(item.id)}
-                        className="h-4 w-4 rounded border-gray-300 text-homepilot-primary focus:ring-homepilot-primary"
-                      />
-                      <div className="ml-3 flex-1">
-                        <p className={`text-sm font-medium ${item.checked ? 'line-through text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}>
-                          {item.name}
-                        </p>
-                        <p className="text-xs text-gray-500">{item.quantity}x · {item.category}</p>
+                  {shoppingList.length > 0 ? (
+                    <>
+                      {shoppingList.map((item) => (
+                        <div key={item.id} className="flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                          <button 
+                            onClick={() => toggleShoppingItem(item.id)} 
+                            className={`w-5 h-5 rounded-sm border flex items-center justify-center mr-3 ${
+                              item.checked 
+                                ? 'bg-green-500 border-green-500 text-white' 
+                                : 'border-gray-300'
+                            }`}
+                          >
+                            {item.checked && <Check className="h-3 w-3" />}
+                          </button>
+                          <div className="ml-0 flex-1">
+                            <p className={`text-sm font-medium ${item.checked ? 'line-through text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}>
+                              {item.name}
+                            </p>
+                            <p className="text-xs text-gray-500">{item.quantity}x · {item.category}</p>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            className="h-7 w-7" 
+                            onClick={() => removeFromShoppingList(item.id)}
+                          >
+                            <Trash2 className="h-3 w-3 text-gray-500" />
+                          </Button>
+                        </div>
+                      ))}
+                      <div className="flex justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={clearCheckedItems}
+                        >
+                          <Trash2 className="h-3 w-3 mr-1" /> 
+                          Gekaufte entfernen
+                        </Button>
+                        <Button 
+                          size="sm"
+                          onClick={moveCheckedToInventory}
+                        >
+                          <RefreshCw className="h-3 w-3 mr-1" /> 
+                          Hinzufügen zum Inventar
+                        </Button>
                       </div>
-                    </div>
-                  ))}
+                    </>
+                  ) : (
+                    <p className="text-center text-gray-500 py-6">Deine Einkaufsliste ist leer.</p>
+                  )}
                 </div>
                 
                 <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -598,6 +865,65 @@ const Inventory = () => {
           </div>
         </div>
       </div>
+      
+      {/* Purchase Dialog */}
+      <Dialog open={purchaseDialog.isOpen} onOpenChange={(open) => !open && setPurchaseDialog({ isOpen: false, item: null, quantity: 0 })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Artikel gekauft</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            {purchaseDialog.item && (
+              <div className="space-y-4">
+                <p>Du hast {purchaseDialog.item.name} gekauft. Wie viel möchtest du dem Inventar hinzufügen?</p>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="purchase-quantity">Gekaufte Menge</Label>
+                  <div className="flex items-center">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="rounded-r-none"
+                      onClick={() => setPurchaseDialog(prev => ({ ...prev, quantity: Math.max(1, prev.quantity - 1) }))}
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <Input
+                      id="purchase-quantity"
+                      type="number"
+                      min="1"
+                      className="rounded-none text-center"
+                      value={purchaseDialog.quantity}
+                      onChange={(e) => setPurchaseDialog(prev => ({ 
+                        ...prev, 
+                        quantity: parseInt(e.target.value) || 1 
+                      }))}
+                    />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="rounded-l-none"
+                      onClick={() => setPurchaseDialog(prev => ({ ...prev, quantity: prev.quantity + 1 }))}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div className="flex justify-end space-x-2 mt-6">
+              <DialogClose asChild>
+                <Button variant="outline">Abbrechen</Button>
+              </DialogClose>
+              <DialogClose asChild>
+                <Button onClick={handlePurchaseComplete}>
+                  Bestätigen
+                </Button>
+              </DialogClose>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
