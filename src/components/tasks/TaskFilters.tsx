@@ -40,7 +40,8 @@ const TaskFilters: React.FC<TaskFiltersProps> = ({
           <SelectItem key={list} value={list}>{list}</SelectItem>
         ))}
         
-        <SelectItem value="family-header" disabled className="font-semibold text-gray-500" data-value="family-header">
+        {/* Replace the disabled header item with a proper separator and label */}
+        <SelectItem value="family-header-separator" disabled className="font-semibold text-gray-500 cursor-default pointer-events-none">
           Familienmitglieder
         </SelectItem>
         {familyMembers.map(member => (

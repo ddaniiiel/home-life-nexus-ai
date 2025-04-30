@@ -1,11 +1,10 @@
 
 import React from 'react';
-import { Check } from 'lucide-react';
+import { Check, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User } from 'lucide-react';
 
 interface FamilyMember {
   id: number;
@@ -71,8 +70,8 @@ const TaskItem: React.FC<TaskItemProps> = ({
       
       <div className="flex-shrink-0 flex items-center gap-3">
         <Select 
-          value={task.assignedTo ? task.assignedTo.id.toString() : ''} 
-          onValueChange={(value) => onAssignTask(task.id, value)}
+          value={task.assignedTo ? task.assignedTo.id.toString() : "unassigned"} 
+          onValueChange={(value) => onAssignTask(task.id, value === "unassigned" ? "" : value)}
         >
           <SelectTrigger className="w-40 h-8">
             <SelectValue placeholder="Nicht zugewiesen">
@@ -95,7 +94,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">
+            <SelectItem value="unassigned">
               <div className="flex items-center">
                 <User className="h-4 w-4 mr-2" />
                 <span>Nicht zugewiesen</span>

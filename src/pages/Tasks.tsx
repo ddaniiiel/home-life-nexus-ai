@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
 import { List } from 'lucide-react';
@@ -90,6 +89,7 @@ const Tasks = () => {
         ? { 
             ...task, 
             assignedTo: memberId 
+              // Use null comparison to handle empty strings properly
               ? familyMembers.find(member => member.id === parseInt(memberId)) 
               : undefined 
           } 
