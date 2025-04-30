@@ -17,6 +17,7 @@ import Settings from "./pages/Settings";
 import Home from "./pages/Home";
 import News from "./pages/News";
 import Investments from "./pages/Investments";
+import Emergency from "./pages/Emergency";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
           <Route path="/news" element={<News />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/emergency" element={<Emergency />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

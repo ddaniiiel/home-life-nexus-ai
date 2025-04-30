@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
-import { Home, Calendar, FileText, CreditCard, Package, LineChart, Bell, Wallet, Newspaper, Lightbulb, Shield } from 'lucide-react';
+import { Home, Calendar, FileText, CreditCard, Package, LineChart, Bell, Wallet, Newspaper, Lightbulb, Shield, Phone } from 'lucide-react';
 import Widget from '@/components/Widget';
 import SmartHomeWidget from '@/components/SmartHomeWidget';
 import TaskWidget from '@/components/TaskWidget';
@@ -42,7 +42,7 @@ const Index = () => {
           <Card className="mb-6 bg-gradient-to-r from-homepilot-primary/5 to-homepilot-primary/10 border-none shadow-sm">
             <CardContent className="p-6">
               <h2 className="text-xl font-semibold mb-4">Familien-Dashboard</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4">
                 <Button variant="outline" asChild className="h-auto flex flex-col py-4 hover:bg-homepilot-primary/5">
                   <Link to="/smart-home">
                     <Lightbulb className="h-6 w-6 mb-2" />
@@ -77,6 +77,12 @@ const Index = () => {
                   <Link to="/news">
                     <Newspaper className="h-6 w-6 mb-2" />
                     <span>Wichtiges</span>
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild className="h-auto flex flex-col py-4 hover:bg-red-50 hover:text-red-700 border-red-100">
+                  <Link to="/emergency">
+                    <Phone className="h-6 w-6 mb-2 text-red-600" />
+                    <span>Notfälle</span>
                   </Link>
                 </Button>
               </div>
@@ -130,24 +136,31 @@ const Index = () => {
                   </div>
                 </Widget>
                 
-                <Widget title="Familiennachrichten" icon={<Newspaper className="h-5 w-5" />}>
+                <Widget title="Notfallkontakte" icon={<Phone className="h-5 w-5 text-red-500" />}>
                   <div className="space-y-2">
                     <div className="flex flex-col py-1">
-                      <span className="text-sm font-medium">Sommerferienprogramm 2025</span>
+                      <span className="text-sm font-medium">Hausärztin Dr. Müller</span>
                       <div className="flex justify-between">
-                        <span className="text-xs text-gray-500">Stadtjugendamt</span>
-                        <span className="text-xs text-gray-500">Anmeldung bis 15.05</span>
+                        <span className="text-xs text-gray-500">Allgemeinmedizin</span>
+                        <span className="text-xs text-blue-500">+41 44 123 45 67</span>
                       </div>
                     </div>
                     <div className="flex flex-col py-1">
-                      <span className="text-sm font-medium">Neue Kita-Gebühren</span>
+                      <span className="text-sm font-medium">Sanitätsnotruf</span>
                       <div className="flex justify-between">
-                        <span className="text-xs text-gray-500">Städtische Kitas</span>
-                        <span className="text-xs text-gray-500">Ab 01.08.2025</span>
+                        <span className="text-xs text-gray-500">Notfall</span>
+                        <span className="text-xs font-bold text-red-500">144</span>
                       </div>
                     </div>
-                    <Link to="/news" className="text-xs text-homepilot-primary hover:underline block mt-2">
-                      Alle Nachrichten →
+                    <div className="flex flex-col py-1">
+                      <span className="text-sm font-medium">Kinderarzt Dr. Weber</span>
+                      <div className="flex justify-between">
+                        <span className="text-xs text-gray-500">Pädiatrie</span>
+                        <span className="text-xs text-blue-500">+41 44 234 56 78</span>
+                      </div>
+                    </div>
+                    <Link to="/emergency" className="text-xs text-red-500 hover:underline block mt-2">
+                      Alle Notfallkontakte →
                     </Link>
                   </div>
                 </Widget>
@@ -157,6 +170,8 @@ const Index = () => {
 
           <h2 className="text-xl font-semibold mb-4 mt-8">Haushalt & Finanzen</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <SmartHomeWidget />
+
             <Widget title="Haushaltsbudget" icon={<Wallet className="h-5 w-5" />}>
               <div className="space-y-3">
                 <div className="flex justify-between items-center p-2 border-b">
@@ -183,36 +198,6 @@ const Index = () => {
                 
                 <Link to="/finances" className="text-xs text-homepilot-primary hover:underline mt-2 block">
                   Zum Budgetplaner →
-                </Link>
-              </div>
-            </Widget>
-
-            <Widget title="Vorräte & Einkauf" icon={<Package className="h-5 w-5" />}>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">Einkaufsliste</span>
-                  <span className="text-xs text-gray-500">8 Artikel</span>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Waschmittel</span>
-                    <span className="text-xs text-red-500">Dringend</span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Toilettenpapier</span>
-                    <span className="text-xs text-yellow-500">Bald leer</span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Zahnpasta</span>
-                    <span className="text-xs text-yellow-500">Bald leer</span>
-                  </div>
-                </div>
-                
-                <Link to="/inventory" className="text-xs text-homepilot-primary hover:underline mt-2 block">
-                  Zur Vorratsverwaltung →
                 </Link>
               </div>
             </Widget>
