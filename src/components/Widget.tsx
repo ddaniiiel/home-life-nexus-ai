@@ -13,10 +13,10 @@ interface WidgetProps {
 
 const Widget: React.FC<WidgetProps> = ({ title, description, className, children, icon }) => {
   return (
-    <Card className={cn("widget-card", className)}>
-      <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
+    <Card className={cn("widget-card border-homepilot-primary/20", className)}>
+      <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between bg-gradient-to-r from-homepilot-accent/20 to-transparent">
         <div>
-          <CardTitle className="text-lg font-medium">{title}</CardTitle>
+          <CardTitle className="text-lg font-medium text-homepilot-secondary">{title}</CardTitle>
           {description && <CardDescription>{description}</CardDescription>}
         </div>
         {icon && <div className="text-homepilot-primary">{icon}</div>}

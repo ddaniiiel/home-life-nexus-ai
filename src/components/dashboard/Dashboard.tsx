@@ -1,4 +1,3 @@
-
 import React from 'react';
 import DashboardHeader from './DashboardHeader';
 import SmartHomeWidget from '@/components/SmartHomeWidget';

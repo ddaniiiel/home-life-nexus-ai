@@ -32,7 +32,7 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({ document, onClose }) 
         return <FileText className="h-12 w-12 text-blue-500" />;
       case 'xls':
       case 'xlsx':
-        return <FileText className="h-12 w-12 text-green-500" />;
+        return <FileText className="h-12 w-12 text-homepilot-primary" />;
       case 'jpg':
       case 'png':
       case 'jpeg':
@@ -43,8 +43,8 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({ document, onClose }) 
   };
   
   return (
-    <Card className="w-full max-w-3xl mx-auto">
-      <CardHeader className="pb-4">
+    <Card className="w-full max-w-3xl mx-auto border-homepilot-primary/20">
+      <CardHeader className="pb-4 bg-gradient-to-r from-homepilot-accent/30 to-transparent">
         <div className="flex justify-between items-start">
           <div className="flex items-center">
             {getFileIcon()}
@@ -52,20 +52,20 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({ document, onClose }) 
               <CardTitle className="text-xl">{document.name}</CardTitle>
               <div className="flex items-center space-x-4 mt-1">
                 {document.category && (
-                  <div className="flex items-center text-sm text-gray-500">
-                    <Tag className="h-4 w-4 mr-1" />
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Tag className="h-4 w-4 mr-1 text-homepilot-primary" />
                     <span>{document.category}</span>
                   </div>
                 )}
                 {document.date && (
-                  <div className="flex items-center text-sm text-gray-500">
-                    <Calendar className="h-4 w-4 mr-1" />
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Calendar className="h-4 w-4 mr-1 text-homepilot-primary" />
                     <span>{new Date(document.date).toLocaleDateString('de-CH')}</span>
                   </div>
                 )}
                 {document.size && (
-                  <div className="flex items-center text-sm text-gray-500">
-                    <FileText className="h-4 w-4 mr-1" />
+                  <div className="flex items-center text-sm text-gray-600">
+                    <FileText className="h-4 w-4 mr-1 text-homepilot-primary" />
                     <span>{document.size}</span>
                   </div>
                 )}
@@ -79,7 +79,7 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({ document, onClose }) 
       </CardHeader>
       
       <CardContent className="pb-4">
-        <div className="h-[400px] border rounded-md bg-gray-50 dark:bg-gray-800 flex flex-col items-center justify-center">
+        <div className="h-[400px] border rounded-md bg-gray-50 dark:bg-gray-800 flex flex-col items-center justify-center border-homepilot-accent/30">
           {document.preview ? (
             <img 
               src={document.preview} 
@@ -88,9 +88,9 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({ document, onClose }) 
             />
           ) : (
             <div className="text-center p-6">
-              <FileText className="h-16 w-16 text-gray-400 mx-auto mb-2" />
+              <FileText className="h-16 w-16 text-homepilot-primary mx-auto mb-2" />
               <p className="text-gray-500">Vorschau nicht verfügbar</p>
-              <Button variant="outline" className="mt-4">
+              <Button variant="outline" className="mt-4 border-homepilot-primary/20 hover:bg-homepilot-accent/10 hover:border-homepilot-primary/30">
                 <Download className="h-4 w-4 mr-2" />
                 Dokument herunterladen
               </Button>
@@ -99,7 +99,7 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({ document, onClose }) 
         </div>
         
         <div className="mt-4">
-          <h3 className="text-sm font-medium mb-1">Dokumenteninformationen</h3>
+          <h3 className="text-sm font-medium mb-1 text-homepilot-secondary">Dokumenteninformationen</h3>
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div className="flex justify-between">
               <span className="text-gray-500">Dateiname:</span>
@@ -133,19 +133,19 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({ document, onClose }) 
         </div>
       </CardContent>
       
-      <CardFooter className="flex justify-between pt-2 border-t">
+      <CardFooter className="flex justify-between pt-2 border-t border-homepilot-primary/10">
         <div className="flex space-x-2">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="border-homepilot-primary/20 hover:bg-homepilot-accent/10 hover:border-homepilot-primary/30">
             <Download className="h-4 w-4 mr-2" />
             Herunterladen
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="border-homepilot-primary/20 hover:bg-homepilot-accent/10 hover:border-homepilot-primary/30">
             <Share2 className="h-4 w-4 mr-2" />
             Teilen
           </Button>
         </div>
         <div className="flex space-x-2">
-          <Button variant="ghost" size="sm" className="text-yellow-500 hover:text-yellow-600 hover:bg-yellow-50">
+          <Button variant="ghost" size="sm" className="text-homepilot-primary hover:text-homepilot-secondary hover:bg-homepilot-accent/10">
             <Star className="h-4 w-4 mr-2" />
             Als wichtig markieren
           </Button>

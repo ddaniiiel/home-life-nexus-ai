@@ -1,16 +1,30 @@
 
 import React, { useState } from 'react';
-import { Lightbulb, Home, Thermometer, Tv, Speaker, DoorClosed, Fan, WifiIcon, BatteryMedium, Power, Lock, Sunrise, Sunset } from 'lucide-react';
+import { Lightbulb, Home, Thermometer, Tv, Speaker, DoorClosed, Fan, Wifi as WifiIcon, BatteryMedium, Power, Lock, Sunrise, Sunset } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 import { Badge } from '@/components/ui/badge';
 import Widget from './Widget';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 
+interface Device {
+  id: number;
+  name: string;
+  type: string;
+  isOn: boolean;
+  room: string;
+  icon: React.ForwardRefExoticComponent<any>;
+  color: string;
+  brightness?: number;
+  temp?: number;
+  volume?: number;
+  speed?: number;
+}
+
 const SmartHomeWidget = () => {
-  const [devices, setDevices] = useState([
+  const [devices, setDevices] = useState<Device[]>([
     { id: 1, name: 'Wohnzimmer Licht', type: 'light', isOn: false, brightness: 80, room: 'Wohnzimmer', icon: Lightbulb, color: 'yellow' },
     { id: 2, name: 'Küche Licht', type: 'light', isOn: true, brightness: 70, room: 'Küche', icon: Lightbulb, color: 'yellow' },
     { id: 3, name: 'Thermostat', type: 'thermostat', isOn: true, temp: 21, room: 'Wohnzimmer', icon: Thermometer, color: 'blue' },
@@ -62,7 +76,7 @@ const SmartHomeWidget = () => {
   };
 
   // Geräte nach Raum gruppieren
-  const devicesByRoom: Record<string, typeof devices> = devices.reduce((acc: Record<string, typeof devices>, device) => {
+  const devicesByRoom = devices.reduce<Record<string, Device[]>>((acc, device) => {
     if (!acc[device.room]) {
       acc[device.room] = [];
     }
@@ -74,7 +88,7 @@ const SmartHomeWidget = () => {
   const rooms = Object.keys(devicesByRoom);
   
   // Get device icon component
-  const DeviceIcon = ({ device }: { device: any }) => {
+  const DeviceIcon = ({ device }: { device: Device }) => {
     const Icon = device.icon;
     const isOn = device.isOn;
     
@@ -82,13 +96,13 @@ const SmartHomeWidget = () => {
     if (isOn) {
       switch (device.color) {
         case 'yellow':
-          colorClass = 'text-yellow-400';
+          colorClass = 'text-homepilot-primary';
           break;
         case 'blue':
           colorClass = 'text-blue-500';
           break;
         case 'green':
-          colorClass = 'text-green-500';
+          colorClass = 'text-homepilot-secondary';
           break;
         case 'purple':
           colorClass = 'text-purple-500';
@@ -105,12 +119,12 @@ const SmartHomeWidget = () => {
   };
   
   // Aktion basierend auf Gerätetyp rendern
-  const renderDeviceAction = (device: any) => {
+  const renderDeviceAction = (device: Device) => {
     switch (device.type) {
       case 'light':
         return (
           <div className="flex flex-col items-end">
-            {device.isOn && (
+            {device.isOn && device.brightness !== undefined && (
               <div className="w-28 mb-2">
                 <Slider
                   value={[device.brightness]} 
@@ -137,7 +151,7 @@ const SmartHomeWidget = () => {
       case 'thermostat':
         return (
           <div className="flex flex-col items-end">
-            {device.isOn && (
+            {device.isOn && device.temp !== undefined && (
               <div className="w-28 mb-2">
                 <Slider
                   value={[device.temp]} 
@@ -164,7 +178,7 @@ const SmartHomeWidget = () => {
       case 'audio':
         return (
           <div className="flex flex-col items-end">
-            {device.isOn && (
+            {device.isOn && device.volume !== undefined && (
               <div className="w-28 mb-2">
                 <Slider
                   value={[device.volume]} 
@@ -191,7 +205,7 @@ const SmartHomeWidget = () => {
       case 'fan':
         return (
           <div className="flex flex-col items-end">
-            {device.isOn && (
+            {device.isOn && device.speed !== undefined && (
               <div className="w-28 mb-2">
                 <Slider
                   value={[device.speed]} 
@@ -233,7 +247,7 @@ const SmartHomeWidget = () => {
     return (
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <Badge variant="outline" className="font-medium">{roomName}</Badge>
+          <Badge variant="outline" className="font-medium bg-homepilot-accent/30 text-homepilot-secondary border-homepilot-primary/20">{roomName}</Badge>
           <span className="text-xs text-gray-500">{roomDevices.length} Geräte</span>
         </div>
         
@@ -243,7 +257,7 @@ const SmartHomeWidget = () => {
             className={cn(
               "flex items-center justify-between py-3 px-4 rounded-lg transition-colors",
               device.isOn 
-                ? "bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm" 
+                ? "bg-homepilot-accent/10 border border-homepilot-primary/20 shadow-sm" 
                 : "border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
             )}
           >
@@ -251,7 +265,7 @@ const SmartHomeWidget = () => {
               <div className={cn(
                 "w-9 h-9 flex items-center justify-center rounded-full mr-3",
                 device.isOn 
-                  ? device.color === 'yellow' ? 'bg-yellow-100 dark:bg-yellow-900/30' 
+                  ? device.color === 'yellow' ? 'bg-homepilot-accent dark:bg-homepilot-primary/30' 
                   : device.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900/30'
                   : device.color === 'green' ? 'bg-green-100 dark:bg-green-900/30'
                   : device.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900/30'
@@ -278,14 +292,24 @@ const SmartHomeWidget = () => {
   };
 
   return (
-    <Widget title="Smart Home" icon={<Home className="h-5 w-5" />}>
+    <Widget 
+      title="Smart Home" 
+      icon={<Home className="h-5 w-5" />}
+      className="border-homepilot-primary/20"
+    >
       <div className="space-y-4">
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="w-full mb-3">
-            <TabsTrigger value="all" className="flex-1">Alle</TabsTrigger>
-            <TabsTrigger value="scenes" className="flex-1">Szenen</TabsTrigger>
+          <TabsList className="w-full mb-3 bg-homepilot-accent/20">
+            <TabsTrigger value="all" className="flex-1 data-[state=active]:bg-homepilot-primary data-[state=active]:text-white">Alle</TabsTrigger>
+            <TabsTrigger value="scenes" className="flex-1 data-[state=active]:bg-homepilot-primary data-[state=active]:text-white">Szenen</TabsTrigger>
             {rooms.slice(0, 3).map(room => (
-              <TabsTrigger key={room} value={room} className="flex-1">{room}</TabsTrigger>
+              <TabsTrigger 
+                key={room} 
+                value={room} 
+                className="flex-1 data-[state=active]:bg-homepilot-primary data-[state=active]:text-white"
+              >
+                {room}
+              </TabsTrigger>
             ))}
           </TabsList>
           
@@ -299,7 +323,7 @@ const SmartHomeWidget = () => {
                 <Button 
                   key={scene.id}
                   variant="outline"
-                  className="h-auto flex flex-col items-center justify-center p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                  className="h-auto flex flex-col items-center justify-center p-4 border rounded-lg hover:bg-homepilot-accent/10 border-homepilot-primary/20"
                 >
                   <div className="w-10 h-10 flex items-center justify-center rounded-full bg-homepilot-primary/10 mb-2">
                     <scene.icon className="h-5 w-5 text-homepilot-primary" />
@@ -318,11 +342,11 @@ const SmartHomeWidget = () => {
           ))}
         </Tabs>
         
-        <div className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex justify-between items-center pt-2 border-t border-homepilot-primary/10">
           <div className="flex items-center space-x-3">
             <div className="flex items-center">
-              <div className="w-6 h-6 flex items-center justify-center rounded-full bg-green-100 mr-1.5">
-                <BatteryMedium className="h-3 w-3 text-green-600" />
+              <div className="w-6 h-6 flex items-center justify-center rounded-full bg-homepilot-accent mr-1.5">
+                <BatteryMedium className="h-3 w-3 text-homepilot-secondary" />
               </div>
               <span className="text-xs">Energiemodus: Öko</span>
             </div>

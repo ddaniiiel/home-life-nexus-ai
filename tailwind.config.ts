@@ -64,11 +64,13 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				homepilot: {
-					primary: '#3B82F6', // Blue
-					secondary: '#10B981', // Green
-					accent: '#06B6D4', // Cyan
-					dark: '#1F2937', // Dark gray
-					light: '#F3F4F6', // Light gray
+					primary: '#4CAF50', // Medium Green (Main accent)
+					secondary: '#388E3C', // Darker Green
+					accent: '#C8E6C9',   // Light Green
+					neutral: '#F0F0F0',  // Very Light Gray
+					warning: '#FF9800',  // Orange
+					dark: '#333333',     // Dark Gray
+					light: '#FFFFFF',    // White
 				}
 			},
 			borderRadius: {

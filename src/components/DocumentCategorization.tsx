@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { FileCheck, Upload, Folder, PlusCircle, Search, Tag, Filter } from 'lucide-react';
+import { FileCheck, Upload, Folder, PlusCircle, Search, Tag, Filter, Trash2, Download, Eye } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -16,10 +16,18 @@ import { toast } from '@/components/ui/use-toast';
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from '@/components/ui/badge';
+import DocumentPreview from './DocumentPreview';
+
+interface Document {
+  id: number;
+  name: string;
+  date: string;
+  important?: boolean;
+}
 
 const DocumentCategorization = () => {
   const [categories, setCategories] = useState([
-    { id: 1, name: 'Familie', icon: '👨‍👩‍👧‍👦', color: 'bg-blue-100', count: 8 },
+    { id: 1, name: 'Familie', icon: '👨‍👩‍👧‍👦', color: 'bg-homepilot-accent', count: 8 },
     { id: 2, name: 'Versicherungen', icon: '🔒', color: 'bg-green-100', count: 12 },
     { id: 3, name: 'Auto', icon: '🚗', color: 'bg-purple-100', count: 5 },
     { id: 4, name: 'Haus & Hypothek', icon: '🏠', color: 'bg-yellow-100', count: 9 },
@@ -34,9 +42,11 @@ const DocumentCategorization = () => {
   const [activeTab, setActiveTab] = useState("categories");
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [viewDocument, setViewDocument] = useState<Document | null>(null);
   
   // Beispieldokumente nach Kategorie
-  const documentsByCategory = {
+  const documentsByCategory: Record<string, Document[]> = {
     'Familie': [
       { id: 1, name: 'Geburtsurkunde_Emma.pdf', date: '2023-05-12' },
       { id: 2, name: 'Familienpass_2025.pdf', date: '2025-01-15' },
@@ -77,7 +87,7 @@ const DocumentCategorization = () => {
   // Filtere wichtige Dokumente
   const importantDocuments = Object.values(documentsByCategory)
     .flat()
-    .filter(doc => doc.important)
+    .filter(doc => doc.important === true)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   
   // Aktuelle Dokumente (sortiert nach Datum)
@@ -128,7 +138,7 @@ const DocumentCategorization = () => {
       return;
     }
     
-    const colors = ['bg-blue-100', 'bg-green-100', 'bg-purple-100', 'bg-yellow-100', 'bg-red-100', 'bg-pink-100'];
+    const colors = ['bg-homepilot-accent', 'bg-green-100', 'bg-purple-100', 'bg-yellow-100', 'bg-red-100', 'bg-pink-100'];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
     
     setCategories([
@@ -150,12 +160,20 @@ const DocumentCategorization = () => {
     });
   };
   
+  const deleteDocument = (docId: number) => {
+    // In a real app, this would delete the document from the database
+    toast({
+      title: "Dokument gelöscht",
+      description: "Das Dokument wurde erfolgreich gelöscht.",
+    });
+  };
+  
   const icons = ['📁', '📄', '📝', '🔒', '⚡', '💰', '🏠', '🚗', '💼', '🏥', '📱', '💻', '👨‍👩‍👧‍👦', '🎓', '✈️', '🏦', '🏫', '📊'];
   
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Dokumentenverwaltung</CardTitle>
+    <Card className="border-homepilot-primary/20">
+      <CardHeader className="bg-gradient-to-r from-homepilot-accent/30 to-transparent">
+        <CardTitle className="text-homepilot-secondary">Dokumentenverwaltung</CardTitle>
         <CardDescription>
           Organisiere wichtige Familiendokumente in Kategorien für schnellen Zugriff
         </CardDescription>
@@ -190,102 +208,196 @@ const DocumentCategorization = () => {
           </div>
           
           <TabsContent value="categories">
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {categories.map(category => (
-                  <div 
-                    key={category.id} 
-                    className={cn(
-                      "p-4 rounded-lg flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md transition-shadow",
-                      category.color
-                    )}
+            {selectedCategory ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setSelectedCategory(null)}
+                    className="flex items-center gap-2"
                   >
-                    <span className="text-3xl mb-2">{category.icon}</span>
-                    <span className="font-medium text-sm mb-1">{category.name}</span>
-                    <Badge variant="secondary" className="text-xs">{category.count} Dokumente</Badge>
-                  </div>
-                ))}
+                    <Folder className="h-4 w-4" />
+                    Zurück zu allen Kategorien
+                  </Button>
+                  <h3 className="text-lg font-semibold">Kategorie: {selectedCategory}</h3>
+                </div>
                 
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <div className="p-4 rounded-lg border-2 border-dashed flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                      <PlusCircle className="h-8 w-8 text-gray-400 mb-2" />
-                      <span className="font-medium text-sm text-gray-500">Neue Kategorie</span>
-                    </div>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Neue Kategorie erstellen</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="category-name">Name</Label>
-                        <Input 
-                          id="category-name" 
-                          value={newCategory.name}
-                          onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
-                          placeholder="Name der Kategorie" 
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label>Icon auswählen</Label>
-                        <div className="grid grid-cols-6 gap-2">
-                          {icons.map((icon) => (
-                            <button
-                              key={icon}
-                              type="button"
-                              onClick={() => setNewCategory({...newCategory, icon})}
-                              className={cn(
-                                "h-10 text-xl flex items-center justify-center rounded border",
-                                newCategory.icon === icon ? "border-homepilot-primary bg-homepilot-primary/10" : "border-gray-200"
-                              )}
-                            >
-                              {icon}
-                            </button>
-                          ))}
+                <div className="space-y-3">
+                  {documentsByCategory[selectedCategory]?.map(doc => (
+                    <div key={doc.id} className="p-3 rounded-lg border border-homepilot-accent/20 hover:border-homepilot-primary/30 flex justify-between items-center hover:bg-homepilot-accent/5 transition-all">
+                      <div className="flex items-center">
+                        <div className="bg-homepilot-primary/10 dark:bg-homepilot-primary/20 p-2 rounded-full mr-3">
+                          <FileCheck className="h-4 w-4 text-homepilot-primary dark:text-homepilot-accent" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">{doc.name}</p>
+                          <p className="text-xs text-gray-500">
+                            Datum: {new Date(doc.date).toLocaleDateString('de-CH')}
+                          </p>
                         </div>
                       </div>
-                      
-                      <Button onClick={addNewCategory} className="w-full mt-2">
-                        Kategorie erstellen
-                      </Button>
+                      <div className="flex space-x-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-homepilot-secondary hover:text-homepilot-primary hover:bg-homepilot-accent/10"
+                          onClick={() => setViewDocument(doc)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-homepilot-secondary hover:text-homepilot-primary hover:bg-homepilot-accent/10"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                          onClick={() => deleteDocument(doc.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
-              
-              {/* Dokumenten-Upload-Sektion */}
-              <div 
-                className={cn(
-                  "border-2 border-dashed rounded-lg p-8 text-center transition-colors",
-                  dragOver ? "bg-homepilot-primary/5 border-homepilot-primary" : "border-gray-300 dark:border-gray-700"
-                )}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-              >
-                <Upload className="h-10 w-10 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">Dokumente hochladen</h3>
-                <p className="text-sm text-gray-500 mb-4">
-                  Ziehe Dateien hierher oder klicke auf "Durchsuchen", um Dokumente hochzuladen
-                </p>
-                <div className="flex justify-center">
-                  <label htmlFor="file-upload" className="cursor-pointer">
-                    <div className="bg-homepilot-primary text-white px-4 py-2 rounded text-sm hover:bg-homepilot-primary/90">
-                      Durchsuchen
-                    </div>
-                    <input 
-                      id="file-upload" 
-                      type="file" 
-                      multiple 
-                      className="hidden" 
-                      onChange={handleFileInputChange} 
-                    />
-                  </label>
+                  ))}
+                </div>
+                
+                {/* Dokumenten-Upload-Sektion */}
+                <div 
+                  className={cn(
+                    "border-2 border-dashed rounded-lg p-6 text-center transition-colors mt-4",
+                    dragOver ? "bg-homepilot-primary/5 border-homepilot-primary" : "border-gray-300 dark:border-gray-700"
+                  )}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
+                  <Upload className="h-8 w-8 text-homepilot-primary mx-auto mb-3" />
+                  <h3 className="text-md font-medium mb-2">Dokumente zu {selectedCategory} hinzufügen</h3>
+                  <p className="text-sm text-gray-500 mb-3">
+                    Ziehe Dateien hierher oder klicke auf "Durchsuchen"
+                  </p>
+                  <div className="flex justify-center">
+                    <label htmlFor="file-upload" className="cursor-pointer">
+                      <div className="bg-homepilot-primary text-white px-4 py-2 rounded text-sm hover:bg-homepilot-secondary transition-colors">
+                        Durchsuchen
+                      </div>
+                      <input 
+                        id="file-upload" 
+                        type="file" 
+                        multiple 
+                        className="hidden" 
+                        onChange={handleFileInputChange} 
+                      />
+                    </label>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {categories.map(category => (
+                    <div 
+                      key={category.id} 
+                      className={cn(
+                        "p-4 rounded-lg flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md transition-all border border-transparent hover:border-homepilot-primary/20",
+                        category.color
+                      )}
+                      onClick={() => setSelectedCategory(category.name)}
+                    >
+                      <span className="text-3xl mb-2">{category.icon}</span>
+                      <span className="font-medium text-sm mb-1">{category.name}</span>
+                      <Badge variant="secondary" className="text-xs bg-homepilot-primary/10 text-homepilot-secondary">{category.count} Dokumente</Badge>
+                    </div>
+                  ))}
+                  
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <div className="p-4 rounded-lg border-2 border-dashed flex flex-col items-center justify-center text-center cursor-pointer hover:bg-homepilot-accent/10 dark:hover:bg-gray-800 transition-colors">
+                        <PlusCircle className="h-8 w-8 text-homepilot-primary mb-2" />
+                        <span className="font-medium text-sm text-gray-500">Neue Kategorie</span>
+                      </div>
+                    </DialogTrigger>
+                    <DialogContent className="bg-white dark:bg-gray-800">
+                      <DialogHeader>
+                        <DialogTitle>Neue Kategorie erstellen</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="category-name">Name</Label>
+                          <Input 
+                            id="category-name" 
+                            value={newCategory.name}
+                            onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
+                            placeholder="Name der Kategorie" 
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label>Icon auswählen</Label>
+                          <div className="grid grid-cols-6 gap-2">
+                            {icons.map((icon) => (
+                              <button
+                                key={icon}
+                                type="button"
+                                onClick={() => setNewCategory({...newCategory, icon})}
+                                className={cn(
+                                  "h-10 text-xl flex items-center justify-center rounded border",
+                                  newCategory.icon === icon 
+                                    ? "border-homepilot-primary bg-homepilot-accent" 
+                                    : "border-gray-200 hover:border-homepilot-primary/50 hover:bg-homepilot-accent/20"
+                                )}
+                              >
+                                {icon}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <Button onClick={addNewCategory} className="w-full mt-2 bg-homepilot-primary hover:bg-homepilot-secondary">
+                          Kategorie erstellen
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+                
+                {/* Dokumenten-Upload-Sektion */}
+                <div 
+                  className={cn(
+                    "border-2 border-dashed rounded-lg p-8 text-center transition-colors",
+                    dragOver ? "bg-homepilot-primary/5 border-homepilot-primary" : "border-gray-300 dark:border-gray-700"
+                  )}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
+                  <Upload className="h-10 w-10 text-homepilot-primary mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">Dokumente hochladen</h3>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Ziehe Dateien hierher oder klicke auf "Durchsuchen", um Dokumente hochzuladen
+                  </p>
+                  <div className="flex justify-center">
+                    <label htmlFor="file-upload" className="cursor-pointer">
+                      <div className="bg-homepilot-primary text-white px-4 py-2 rounded text-sm hover:bg-homepilot-secondary transition-colors">
+                        Durchsuchen
+                      </div>
+                      <input 
+                        id="file-upload" 
+                        type="file" 
+                        multiple 
+                        className="hidden" 
+                        onChange={handleFileInputChange} 
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
           </TabsContent>
           
           <TabsContent value="important">
@@ -310,7 +422,7 @@ const DocumentCategorization = () => {
               {importantDocuments.length > 0 ? (
                 <div className="space-y-2">
                   {importantDocuments.map(doc => (
-                    <div key={doc.id} className="p-3 rounded-lg border flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <div key={doc.id} className="p-3 rounded-lg border border-homepilot-accent/20 hover:border-homepilot-primary/30 flex justify-between items-center hover:bg-homepilot-accent/5 transition-all">
                       <div className="flex items-center">
                         <div className="bg-red-100 dark:bg-red-900 p-2 rounded-full mr-3">
                           <FileCheck className="h-4 w-4 text-red-600 dark:text-red-400" />
@@ -322,7 +434,31 @@ const DocumentCategorization = () => {
                           </p>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm">Anzeigen</Button>
+                      <div className="flex space-x-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-homepilot-secondary hover:text-homepilot-primary hover:bg-homepilot-accent/10"
+                          onClick={() => setViewDocument(doc)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-homepilot-secondary hover:text-homepilot-primary hover:bg-homepilot-accent/10"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                          onClick={() => deleteDocument(doc.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -341,10 +477,10 @@ const DocumentCategorization = () => {
               {recentDocuments.length > 0 ? (
                 <div className="space-y-2">
                   {recentDocuments.map(doc => (
-                    <div key={doc.id} className="p-3 rounded-lg border flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <div key={doc.id} className="p-3 rounded-lg border border-homepilot-accent/20 hover:border-homepilot-primary/30 flex justify-between items-center hover:bg-homepilot-accent/5 transition-all">
                       <div className="flex items-center">
-                        <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-full mr-3">
-                          <FileCheck className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        <div className="bg-homepilot-primary/10 dark:bg-homepilot-primary/20 p-2 rounded-full mr-3">
+                          <FileCheck className="h-4 w-4 text-homepilot-primary dark:text-homepilot-accent" />
                         </div>
                         <div>
                           <p className="font-medium text-sm">{doc.name}</p>
@@ -353,7 +489,31 @@ const DocumentCategorization = () => {
                           </p>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm">Anzeigen</Button>
+                      <div className="flex space-x-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-homepilot-secondary hover:text-homepilot-primary hover:bg-homepilot-accent/10"
+                          onClick={() => setViewDocument(doc)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-homepilot-secondary hover:text-homepilot-primary hover:bg-homepilot-accent/10"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                          onClick={() => deleteDocument(doc.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -365,6 +525,25 @@ const DocumentCategorization = () => {
             </div>
           </TabsContent>
         </Tabs>
+        
+        {/* Document Preview Dialog */}
+        {viewDocument && (
+          <Dialog open={!!viewDocument} onOpenChange={() => setViewDocument(null)}>
+            <DialogContent className="max-w-4xl">
+              <DialogHeader>
+                <DialogTitle>Dokumentvorschau</DialogTitle>
+              </DialogHeader>
+              <DocumentPreview 
+                document={{
+                  id: viewDocument.id,
+                  name: viewDocument.name,
+                  date: viewDocument.date,
+                  important: viewDocument.important
+                }}
+              />
+            </DialogContent>
+          </Dialog>
+        )}
       </CardContent>
     </Card>
   );
