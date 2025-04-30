@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { List, Check, Plus, User } from 'lucide-react';
+import { List, Check, Plus } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';

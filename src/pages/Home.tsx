@@ -7,7 +7,7 @@ const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
-  // Check if we have saved login state
+  // Check if we have saved login state on mount
   useEffect(() => {
     const savedLoginState = localStorage.getItem('homepilot_logged_in');
     if (savedLoginState === 'true') {

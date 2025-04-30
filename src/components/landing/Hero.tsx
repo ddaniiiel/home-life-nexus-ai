@@ -12,10 +12,8 @@ const Hero: React.FC<HeroProps> = ({ onLogin }) => {
   const navigate = useNavigate();
 
   const handleStart = () => {
-    // Set login state first
+    // Erst den Login-Status setzen, dann navigieren
     onLogin();
-    // Then navigate to dashboard
-    navigate('/dashboard');
   };
 
   return (

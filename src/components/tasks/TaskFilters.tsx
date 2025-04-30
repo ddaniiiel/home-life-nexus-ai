@@ -24,7 +24,7 @@ const TaskFilters: React.FC<TaskFiltersProps> = ({
   onFilterChange
 }) => {
   return (
-    <Select defaultValue={currentFilter} onValueChange={onFilterChange}>
+    <Select value={currentFilter} onValueChange={onFilterChange}>
       <SelectTrigger className="w-40">
         <SelectValue placeholder="Filter" />
       </SelectTrigger>
