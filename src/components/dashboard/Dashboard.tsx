@@ -4,7 +4,8 @@ import SmartHomeWidget from '@/components/SmartHomeWidget';
 import TaskWidget from '@/components/TaskWidget';
 import CalendarWidget from '@/components/CalendarWidget';
 import FinanceWidget from '@/components/FinanceWidget';
-import { FileText, Package, Newspaper, Wallet, Lightbulb, Bell, Shield, Home, Calendar, PlusCircle, MinusCircle } from 'lucide-react';
+import NewsWidget from '@/components/NewsWidget';
+import { FileText, Package, Wallet, Shield, Home, Calendar, PlusCircle, MinusCircle } from 'lucide-react';
 import Widget from '@/components/Widget';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -31,7 +32,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onLogout }) => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Button variant="outline" asChild className="h-auto flex flex-col py-4 hover:bg-homepilot-primary/5">
                   <Link to="/smart-home">
-                    <Lightbulb className="h-6 w-6 mb-2" />
+                    <Home className="h-6 w-6 mb-2" />
                     <span>Smart Home</span>
                   </Link>
                 </Button>
@@ -232,29 +233,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userName, onLogout }) => {
             </div>
           </Widget>
           
-          <Widget title="Aktuelle News" icon={<Newspaper className="h-5 w-5" />}>
-            <div className="space-y-3">
-              <div className="p-2 rounded-md border border-gray-200 dark:border-gray-700">
-                <p className="font-medium text-sm">Neue Energiepreise für 2026</p>
-                <p className="text-xs text-gray-500 mb-1">22.04.2025 | Bundesamt für Energie</p>
-                <p className="text-xs">Das Bundesamt für Energie hat die neuen Tarife für das kommende Jahr veröffentlicht. Hausbesitzer können mit niedrigeren Stromkosten rechnen.</p>
-              </div>
-              
-              <div className="p-2 rounded-md border border-gray-200 dark:border-gray-700">
-                <p className="font-medium text-sm">Änderung im Eigentumsrecht</p>
-                <p className="text-xs text-gray-500 mb-1">15.04.2025 | Schweizerischer Bundesrat</p>
-                <p className="text-xs">Der Bundesrat plant eine Reform des Stockwerkeigentums. Die neuen Regelungen sollen Renovierungsprojekte erleichtern.</p>
-              </div>
-              
-              <div className="p-2 rounded-md border border-gray-200 dark:border-gray-700">
-                <p className="font-medium text-sm">Steuervergünstigungen verlängert</p>
-                <p className="text-xs text-gray-500 mb-1">10.04.2025 | Eidg. Steuerverwaltung</p>
-                <p className="text-xs">Das Parlament hat die Steuervergünstigungen für energetische Gebäudesanierungen um weitere fünf Jahre verlängert.</p>
-              </div>
-              
-              <Link to="/news" className="text-xs text-homepilot-primary hover:underline mt-2 block">Alle News anzeigen →</Link>
-            </div>
-          </Widget>
+          <NewsWidget />
           
           <Widget title="Versicherungen" icon={<Shield className="h-5 w-5" />}>
             <div className="space-y-3">
