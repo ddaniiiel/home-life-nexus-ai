@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
 import { Phone, User, AlertTriangle, Search, PlusCircle, Check, ChevronRight, MapPin, Clock, Calendar, FileText, Shield, BadgeAlert } from 'lucide-react';
@@ -18,6 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/components/ui/use-toast';
+import { cn } from '@/lib/utils';
 
 interface Contact {
   id: number;
