@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Lightbulb, Home, Thermometer, Tv, Speaker, Door, Fan } from 'lucide-react';
+import { Lightbulb, Home, Thermometer, Tv, Speaker, DoorClosed, Fan } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -33,7 +33,7 @@ const SmartHomeWidget = () => {
       case 'audio':
         return <Speaker className={cn("h-5 w-5", isOn ? "text-purple-500" : "text-gray-400")} />;
       case 'door':
-        return <Door className={cn("h-5 w-5", isOn ? "text-green-500" : "text-gray-400")} />;
+        return <DoorClosed className={cn("h-5 w-5", isOn ? "text-green-500" : "text-gray-400")} />;
       case 'fan':
         return <Fan className={cn("h-5 w-5", isOn ? "text-blue-400" : "text-gray-400")} />;
       default:
@@ -42,7 +42,7 @@ const SmartHomeWidget = () => {
   };
 
   // Geräte nach Raum gruppieren
-  const devicesByRoom = devices.reduce((acc, device) => {
+  const devicesByRoom: Record<string, typeof devices> = devices.reduce((acc: Record<string, typeof devices>, device) => {
     if (!acc[device.room]) {
       acc[device.room] = [];
     }
@@ -60,7 +60,7 @@ const SmartHomeWidget = () => {
               <span className="text-xs text-gray-500">{roomDevices.length} Geräte</span>
             </div>
             
-            {roomDevices.map((device: any) => (
+            {roomDevices.map((device) => (
               <div 
                 key={device.id} 
                 className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border border-gray-100 dark:border-gray-800"

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import DashboardHeader from './DashboardHeader';
 import SmartHomeWidget from '@/components/SmartHomeWidget';
@@ -5,7 +6,7 @@ import TaskWidget from '@/components/TaskWidget';
 import CalendarWidget from '@/components/CalendarWidget';
 import FinanceWidget from '@/components/FinanceWidget';
 import NewsWidget from '@/components/NewsWidget';
-import { FileText, Package, Wallet, Shield, Home, Calendar, PlusCircle, MinusCircle } from 'lucide-react';
+import { FileText, Package, Wallet, Shield, Home, Calendar, PlusCircle, MinusCircle, Bell } from 'lucide-react';
 import Widget from '@/components/Widget';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
