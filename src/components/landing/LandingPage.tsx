@@ -12,7 +12,7 @@ interface LandingPageProps {
 
 const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
   return (
-    <div className="md:ml-0">
+    <div className="w-full">
       <Hero onLogin={onLogin} />
       <Features />
       <FamilyOverview />

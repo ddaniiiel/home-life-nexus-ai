@@ -8,6 +8,7 @@ import Widget from './Widget';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 interface Device {
   id: number;
@@ -28,21 +29,13 @@ const SmartHomeWidget = () => {
     { id: 1, name: 'Wohnzimmer Licht', type: 'light', isOn: false, brightness: 80, room: 'Wohnzimmer', icon: Lightbulb, color: 'yellow' },
     { id: 2, name: 'Küche Licht', type: 'light', isOn: true, brightness: 70, room: 'Küche', icon: Lightbulb, color: 'yellow' },
     { id: 3, name: 'Thermostat', type: 'thermostat', isOn: true, temp: 21, room: 'Wohnzimmer', icon: Thermometer, color: 'blue' },
-    { id: 4, name: 'TV', type: 'tv', isOn: false, room: 'Wohnzimmer', icon: Tv, color: 'blue' },
-    { id: 5, name: 'Smart Speaker', type: 'audio', isOn: true, volume: 40, room: 'Küche', icon: Speaker, color: 'purple' },
-    { id: 6, name: 'Haustür', type: 'door', isOn: false, room: 'Eingang', icon: DoorClosed, color: 'green' },
-    { id: 7, name: 'Schlafzimmer Licht', type: 'light', isOn: false, brightness: 60, room: 'Schlafzimmer', icon: Lightbulb, color: 'yellow' },
-    { id: 8, name: 'Ventilator', type: 'fan', isOn: false, speed: 2, room: 'Schlafzimmer', icon: Fan, color: 'blue' },
-    { id: 9, name: 'Kinderzimmer Licht', type: 'light', isOn: false, brightness: 50, room: 'Kinderzimmer', icon: Lightbulb, color: 'yellow' },
-    { id: 10, name: 'WLAN-Router', type: 'network', isOn: true, room: 'Büro', icon: WifiIcon, color: 'green' },
+    { id: 4, name: 'TV', type: 'tv', isOn: false, room: 'Wohnzimmer', icon: Tv, color: 'blue' }
   ]);
   
   const [activeTab, setActiveTab] = useState<string>('all');
   const [quickScenes] = useState([
     { id: 1, name: 'Guten Morgen', icon: Sunrise, devices: 4 },
-    { id: 2, name: 'Gute Nacht', icon: Sunset, devices: 6 },
-    { id: 3, name: 'Heimkino', icon: Tv, devices: 3 },
-    { id: 4, name: 'Energiesparen', icon: Power, devices: 8 },
+    { id: 2, name: 'Gute Nacht', icon: Sunset, devices: 6 }
   ]);
 
   const toggleDevice = (id: number) => {
@@ -63,18 +56,6 @@ const SmartHomeWidget = () => {
     ));
   };
   
-  const adjustVolume = (id: number, value: number[]) => {
-    setDevices(devices.map(device => 
-      device.id === id ? { ...device, volume: value[0] } : device
-    ));
-  };
-  
-  const adjustFanSpeed = (id: number, value: number[]) => {
-    setDevices(devices.map(device => 
-      device.id === id ? { ...device, speed: value[0] } : device
-    ));
-  };
-
   // Geräte nach Raum gruppieren
   const devicesByRoom = devices.reduce<Record<string, Device[]>>((acc, device) => {
     if (!acc[device.room]) {
@@ -103,12 +84,6 @@ const SmartHomeWidget = () => {
           break;
         case 'green':
           colorClass = 'text-homepilot-secondary';
-          break;
-        case 'purple':
-          colorClass = 'text-purple-500';
-          break;
-        case 'red':
-          colorClass = 'text-red-500';
           break;
         default:
           colorClass = 'text-homepilot-primary';
@@ -175,60 +150,6 @@ const SmartHomeWidget = () => {
             />
           </div>
         );
-      case 'audio':
-        return (
-          <div className="flex flex-col items-end">
-            {device.isOn && device.volume !== undefined && (
-              <div className="w-28 mb-2">
-                <Slider
-                  value={[device.volume]} 
-                  min={0}
-                  max={100}
-                  step={5}
-                  className="mb-1"
-                  onValueChange={(value) => adjustVolume(device.id, value)}
-                />
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>Leise</span>
-                  <span>{device.volume}%</span>
-                  <span>Laut</span>
-                </div>
-              </div>
-            )}
-            <Switch 
-              checked={device.isOn} 
-              onCheckedChange={() => toggleDevice(device.id)}
-              className="data-[state=checked]:bg-homepilot-primary"
-            />
-          </div>
-        );
-      case 'fan':
-        return (
-          <div className="flex flex-col items-end">
-            {device.isOn && device.speed !== undefined && (
-              <div className="w-28 mb-2">
-                <Slider
-                  value={[device.speed]} 
-                  min={1}
-                  max={5}
-                  step={1}
-                  className="mb-1"
-                  onValueChange={(value) => adjustFanSpeed(device.id, value)}
-                />
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>Min</span>
-                  <span>Stufe {device.speed}</span>
-                  <span>Max</span>
-                </div>
-              </div>
-            )}
-            <Switch 
-              checked={device.isOn} 
-              onCheckedChange={() => toggleDevice(device.id)}
-              className="data-[state=checked]:bg-homepilot-primary"
-            />
-          </div>
-        );
       default:
         return (
           <Switch 
@@ -268,8 +189,6 @@ const SmartHomeWidget = () => {
                   ? device.color === 'yellow' ? 'bg-homepilot-accent dark:bg-homepilot-primary/30' 
                   : device.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900/30'
                   : device.color === 'green' ? 'bg-green-100 dark:bg-green-900/30'
-                  : device.color === 'purple' ? 'bg-purple-100 dark:bg-purple-900/30'
-                  : device.color === 'red' ? 'bg-red-100 dark:bg-red-900/30'
                   : 'bg-gray-100 dark:bg-gray-800'
                   : 'bg-gray-100 dark:bg-gray-800'
               )}>
@@ -302,7 +221,7 @@ const SmartHomeWidget = () => {
           <TabsList className="w-full mb-3 bg-homepilot-accent/20">
             <TabsTrigger value="all" className="flex-1 data-[state=active]:bg-homepilot-primary data-[state=active]:text-white">Alle</TabsTrigger>
             <TabsTrigger value="scenes" className="flex-1 data-[state=active]:bg-homepilot-primary data-[state=active]:text-white">Szenen</TabsTrigger>
-            {rooms.slice(0, 3).map(room => (
+            {rooms.map(room => (
               <TabsTrigger 
                 key={room} 
                 value={room} 
@@ -350,19 +269,13 @@ const SmartHomeWidget = () => {
               </div>
               <span className="text-xs">Energiemodus: Öko</span>
             </div>
-            <div className="flex items-center">
-              <div className="w-6 h-6 flex items-center justify-center rounded-full bg-blue-100 mr-1.5">
-                <Lock className="h-3 w-3 text-blue-600" />
-              </div>
-              <span className="text-xs">Sicherheitsstatus: Aktiv</span>
-            </div>
           </div>
-          <a 
-            href="/smart-home" 
+          <Link 
+            to="/smart-home" 
             className="text-xs text-homepilot-primary hover:underline flex items-center"
           >
             Mehr anzeigen →
-          </a>
+          </Link>
         </div>
       </div>
     </Widget>

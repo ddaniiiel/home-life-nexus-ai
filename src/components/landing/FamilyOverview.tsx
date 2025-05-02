@@ -19,7 +19,7 @@ const FamilyOverview = () => {
         </div>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-          <Card className="border-green-100 dark:border-green-900 shadow-md">
+          <Card className="border-green-100 dark:border-green-900 shadow-md hover:shadow-lg transition-all">
             <CardContent className="p-6">
               <div className="mb-4 flex justify-center">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-r from-green-400 to-green-500 flex items-center justify-center">
@@ -33,7 +33,7 @@ const FamilyOverview = () => {
             </CardContent>
           </Card>
           
-          <Card className="border-green-100 dark:border-green-900 shadow-md">
+          <Card className="border-green-100 dark:border-green-900 shadow-md hover:shadow-lg transition-all">
             <CardContent className="p-6">
               <div className="mb-4 flex justify-center">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-r from-green-400 to-green-500 flex items-center justify-center">
@@ -47,7 +47,7 @@ const FamilyOverview = () => {
             </CardContent>
           </Card>
           
-          <Card className="border-green-100 dark:border-green-900 shadow-md">
+          <Card className="border-green-100 dark:border-green-900 shadow-md hover:shadow-lg transition-all">
             <CardContent className="p-6">
               <div className="mb-4 flex justify-center">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-r from-green-400 to-green-500 flex items-center justify-center">
@@ -61,7 +61,7 @@ const FamilyOverview = () => {
             </CardContent>
           </Card>
           
-          <Card className="border-green-100 dark:border-green-900 shadow-md">
+          <Card className="border-green-100 dark:border-green-900 shadow-md hover:shadow-lg transition-all">
             <CardContent className="p-6">
               <div className="mb-4 flex justify-center">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-r from-green-400 to-green-500 flex items-center justify-center">
@@ -86,29 +86,49 @@ const FamilyOverview = () => {
             </div>
             <div className="flex justify-around">
               <div className="text-center">
-                <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3">
-                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" alt="Vater" className="w-full h-full object-cover" />
+                <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3 border-2 border-green-200">
+                  <img 
+                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" 
+                    alt="Vater" 
+                    className="w-full h-full object-cover" 
+                    loading="lazy"
+                  />
                 </div>
                 <p className="font-medium">Thomas</p>
                 <p className="text-sm text-gray-500">Vater</p>
               </div>
               <div className="text-center">
-                <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3">
-                  <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80" alt="Mutter" className="w-full h-full object-cover" />
+                <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3 border-2 border-green-200">
+                  <img 
+                    src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80" 
+                    alt="Mutter" 
+                    className="w-full h-full object-cover" 
+                    loading="lazy"
+                  />
                 </div>
                 <p className="font-medium">Sarah</p>
                 <p className="text-sm text-gray-500">Mutter</p>
               </div>
               <div className="text-center">
-                <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3">
-                  <img src="https://images.unsplash.com/photo-1590080692141-56a6aaa7cdce" alt="Tochter" className="w-full h-full object-cover" />
+                <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3 border-2 border-green-200">
+                  <img 
+                    src="https://images.unsplash.com/photo-1590080692141-56a6aaa7cdce?auto=format&fit=crop&w=150&q=80" 
+                    alt="Tochter" 
+                    className="w-full h-full object-cover" 
+                    loading="lazy"
+                  />
                 </div>
                 <p className="font-medium">Emma</p>
                 <p className="text-sm text-gray-500">Tochter</p>
               </div>
               <div className="text-center">
-                <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3">
-                  <img src="https://images.unsplash.com/photo-1599463923592-e4e6206e9e3d" alt="Sohn" className="w-full h-full object-cover" />
+                <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-3 border-2 border-green-200">
+                  <img 
+                    src="https://images.unsplash.com/photo-1599463923592-e4e6206e9e3d?auto=format&fit=crop&w=150&q=80" 
+                    alt="Sohn" 
+                    className="w-full h-full object-cover" 
+                    loading="lazy"
+                  />
                 </div>
                 <p className="font-medium">Tim</p>
                 <p className="text-sm text-gray-500">Sohn</p>

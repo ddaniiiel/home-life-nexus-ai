@@ -12,7 +12,7 @@ const Home = () => {
     const savedLoginState = localStorage.getItem('homepilot_logged_in');
     if (savedLoginState === 'true') {
       setIsLoggedIn(true);
-      navigate('/dashboard');
+      navigate('/smart-home'); // Changed from '/dashboard' to '/smart-home'
     }
   }, [navigate]);
 
@@ -20,7 +20,7 @@ const Home = () => {
     // Save login state to localStorage for persistence
     localStorage.setItem('homepilot_logged_in', 'true');
     setIsLoggedIn(true);
-    navigate('/dashboard');
+    navigate('/smart-home'); // Changed from '/dashboard' to '/smart-home'
   };
 
   return (
