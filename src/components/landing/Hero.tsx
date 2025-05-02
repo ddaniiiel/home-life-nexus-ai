@@ -12,7 +12,7 @@ const Hero: React.FC<HeroProps> = ({ onLogin }) => {
   const navigate = useNavigate();
 
   const handleStart = () => {
-    // Set login state and navigate to smart home
+    // Set login state and navigate to dashboard
     onLogin();
   };
 

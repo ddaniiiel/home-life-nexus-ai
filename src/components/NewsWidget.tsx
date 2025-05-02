@@ -1,80 +1,110 @@
 
 import React from 'react';
-import { Newspaper, ExternalLink } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Newspaper, Clock, ArrowRight, ExternalLink, Tag } from 'lucide-react';
 import Widget from './Widget';
+import { Badge } from '@/components/ui/badge';
+
+interface NewsItem {
+  id: number;
+  title: string;
+  snippet: string;
+  source: string;
+  time: string; // e.g. "vor 2 Stunden"
+  category: string;
+  image?: string;
+}
 
 const NewsWidget = () => {
-  // Aktuelle Nachrichten mit echten Links
-  const currentNews = [
+  const newsItems: NewsItem[] = [
     {
       id: 1,
-      title: 'Klimawandel: Neue Studie zu erneuerbaren Energien',
-      source: 'Bundesamt für Energie',
-      date: '30.04.2025',
-      category: 'Energiepreise',
-      url: 'https://www.admin.ch/gov/de/start/dokumentation/medienmitteilungen.msg-id-96849.html'
+      title: 'Neue Smart Home-Geräte von Samsung vorgestellt',
+      snippet: 'Samsung hat heute eine neue Generation von Smart Home-Geräten vorgestellt, die...',
+      source: 'TechWelt',
+      time: 'vor 2 Stunden',
+      category: 'Tech',
+      image: 'https://images.unsplash.com/photo-1588453251771-cd919b362ed4?auto=format&fit=crop&w=360&h=200&q=80'
     },
     {
       id: 2,
-      title: 'Zinssenkung bei Hypotheken: Was Hausbesitzer wissen müssen',
-      source: 'SRF',
-      date: '28.04.2025',
-      category: 'Hypotheken',
-      url: 'https://www.srf.ch/news/wirtschaft/finanzierung-eigenheim-hypotheken-nicht-vorzeitig-abloesen-trotz-negativzins'
+      title: 'Studie: So sparen Smart Homes bis zu 30% Energie',
+      snippet: 'Eine aktuelle Studie zeigt, dass vernetzte Haushalte durchschnittlich 30% weniger Energie verbrauchen...',
+      source: 'Energiemagazin',
+      time: 'vor 5 Stunden',
+      category: 'Nachhaltigkeit',
+      image: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=360&h=200&q=80'
     },
     {
       id: 3,
-      title: 'Smart Home: Matter 2.0 Standard verabschiedet',
-      source: 'Connect',
-      date: '25.04.2025',
-      category: 'Smart Home',
-      url: 'https://www.connect.de/ratgeber/matter-smart-home-standard-geraete-kompatibilitaet-steuerung-3201220.html'
+      title: 'DIY: So einfach richtest du deinen Hausnotfallplan ein',
+      snippet: 'Ein gut vorbereiteter Notfallplan kann im Ernstfall Leben retten. Hier erfährst du, wie du...',
+      source: 'Familienblog',
+      time: 'vor 1 Tag',
+      category: 'Sicherheit',
+      image: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=360&h=200&q=80'
     }
   ];
 
-  const getCategoryColor = (category) => {
+  const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'Energiepreise': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-      case 'Hypotheken': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
-      case 'Smart Home': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
-      case 'Eigentumsrecht': return 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+      case 'Tech':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+      case 'Nachhaltigkeit':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+      case 'Sicherheit':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
     }
   };
 
   return (
-    <Widget title="Aktuelle News" icon={<Newspaper className="h-5 w-5" />}>
+    <Widget title="News & Updates" icon={<Newspaper className="h-5 w-5" />}>
       <div className="space-y-4">
-        {currentNews.map((news) => (
-          <div key={news.id} className="p-3 rounded-lg border border-gray-200 dark:border-gray-800 hover:shadow-md transition-shadow">
-            <div className="flex justify-between items-start mb-2">
-              <Badge className={`${getCategoryColor(news.category)} font-medium`}>
-                {news.category}
-              </Badge>
-              <span className="text-xs text-gray-500">{news.date}</span>
-            </div>
-            <h3 className="font-medium text-sm mb-1">{news.title}</h3>
-            <p className="text-xs text-gray-500 mb-3">{news.source}</p>
-            <Button 
-              asChild 
-              variant="outline" 
-              size="sm" 
-              className="w-full flex justify-between items-center text-homepilot-primary"
-            >
-              <a href={news.url} target="_blank" rel="noopener noreferrer">
-                <span>Weiterlesen</span>
-                <ExternalLink className="h-4 w-4 ml-2" />
+        {newsItems.map((item) => (
+          <div key={item.id} className="relative">
+            {item.image && (
+              <div className="mb-3 relative rounded-lg overflow-hidden">
+                <img 
+                  src={item.image} 
+                  alt={item.title} 
+                  className="w-full h-32 object-cover"
+                  loading="lazy"
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                  <div className="flex items-center justify-between">
+                    <Badge className={`${getCategoryColor(item.category)} text-xs`}>
+                      {item.category}
+                    </Badge>
+                    <Badge variant="outline" className="text-white border-white/50 text-xs">
+                      {item.source}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            )}
+            <h3 className="font-medium text-sm">{item.title}</h3>
+            <p className="text-xs text-gray-500 line-clamp-2">{item.snippet}</p>
+            <div className="flex items-center justify-between mt-2">
+              <div className="flex items-center text-xs text-gray-500">
+                <Clock className="h-3 w-3 mr-1" />
+                <span>{item.time}</span>
+              </div>
+              <a 
+                href="#" 
+                className="text-xs text-homepilot-primary hover:underline flex items-center"
+              >
+                Weiterlesen <ExternalLink className="h-3 w-3 ml-0.5" />
               </a>
-            </Button>
+            </div>
+            <div className="absolute -inset-2 rounded-lg hover:bg-homepilot-primary/5 opacity-0 hover:opacity-100 transition-opacity cursor-pointer" />
           </div>
         ))}
         <a 
-          href="/news" 
-          className="text-xs text-homepilot-primary hover:underline mt-4 flex items-center justify-center py-2 border-t pt-3 font-medium"
+          href="#" 
+          className="text-xs text-homepilot-primary hover:underline mt-2 block"
         >
-          Alle News anzeigen →
+          Alle Neuigkeiten anzeigen <ArrowRight className="inline-block h-3 w-3 ml-0.5" />
         </a>
       </div>
     </Widget>

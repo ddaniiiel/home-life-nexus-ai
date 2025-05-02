@@ -1,71 +1,54 @@
 
 import React, { ReactNode } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from "@/lib/utils";
 
 interface WidgetProps {
   title: string;
   description?: string;
-  className?: string;
-  children: ReactNode;
   icon?: ReactNode;
-  variant?: 'default' | 'primary' | 'danger' | 'warning' | 'success';
+  children: ReactNode;
+  variant?: 'default' | 'primary' | 'secondary';
+  className?: string;
 }
 
-const Widget: React.FC<WidgetProps> = ({ 
+const Widget = ({ 
   title, 
   description, 
-  className, 
-  children, 
   icon, 
-  variant = 'default' 
-}) => {
-  const headerClasses = cn(
-    "p-4 pb-2 flex flex-row items-center justify-between",
-    variant === 'default' && "bg-gradient-to-r from-green-100/50 to-transparent",
-    variant === 'primary' && "bg-gradient-to-r from-blue-100/50 to-transparent",
-    variant === 'danger' && "bg-gradient-to-r from-red-100 to-transparent",
-    variant === 'warning' && "bg-gradient-to-r from-yellow-100 to-transparent",
-    variant === 'success' && "bg-gradient-to-r from-green-100 to-transparent"
-  );
-  
-  const titleClasses = cn(
-    "text-lg font-medium",
-    variant === 'default' && "text-gray-700",
-    variant === 'primary' && "text-blue-700",
-    variant === 'danger' && "text-red-700",
-    variant === 'warning' && "text-yellow-700",
-    variant === 'success' && "text-green-700"
-  );
-  
-  const iconClasses = cn(
-    variant === 'default' && "text-gray-600",
-    variant === 'primary' && "text-blue-600",
-    variant === 'danger' && "text-red-600",
-    variant === 'warning' && "text-yellow-600",
-    variant === 'success' && "text-green-600"
-  );
-
-  const cardClasses = cn(
-    "widget-card",
-    variant === 'default' && "border-gray-200",
-    variant === 'primary' && "border-blue-200",
-    variant === 'danger' && "border-red-200",
-    variant === 'warning' && "border-yellow-200",
-    variant === 'success' && "border-green-200",
-    className
-  );
-
+  children, 
+  variant = 'default',
+  className
+}: WidgetProps) => {
   return (
-    <Card className={cardClasses}>
-      <CardHeader className={headerClasses}>
-        <div>
-          <CardTitle className={titleClasses}>{title}</CardTitle>
-          {description && <CardDescription>{description}</CardDescription>}
+    <Card className={cn("overflow-hidden border", 
+      variant === 'primary' ? 'border-blue-200 dark:border-blue-800' : 
+      variant === 'secondary' ? 'border-green-200 dark:border-green-800' : 
+      'border-gray-200 dark:border-gray-700',
+      className
+    )}>
+      <CardHeader className={cn("pb-2",
+        variant === 'primary' ? 'bg-blue-50 dark:bg-blue-900/20' : 
+        variant === 'secondary' ? 'bg-green-50 dark:bg-green-900/20' : 
+        ''
+      )}>
+        <div className="flex items-center">
+          {icon && (
+            <div className={cn("mr-2 p-1.5 rounded-full", 
+              variant === 'primary' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400' : 
+              variant === 'secondary' ? 'bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400' : 
+              'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+            )}>
+              {icon}
+            </div>
+          )}
+          <CardTitle className="text-lg">{title}</CardTitle>
         </div>
-        {icon && <div className={iconClasses}>{icon}</div>}
+        {description && (
+          <p className="text-sm text-muted-foreground mt-1">{description}</p>
+        )}
       </CardHeader>
-      <CardContent className="p-4 pt-2">
+      <CardContent className="p-4">
         {children}
       </CardContent>
     </Card>
