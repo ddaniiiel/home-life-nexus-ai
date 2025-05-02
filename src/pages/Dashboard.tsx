@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
 import { Home, Calendar, FileText, CreditCard, Lightbulb, Phone, User, ArrowRight } from 'lucide-react';
@@ -297,7 +296,7 @@ const Dashboard = () => {
                         <p className="text-xs text-gray-500">{event.location}</p>
                       </div>
                     </div>
-                    <Badge variant="outline" size="sm">{event.person}</Badge>
+                    <Badge variant="outline" className="text-xs">{event.person}</Badge>
                   </div>
                 ))}
                 <Button className="w-full mt-2 bg-blue-500 hover:bg-blue-600" asChild>
