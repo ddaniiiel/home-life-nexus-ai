@@ -4,6 +4,7 @@ import Hero from './Hero';
 import Features from './Features';
 import Benefits from './Benefits';
 import Footer from './Footer';
+import FamilyOverview from './FamilyOverview';
 
 interface LandingPageProps {
   onLogin: () => void;
@@ -14,6 +15,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
     <div className="md:ml-0">
       <Hero onLogin={onLogin} />
       <Features />
+      <FamilyOverview />
       <Benefits />
       <Footer />
     </div>

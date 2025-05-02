@@ -12,7 +12,7 @@ const Hero: React.FC<HeroProps> = ({ onLogin }) => {
   const navigate = useNavigate();
 
   const handleStart = () => {
-    // Erst den Login-Status setzen, dann navigieren
+    // Set login state and navigate to dashboard
     onLogin();
   };
 
@@ -21,7 +21,7 @@ const Hero: React.FC<HeroProps> = ({ onLogin }) => {
       <div className="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="block text-4xl md:text-6xl font-bold text-gray-800 dark:text-gray-200">
-            <span className="text-homepilot-primary">HomePilot</span> – Dein intelligentes Dashboard für Zuhause
+            <span className="text-green-500">HomePilot</span> – Dein intelligentes Dashboard für Zuhause
           </h1>
 
           <p className="mt-6 text-lg text-gray-600 dark:text-gray-400">
@@ -32,11 +32,11 @@ const Hero: React.FC<HeroProps> = ({ onLogin }) => {
             <Button 
               size="lg"
               onClick={handleStart}
-              className="gap-2"
+              className="gap-2 bg-green-600 hover:bg-green-700"
             >
               Jetzt starten <ArrowRight className="h-4 w-4" />
             </Button>
-            <Button size="lg" variant="outline" asChild>
+            <Button size="lg" variant="outline" asChild className="border-green-600 text-green-600 hover:bg-green-50">
               <a href="#features">Features entdecken</a>
             </Button>
           </div>
@@ -72,7 +72,7 @@ const Hero: React.FC<HeroProps> = ({ onLogin }) => {
         </div>
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-r from-primary-50 to-secondary-50 opacity-10 dark:opacity-5 z-0"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-green-50 to-blue-50 opacity-10 dark:opacity-5 z-0"></div>
       
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent"></div>
     </div>

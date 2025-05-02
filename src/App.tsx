@@ -18,6 +18,7 @@ import Home from "./pages/Home";
 import News from "./pages/News";
 import Investments from "./pages/Investments";
 import Emergency from "./pages/Emergency";
+import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -29,7 +30,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<Index />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/index" element={<Index />} />
           <Route path="/smart-home" element={<SmartHome />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/calendar" element={<Calendar />} />
