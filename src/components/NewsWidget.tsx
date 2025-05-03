@@ -1,119 +1,152 @@
 
 import React from 'react';
-import { Newspaper, Clock, ArrowRight, ExternalLink, Tag } from 'lucide-react';
 import Widget from './Widget';
-import { Badge } from '@/components/ui/badge';
-import { LazyImage } from '@/components/ui/lazy-image';
+import { Bell, ExternalLink, Calendar, Tag } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { cn } from "@/lib/utils";
+import { EnhancedLazyImage } from './ui/enhanced-lazy-image';
+import { Badge } from '@/components/ui/badge'; 
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 interface NewsItem {
   id: number;
   title: string;
-  snippet: string;
+  date: string;
   source: string;
-  time: string;
-  category: string;
-  image?: string;
+  category: 'family' | 'finance' | 'home' | 'emergency' | 'important';
+  imageUrl?: string;
+  link?: string;
 }
 
 const NewsWidget = () => {
-  const newsItems: NewsItem[] = [
-    {
-      id: 1,
-      title: 'Neue Smart Home-Geräte von Samsung vorgestellt',
-      snippet: 'Samsung hat heute eine neue Generation von Smart Home-Geräten vorgestellt, die eine verbesserte Integration mit HomePilot bieten. Die Geräte sind ab September erhältlich.',
-      source: 'TechWelt',
-      time: 'vor 2 Stunden',
-      category: 'Tech',
-      image: 'https://images.unsplash.com/photo-1588453251771-cd919b362ed4?auto=format&fit=crop&w=360&h=200&q=80'
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [newsItems, setNewsItems] = React.useState<NewsItem[]>([
+    { 
+      id: 1, 
+      title: 'Wartung der Heizungsanlage am 10.05', 
+      date: '2025-04-30', 
+      source: 'Hausverwaltung', 
+      category: 'home',
+      imageUrl: 'https://images.unsplash.com/photo-1474432978580-913b8ba7f4ef?q=80&w=300'
     },
-    {
-      id: 2,
-      title: 'Studie: So sparen Smart Homes bis zu 30% Energie',
-      snippet: 'Eine aktuelle Studie zeigt, dass vernetzte Haushalte durchschnittlich 30% weniger Energie verbrauchen. Besonders effektiv sind smarte Thermostate und intelligente Beleuchtung.',
-      source: 'Energiemagazin',
-      time: 'vor 5 Stunden',
-      category: 'Nachhaltigkeit',
-      image: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=360&h=200&q=80'
+    { 
+      id: 2, 
+      title: 'Neue Steuervorteile für Familien', 
+      date: '2025-04-28', 
+      source: 'Finanzamt', 
+      category: 'finance',
+      imageUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=300'
     },
-    {
-      id: 3,
-      title: 'DIY: So einfach richtest du deinen Hausnotfallplan ein',
-      snippet: 'Ein gut vorbereiteter Notfallplan kann im Ernstfall Leben retten. Hier erfährst du, wie du mit HomePilot einen digitalen Notfallplan für die ganze Familie erstellst.',
-      source: 'Familienblog',
-      time: 'vor 1 Tag',
-      category: 'Sicherheit',
-      image: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=360&h=200&q=80'
+    { 
+      id: 3, 
+      title: 'Schulausflug von Emma am 15.05', 
+      date: '2025-04-25', 
+      source: 'Schule', 
+      category: 'family',
+      imageUrl: 'https://images.unsplash.com/photo-1503676382389-4809596d5290?q=80&w=300'
     }
-  ];
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'Tech':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300';
-      case 'Nachhaltigkeit':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300';
-      case 'Sicherheit':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+  ]);
+  
+  const categoryStyles = {
+    family: {
+      color: "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300",
+      badge: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+    },
+    finance: {
+      color: "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300",
+      badge: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+    },
+    home: {
+      color: "bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300",
+      badge: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
+    },
+    emergency: {
+      color: "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300",
+      badge: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+    },
+    important: {
+      color: "bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-300",
+      badge: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
     }
+  };
+  
+  // Formatiert das Datum in ein lesbares Format (Tag.Monat.Jahr)
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('de-DE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
   };
 
   return (
     <Widget 
-      title="News & Updates" 
-      icon={<Newspaper className="h-5 w-5" />}
-      description="Wichtige Neuigkeiten zu Smart Home, Energiesparen und Sicherheit"
+      title="Wichtige Mitteilungen" 
+      icon={<Bell className="h-5 w-5" />}
+      description="Aktuelle Informationen für die Familie"
+      variant="accent"
+      isLoading={isLoading}
+      footer={
+        <div className="flex justify-between items-center w-full">
+          <span className="text-xs text-gray-500">Letzte Aktualisierung: {formatDate(new Date().toISOString())}</span>
+          <Button size="sm" variant="ghost" asChild className="text-homepilot-primary text-xs">
+            <Link to="/news" className="flex items-center">
+              Alle anzeigen <ExternalLink className="ml-1 h-3 w-3" />
+            </Link>
+          </Button>
+        </div>
+      }
     >
       <div className="space-y-4">
         {newsItems.map((item) => (
-          <div key={item.id} className="relative bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
-            {item.image && (
-              <div className="relative w-full h-32 overflow-hidden">
-                <LazyImage 
-                  src={item.image} 
-                  alt={item.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-                  <div className="flex items-center justify-between">
-                    <Badge className={`${getCategoryColor(item.category)} text-xs`}>
-                      {item.category}
-                    </Badge>
-                    <Badge variant="outline" className="text-white border-white/50 text-xs">
-                      {item.source}
-                    </Badge>
-                  </div>
+          <Card key={item.id} className={cn(
+            "p-3 transition-shadow hover:shadow-md border-l-4",
+            item.category === 'emergency' ? "border-l-red-500" : 
+            item.category === 'important' ? "border-l-amber-500" : 
+            item.category === 'finance' ? "border-l-green-500" : 
+            item.category === 'family' ? "border-l-blue-500" : 
+            "border-l-purple-500"
+          )}>
+            <div className="flex gap-3">
+              {item.imageUrl && (
+                <div className="flex-shrink-0 w-16 h-16 overflow-hidden rounded">
+                  <EnhancedLazyImage
+                    src={item.imageUrl}
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                    aspectRatio="1/1"
+                  />
                 </div>
-              </div>
-            )}
-            <div className="p-3">
-              <h3 className="font-medium text-sm">{item.title}</h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mt-1">{item.snippet}</p>
-              <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
-                <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                  <Clock className="h-3 w-3 mr-1" />
-                  <span>{item.time}</span>
+              )}
+              <div className="flex-grow">
+                <div className="flex justify-between items-start">
+                  <h3 className="text-sm font-medium mb-1 mr-2">{item.title}</h3>
+                  <Badge className={cn(
+                    "text-[0.65rem]",
+                    categoryStyles[item.category].badge
+                  )}>
+                    {item.category === 'family' ? 'Familie' : 
+                     item.category === 'finance' ? 'Finanzen' : 
+                     item.category === 'home' ? 'Haushalt' : 
+                     item.category === 'emergency' ? 'Notfall' : 'Wichtig'}
+                  </Badge>
                 </div>
-                <a 
-                  href="#" 
-                  className="text-xs text-homepilot-primary hover:underline flex items-center group"
-                >
-                  Weiterlesen 
-                  <ExternalLink className="h-3 w-3 ml-0.5 transform transition-transform group-hover:translate-x-0.5" />
-                </a>
+                <div className="flex items-center text-xs text-gray-500 space-x-2">
+                  <span className="flex items-center">
+                    <Calendar className="h-3 w-3 mr-1" />
+                    {formatDate(item.date)}
+                  </span>
+                  <span className="flex items-center">
+                    <Tag className="h-3 w-3 mr-1" />
+                    {item.source}
+                  </span>
+                </div>
               </div>
             </div>
-            <div className="absolute -inset-2 rounded-lg hover:bg-homepilot-primary/5 opacity-0 hover:opacity-100 transition-opacity cursor-pointer" />
-          </div>
+          </Card>
         ))}
-        <a 
-          href="/news" 
-          className="text-xs text-homepilot-primary hover:underline mt-4 flex items-center justify-center py-2 px-4 rounded-lg border border-homepilot-primary/20 hover:bg-homepilot-accent/10 transition-colors"
-        >
-          Alle Neuigkeiten anzeigen <ArrowRight className="inline-block h-3 w-3 ml-1 transition-transform group-hover:translate-x-0.5" />
-        </a>
       </div>
     </Widget>
   );
