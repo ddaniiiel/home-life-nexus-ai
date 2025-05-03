@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -171,7 +170,7 @@ const IoTIntegration = () => {
       case 'light':
         return (
           <svg className="h-5 w-5" viewBox="0 0 24 24">
-            <path fill="currentColor" d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5s5-2.24 5-5s-2.24-5-5-5zM2 13h2c.6 0 1-.4 1-1s-.4-1-1-1H2c-.6 0-1 .4-1 1s.4 1 1 1zm18 0h2c.6 0 1-.4 1-1s-.4-1-1-1h-2c-.6 0-1 .4-1 1s.4 1 1 1zM11 2v2c0 .6.4 1 1 1s1-.4 1-1V2c0-.6-.4-1-1-1s-1 .4-1 1zm0 18v2c0 .6.4 1 1 1s1-.4 1-1v-2c0-.6-.4-1-1-1s-1 .4-1 1zm6.364-2.636l1.424 1.424c.391.391 1.023.391 1.414 0s.391-1.023 0-1.414l-1.424-1.424c-.391-.391-1.023-.391-1.414 0s-.391 1.023 0 1.414zM3.759 5.759l1.424 1.414c.39.392 1.02.392 1.41.001c.39-.391.39-1.019 0-1.41L5.173 4.34c-.39-.392-1.02-.392-1.41-.001c-.39.391-.39 1.019-.004 1.42z"/>
+            <path fill="currentColor" d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5s5-2.24 5-5s-2.24-5-5-5zM2 13h2c.6 0 1-.4 1-1s-.4-1-1-1H2c-.6 0-1 .4-1 1s.4 1 1 1zm18 0h2c.6 0 1-.4 1-1s-.4-1-1-1h-2c-.6 0-1 .4-1 1s.4 1 1 1zM11 2v2c0 .6.4 1 1 1s1-.4 1-1V2c0-.6-.4-1-1-1s-1 .4-1 1zm0 18v2c0 .6.4 1 1 1s1-.4 1-1v-2c0-.6-.4-1-1-1s-1 .4-1 1zm6.364-2.636l1.424 1.424c.391.391 1.023.391 1.414 0s.391-1.023 0-1.414l-1.424-1.424c-.391-.391-1.02-.391-1.41-.001c-.39.391-.39 1.019 0 1.42z"/>
           </svg>
         );
       default:
@@ -449,19 +448,19 @@ const IoTIntegration = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Temperaturbasierte Beleuchtung</span>
-                  <Switch />
+                  <Switch size="default" />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">CO2-basierte Lüftung</span>
-                  <Switch defaultChecked />
+                  <Switch size="default" defaultChecked />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Bewegungsbasierte Sicherheit</span>
-                  <Switch defaultChecked />
+                  <Switch size="default" defaultChecked />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Adaptive Heizungssteuerung</span>
-                  <Switch />
+                  <Switch size="default" />
                 </div>
               </div>
             </div>
