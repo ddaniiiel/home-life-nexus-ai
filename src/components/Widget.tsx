@@ -21,20 +21,23 @@ const Widget = ({
   className
 }: WidgetProps) => {
   return (
-    <Card className={cn("overflow-hidden border", 
+    <Card className={cn(
+      "overflow-hidden border transition-all duration-200 hover:shadow-md",
       variant === 'primary' ? 'border-blue-200 dark:border-blue-800' : 
       variant === 'secondary' ? 'border-green-200 dark:border-green-800' : 
       'border-gray-200 dark:border-gray-700',
       className
     )}>
-      <CardHeader className={cn("pb-2",
+      <CardHeader className={cn(
+        "pb-2",
         variant === 'primary' ? 'bg-blue-50 dark:bg-blue-900/20' : 
         variant === 'secondary' ? 'bg-green-50 dark:bg-green-900/20' : 
         ''
       )}>
         <div className="flex items-center">
           {icon && (
-            <div className={cn("mr-2 p-1.5 rounded-full", 
+            <div className={cn(
+              "mr-2 p-1.5 rounded-full",
               variant === 'primary' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400' : 
               variant === 'secondary' ? 'bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400' : 
               'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'

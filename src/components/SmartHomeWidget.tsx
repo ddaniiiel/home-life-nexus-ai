@@ -1,28 +1,17 @@
 
-import React, { useState } from 'react';
-import { Lightbulb, Home, Thermometer, Tv, Speaker, DoorClosed, Fan, Wifi as WifiIcon, BatteryMedium, Power, Lock, Sunrise, Sunset } from 'lucide-react';
-import { Switch } from '@/components/ui/switch';
+import React, { useState, lazy, Suspense } from 'react';
+import { Lightbulb, Home, Thermometer, Tv, BatteryMedium, Sunrise, Sunset } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Badge } from '@/components/ui/badge';
 import Widget from './Widget';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { SmartHomeWidgetItem } from './SmartHomeWidgetItem';
+import { Device, QuickScene } from './types/smart-home';
 
-interface Device {
-  id: number;
-  name: string;
-  type: string;
-  isOn: boolean;
-  room: string;
-  icon: React.ForwardRefExoticComponent<any>;
-  color: string;
-  brightness?: number;
-  temp?: number;
-  volume?: number;
-  speed?: number;
-}
+// Import these components only when needed
+const SceneItem = lazy(() => import('./smart-home/SceneItem'));
 
 const SmartHomeWidget = () => {
   const [devices, setDevices] = useState<Device[]>([
@@ -33,7 +22,7 @@ const SmartHomeWidget = () => {
   ]);
   
   const [activeTab, setActiveTab] = useState<string>('all');
-  const [quickScenes] = useState([
+  const [quickScenes] = useState<QuickScene[]>([
     { id: 1, name: 'Guten Morgen', icon: Sunrise, devices: 4 },
     { id: 2, name: 'Gute Nacht', icon: Sunset, devices: 6 }
   ]);
@@ -67,99 +56,6 @@ const SmartHomeWidget = () => {
   
   // Alle Räume für Tabs
   const rooms = Object.keys(devicesByRoom);
-  
-  // Get device icon component
-  const DeviceIcon = ({ device }: { device: Device }) => {
-    const Icon = device.icon;
-    const isOn = device.isOn;
-    
-    let colorClass = 'text-gray-400';
-    if (isOn) {
-      switch (device.color) {
-        case 'yellow':
-          colorClass = 'text-homepilot-primary';
-          break;
-        case 'blue':
-          colorClass = 'text-blue-500';
-          break;
-        case 'green':
-          colorClass = 'text-homepilot-secondary';
-          break;
-        default:
-          colorClass = 'text-homepilot-primary';
-      }
-    }
-    
-    return <Icon className={cn("h-5 w-5", colorClass)} />;
-  };
-  
-  // Aktion basierend auf Gerätetyp rendern
-  const renderDeviceAction = (device: Device) => {
-    switch (device.type) {
-      case 'light':
-        return (
-          <div className="flex flex-col items-end">
-            {device.isOn && device.brightness !== undefined && (
-              <div className="w-28 mb-2">
-                <Slider
-                  value={[device.brightness]} 
-                  min={10}
-                  max={100}
-                  step={10}
-                  className="mb-1"
-                  onValueChange={(value) => adjustBrightness(device.id, value)}
-                />
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>Dunkel</span>
-                  <span>{device.brightness}%</span>
-                  <span>Hell</span>
-                </div>
-              </div>
-            )}
-            <Switch 
-              checked={device.isOn} 
-              onCheckedChange={() => toggleDevice(device.id)}
-              className="data-[state=checked]:bg-homepilot-primary"
-            />
-          </div>
-        );
-      case 'thermostat':
-        return (
-          <div className="flex flex-col items-end">
-            {device.isOn && device.temp !== undefined && (
-              <div className="w-28 mb-2">
-                <Slider
-                  value={[device.temp]} 
-                  min={16}
-                  max={28}
-                  step={0.5}
-                  className="mb-1"
-                  onValueChange={(value) => adjustTemperature(device.id, value)}
-                />
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>Kalt</span>
-                  <span>{device.temp}°C</span>
-                  <span>Warm</span>
-                </div>
-              </div>
-            )}
-            <Switch 
-              checked={device.isOn} 
-              onCheckedChange={() => toggleDevice(device.id)}
-              className="data-[state=checked]:bg-homepilot-primary"
-            />
-          </div>
-        );
-      default:
-        return (
-          <Switch 
-            checked={device.isOn} 
-            onCheckedChange={() => toggleDevice(device.id)}
-            className="data-[state=checked]:bg-homepilot-primary"
-          />
-        );
-    }
-  };
 
   // Renderlogik für Tabs mit Räumen
   const renderRoomContent = (roomName: string) => {
@@ -173,38 +69,13 @@ const SmartHomeWidget = () => {
         </div>
         
         {roomDevices.map((device) => (
-          <div 
-            key={device.id} 
-            className={cn(
-              "flex items-center justify-between py-3 px-4 rounded-lg transition-colors",
-              device.isOn 
-                ? "bg-homepilot-accent/10 border border-homepilot-primary/20 shadow-sm" 
-                : "border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
-            )}
-          >
-            <div className="flex items-center">
-              <div className={cn(
-                "w-9 h-9 flex items-center justify-center rounded-full mr-3",
-                device.isOn 
-                  ? device.color === 'yellow' ? 'bg-homepilot-accent dark:bg-homepilot-primary/30' 
-                  : device.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900/30'
-                  : device.color === 'green' ? 'bg-green-100 dark:bg-green-900/30'
-                  : 'bg-gray-100 dark:bg-gray-800'
-                  : 'bg-gray-100 dark:bg-gray-800'
-              )}>
-                <DeviceIcon device={device} />
-              </div>
-              <div>
-                <span className="text-sm font-medium">{device.name}</span>
-                <div className="text-xs text-gray-500">
-                  {device.isOn ? 'Eingeschaltet' : 'Ausgeschaltet'}
-                </div>
-              </div>
-            </div>
-            <div>
-              {renderDeviceAction(device)}
-            </div>
-          </div>
+          <SmartHomeWidgetItem
+            key={device.id}
+            device={device}
+            toggleDevice={toggleDevice}
+            adjustBrightness={adjustBrightness}
+            adjustTemperature={adjustTemperature}
+          />
         ))}
       </div>
     );
@@ -214,6 +85,7 @@ const SmartHomeWidget = () => {
     <Widget 
       title="Smart Home" 
       icon={<Home className="h-5 w-5" />}
+      description="Steuere deine smarten Geräte zuhause"
       className="border-homepilot-primary/20"
     >
       <div className="space-y-4">
@@ -238,19 +110,11 @@ const SmartHomeWidget = () => {
           
           <TabsContent value="scenes" className="pt-1">
             <div className="grid grid-cols-2 gap-3">
-              {quickScenes.map(scene => (
-                <Button 
-                  key={scene.id}
-                  variant="outline"
-                  className="h-auto flex flex-col items-center justify-center p-4 border rounded-lg hover:bg-homepilot-accent/10 border-homepilot-primary/20"
-                >
-                  <div className="w-10 h-10 flex items-center justify-center rounded-full bg-homepilot-primary/10 mb-2">
-                    <scene.icon className="h-5 w-5 text-homepilot-primary" />
-                  </div>
-                  <span className="text-sm font-medium">{scene.name}</span>
-                  <span className="text-xs text-gray-500 mt-1">{scene.devices} Geräte</span>
-                </Button>
-              ))}
+              <Suspense fallback={<div className="p-4 text-center">Lade Szenen...</div>}>
+                {quickScenes.map(scene => (
+                  <SceneItem key={scene.id} scene={scene} />
+                ))}
+              </Suspense>
             </div>
           </TabsContent>
           
@@ -272,9 +136,9 @@ const SmartHomeWidget = () => {
           </div>
           <Link 
             to="/smart-home" 
-            className="text-xs text-homepilot-primary hover:underline flex items-center"
+            className="text-xs text-homepilot-primary hover:underline flex items-center group"
           >
-            Mehr anzeigen →
+            Mehr anzeigen <span className="transform transition-transform group-hover:translate-x-0.5">→</span>
           </Link>
         </div>
       </div>
