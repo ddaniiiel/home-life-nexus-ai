@@ -1,12 +1,12 @@
 
 import React, { ReactNode } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { cn } from "@/lib/utils";
 import { Skeleton } from '@/components/ui/skeleton';
 
 export interface WidgetProps {
   title: string;
-  description?: string;
+  description?: string | ReactNode;
   icon?: ReactNode;
   children: ReactNode;
   variant?: 'default' | 'primary' | 'secondary' | 'accent' | 'warning' | 'success';
@@ -16,6 +16,10 @@ export interface WidgetProps {
   isLoading?: boolean;
   footer?: ReactNode;
   size?: 'sm' | 'md' | 'lg';
+  actions?: ReactNode;
+  onClick?: () => void;
+  isInteractive?: boolean;
+  elevation?: 'none' | 'xs' | 'sm' | 'md' | 'lg';
 }
 
 const Widget = ({ 
@@ -29,7 +33,11 @@ const Widget = ({
   contentClassName,
   isLoading = false,
   footer,
-  size = 'md'
+  size = 'md',
+  actions,
+  onClick,
+  isInteractive = false,
+  elevation = 'sm'
 }: WidgetProps) => {
   // Standardisierte Abstandswerte für verschiedene Größen
   const sizeClasses = {
@@ -52,12 +60,12 @@ const Widget = ({
   
   // Varianten-basierte Styles für konsistentes Farbschema
   const variantClasses = {
-    primary: "border-blue-200 dark:border-blue-800 shadow-sm hover:shadow-md",
-    secondary: "border-green-200 dark:border-green-800 shadow-sm hover:shadow-md",
-    accent: "border-homepilot-accent dark:border-homepilot-accent/50 shadow-sm hover:shadow-md",
-    warning: "border-yellow-200 dark:border-yellow-800 shadow-sm hover:shadow-md",
-    success: "border-emerald-200 dark:border-emerald-800 shadow-sm hover:shadow-md",
-    default: "border-gray-200 dark:border-gray-700 shadow-xs hover:shadow-sm"
+    primary: "border-blue-200 dark:border-blue-800",
+    secondary: "border-green-200 dark:border-green-800",
+    accent: "border-homepilot-accent dark:border-homepilot-accent/50",
+    warning: "border-yellow-200 dark:border-yellow-800",
+    success: "border-emerald-200 dark:border-emerald-800",
+    default: "border-gray-200 dark:border-gray-700"
   }[variant];
   
   const headerVariantClasses = {
@@ -78,18 +86,35 @@ const Widget = ({
     default: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
   }[variant];
   
+  const elevationClasses = {
+    none: "",
+    xs: "shadow-xs hover:shadow-xs",
+    sm: "shadow-sm hover:shadow",
+    md: "shadow hover:shadow-md",
+    lg: "shadow-md hover:shadow-lg"
+  }[elevation];
+  
   return (
-    <Card className={cn(
-      "overflow-hidden border transition-all duration-200",
-      variantClasses,
-      className
-    )}>
+    <Card 
+      className={cn(
+        "overflow-hidden border transition-all duration-200",
+        variantClasses,
+        elevationClasses,
+        isInteractive && "cursor-pointer hover:scale-[1.01] active:scale-[0.99]",
+        className
+      )}
+      onClick={isInteractive ? onClick : undefined}
+    >
       <CardHeader className={cn(
         sizeClasses.header,
         headerVariantClasses,
+        actions && "flex-row justify-between items-start",
         headerClassName
       )}>
-        <div className="flex items-center">
+        <div className={cn(
+          "flex items-center",
+          actions && "flex-1"
+        )}>
           {icon && !isLoading && (
             <div className={cn(
               "mr-2 rounded-full",
@@ -99,25 +124,34 @@ const Widget = ({
               {icon}
             </div>
           )}
-          {isLoading ? (
-            <Skeleton className="h-6 w-24" />
-          ) : (
-            <CardTitle className={cn(
-              "text-lg leading-tight",
-              size === 'sm' && "text-base", 
-              size === 'lg' && "text-xl"
-            )}>
-              {title}
-            </CardTitle>
-          )}
+          <div className="flex-1">
+            {isLoading ? (
+              <Skeleton className="h-6 w-24" />
+            ) : (
+              <CardTitle className={cn(
+                "text-lg leading-tight",
+                size === 'sm' && "text-base", 
+                size === 'lg' && "text-xl"
+              )}>
+                {title}
+              </CardTitle>
+            )}
+            
+            {description && !isLoading && (
+              <CardDescription className="text-sm text-muted-foreground mt-1">
+                {description}
+              </CardDescription>
+            )}
+            {description && isLoading && (
+              <Skeleton className="h-4 w-2/3 mt-1" />
+            )}
+          </div>
         </div>
-        {description && !isLoading && (
-          <CardDescription className="text-sm text-muted-foreground mt-1">
-            {description}
-          </CardDescription>
-        )}
-        {description && isLoading && (
-          <Skeleton className="h-4 w-2/3 mt-1" />
+        
+        {actions && !isLoading && (
+          <div className="shrink-0 ml-4">
+            {actions}
+          </div>
         )}
       </CardHeader>
       
@@ -138,13 +172,13 @@ const Widget = ({
       </CardContent>
       
       {footer && (
-        <div className={cn(
+        <CardFooter className={cn(
           "px-5 pb-4 pt-2 border-t border-border",
           size === 'sm' && "px-3 py-2", 
           size === 'lg' && "px-6 py-3"
         )}>
           {footer}
-        </div>
+        </CardFooter>
       )}
     </Card>
   );

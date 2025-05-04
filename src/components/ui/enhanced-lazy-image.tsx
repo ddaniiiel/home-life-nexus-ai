@@ -15,6 +15,8 @@ export interface EnhancedLazyImageProps extends React.ImgHTMLAttributes<HTMLImag
   position?: 'hero' | 'above-fold' | 'thumbnail' | 'background' | string;
   fallback?: React.ReactNode;
   aspectRatio?: string; // Format: "16/9", "4/3", "1/1", etc.
+  animation?: 'fade' | 'scale' | 'none';
+  rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full';
 }
 
 export const EnhancedLazyImage = ({ 
@@ -28,6 +30,8 @@ export const EnhancedLazyImage = ({
   position = 'thumbnail',
   fallback,
   aspectRatio,
+  animation = 'fade',
+  rounded = 'none',
   ...props 
 }: EnhancedLazyImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -39,7 +43,7 @@ export const EnhancedLazyImage = ({
   // Berechne optimierte Bildbreite und URL
   const containerWidth = width || (containerRef.current?.clientWidth || 800);
   const optimizedWidth = getOptimalImageWidth(containerWidth);
-  const optimizedSrc = getOptimizedImageUrl(src, { width: optimizedWidth });
+  const optimizedSrc = src ? getOptimizedImageUrl(src, { width: optimizedWidth }) : placeholder;
   const optimizedPlaceholder = placeholder ? getOptimizedImageUrl(placeholder, { width: 50, quality: 20 }) : undefined;
   
   // Bestimme, ob das Bild sofort oder lazy geladen werden soll
@@ -79,6 +83,25 @@ export const EnhancedLazyImage = ({
     aspectRatio, 
     objectFit: 'cover' as const
   } : {};
+
+  // Rounded-Corners Klassen
+  const roundedClasses = {
+    none: "",
+    sm: "rounded",
+    md: "rounded-md",
+    lg: "rounded-lg",
+    full: "rounded-full",
+  };
+  
+  // Animation-Klassen
+  const getAnimationClasses = () => {
+    if (animation === 'fade') {
+      return isLoaded ? "opacity-100" : "opacity-0";
+    } else if (animation === 'scale') {
+      return isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-95";
+    }
+    return "";
+  };
   
   // Rendert ein Fallback, wenn das Bild nicht geladen werden kann
   if (error && fallback) {
@@ -90,6 +113,7 @@ export const EnhancedLazyImage = ({
       ref={containerRef}
       className={cn(
         "relative overflow-hidden", 
+        roundedClasses[rounded],
         containerClassName
       )} 
       style={{ width: '100%', height: '100%', ...aspectRatioStyle }}
@@ -102,6 +126,7 @@ export const EnhancedLazyImage = ({
               alt="Loading placeholder"
               className={cn(
                 "absolute inset-0 w-full h-full object-cover transition-opacity duration-300 scale-105 blur-sm",
+                roundedClasses[rounded],
                 className
               )}
               loading="eager"
@@ -117,8 +142,10 @@ export const EnhancedLazyImage = ({
         src={isInView || shouldPrioritize ? optimizedSrc : placeholder}
         alt={alt}
         className={cn(
-          "w-full h-full object-cover transition-opacity duration-300",
-          isLoaded ? "opacity-100" : "opacity-0",
+          "w-full h-full object-cover transition-all duration-300",
+          getAnimationClasses(),
+          roundedClasses[rounded],
+          animation === 'scale' && "transform",
           className
         )}
         style={aspectRatioStyle}
@@ -127,6 +154,11 @@ export const EnhancedLazyImage = ({
         loading={shouldPrioritize ? "eager" : "lazy"}
         {...props}
       />
+
+      {/* Overlay-Schatteneffekt für Text-Lesbarkeit bei Verwendung als Hintergrund */}
+      {position === 'background' && (
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+      )}
     </div>
   );
 };
