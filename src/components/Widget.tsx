@@ -1,4 +1,3 @@
-
 import React, { ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { cn } from "@/lib/utils";
@@ -158,7 +157,10 @@ const Widget = ({
             )}
             
             {badge && !isLoading && (
-              <Badge variant={badge.variant === 'primary' ? 'default' : badge.variant || "default"} className="ml-2">
+              <Badge 
+                variant={badge.variant === 'primary' ? 'default' : badge.variant || "default"} 
+                className="ml-2"
+              >
                 {badge.text}
               </Badge>
             )}

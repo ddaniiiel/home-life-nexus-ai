@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
-import { Lightbulb, Plus, Settings, Home, Thermometer, LineChart, Wifi } from 'lucide-react';
+import { Lightbulb, Plus, Settings, Home, Thermometer, LineChart, Wifi, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import FloorPlanLayout from '@/components/FloorPlanLayout';
 import DeviceStatistics from '@/components/DeviceStatistics';
 import IoTIntegration from '@/components/IoTIntegration';
+import AutomationsPage from '@/components/smart-home/AutomationsPage';
 import {
   BarChart,
   Bar,
@@ -67,13 +68,13 @@ const SmartHome = () => {
                 <Lightbulb className="h-4 w-4 mr-2" />
                 Geräte
               </TabsTrigger>
+              <TabsTrigger value="automation" className="flex items-center">
+                <Zap className="h-4 w-4 mr-2" />
+                Automatisierung
+              </TabsTrigger>
               <TabsTrigger value="iot" className="flex items-center">
                 <Wifi className="h-4 w-4 mr-2" />
                 IoT & Sensoren
-              </TabsTrigger>
-              <TabsTrigger value="automation" className="flex items-center">
-                <Settings className="h-4 w-4 mr-2" />
-                Automation
               </TabsTrigger>
               <TabsTrigger value="analytics" className="flex items-center">
                 <LineChart className="h-4 w-4 mr-2" />
@@ -136,46 +137,15 @@ const SmartHome = () => {
               </div>
             </TabsContent>
             
-            <TabsContent value="iot">
+            <TabsContent value="automation">
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-                <IoTIntegration />
+                <AutomationsPage />
               </div>
             </TabsContent>
             
-            <TabsContent value="automation">
+            <TabsContent value="iot">
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-                <h2 className="text-2xl font-semibold mb-4">Automatisierungen</h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  Erstelle Automatisierungen für deine Smart-Home-Geräte. Bestimme, wann Geräte automatisch an- oder ausgeschaltet werden sollen.
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="border p-4 rounded-lg">
-                    <h3 className="font-semibold">Morgen-Routine</h3>
-                    <p className="text-sm text-gray-500 mb-2">Aktiv an Wochentagen um 06:30</p>
-                    <ul className="text-sm space-y-1">
-                      <li>• Rollläden im Schlafzimmer öffnen</li>
-                      <li>• Küchenlicht einschalten</li>
-                      <li>• Heizung auf 21°C stellen</li>
-                    </ul>
-                  </div>
-                  
-                  <div className="border p-4 rounded-lg">
-                    <h3 className="font-semibold">Abend-Routine</h3>
-                    <p className="text-sm text-gray-500 mb-2">Aktiv täglich um 22:00</p>
-                    <ul className="text-sm space-y-1">
-                      <li>• Alle Lichter ausschalten</li>
-                      <li>• Türen verriegeln</li>
-                      <li>• Heizung auf 18°C stellen</li>
-                    </ul>
-                  </div>
-                  
-                  <div className="border p-4 rounded-lg border-dashed flex items-center justify-center">
-                    <Button variant="ghost" className="flex items-center">
-                      <Plus className="h-4 w-4 mr-2" /> Neue Automatisierung
-                    </Button>
-                  </div>
-                </div>
+                <IoTIntegration />
               </div>
             </TabsContent>
             

@@ -1,3 +1,4 @@
+
 import { LucideIcon } from 'lucide-react';
 
 export interface Device {
@@ -75,3 +76,70 @@ export interface SmartHomeStats {
     percentage: number;
   };
 }
+
+// New interfaces for automation
+export interface Automation {
+  id: number;
+  name: string;
+  description?: string;
+  isEnabled: boolean;
+  triggers: AutomationTrigger[];
+  conditions: AutomationCondition[];
+  actions: AutomationAction[];
+  lastTriggered?: string;
+  created: string;
+  modified: string;
+}
+
+export interface AutomationTrigger {
+  id: number;
+  type: 'device' | 'time' | 'location' | 'sensor' | 'scene' | 'manual';
+  deviceId?: number;
+  sceneId?: number;
+  sensorId?: number;
+  property?: string;
+  operator?: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'changes';
+  value?: any;
+  timeSpec?: string; // cron-like specification for time triggers
+  locationEvent?: 'enter' | 'leave';
+  locationZone?: string;
+}
+
+export interface AutomationCondition {
+  id: number;
+  type: 'device' | 'time' | 'location' | 'weather' | 'presence';
+  deviceId?: number;
+  property?: string;
+  operator: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'between';
+  value: any;
+  secondValue?: any; // For "between" operator
+  timeRange?: { start: string; end: string }; // For time conditions
+  weekdays?: number[]; // 0 = Sunday, 1 = Monday, etc.
+  locationPresence?: 'anyone' | 'everyone' | 'no_one';
+  locationUsers?: number[];
+}
+
+export interface AutomationAction {
+  id: number;
+  type: 'device' | 'scene' | 'notification' | 'delay' | 'service';
+  deviceId?: number;
+  sceneId?: number;
+  property?: string;
+  value?: any;
+  notification?: {
+    title: string;
+    body: string;
+    priority: 'normal' | 'high' | 'urgent';
+    recipients?: number[]; // User IDs
+  };
+  delaySeconds?: number;
+  service?: {
+    name: string;
+    data?: Record<string, any>;
+  };
+}
+
+export type AutomationTriggerType = AutomationTrigger['type'];
+export type AutomationConditionType = AutomationCondition['type'];
+export type AutomationActionType = AutomationAction['type'];
+
