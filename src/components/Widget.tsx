@@ -158,7 +158,7 @@ const Widget = ({
             )}
             
             {badge && !isLoading && (
-              <Badge variant={badge.variant || "default"} className="ml-2">
+              <Badge variant={badge.variant === 'primary' ? 'default' : badge.variant || "default"} className="ml-2">
                 {badge.text}
               </Badge>
             )}

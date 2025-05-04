@@ -1,4 +1,3 @@
-
 import { LucideIcon } from 'lucide-react';
 
 export interface Device {
@@ -29,6 +28,7 @@ export interface QuickScene {
   isActive?: boolean;
   timeOfDay?: 'morning' | 'day' | 'evening' | 'night';
   lastActivated?: string;
+  deviceTypes?: string[]; // Added this property
 }
 
 export interface Room {
