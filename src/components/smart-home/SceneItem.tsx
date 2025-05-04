@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { QuickScene } from '../types/smart-home';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from "@/lib/utils";
+import { Badge } from '@/components/ui/badge';
 
 interface SceneItemProps {
   scene: QuickScene;
@@ -64,9 +65,17 @@ const SceneItem = ({
   // Zeige eine Letztes-Aktiviert-Info an, wenn vorhanden
   const renderLastActivatedInfo = () => {
     if (scene.lastActivated) {
+      const formattedTime = new Date(scene.lastActivated).toLocaleTimeString('de-DE', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      
       return (
-        <span className="text-xs text-gray-400 mt-1" title={`Zuletzt aktiviert: ${scene.lastActivated}`}>
-          {scene.lastActivated}
+        <span 
+          className="text-xs text-gray-400 mt-1" 
+          title={`Zuletzt aktiviert: ${scene.lastActivated}`}
+        >
+          {formattedTime} Uhr
         </span>
       );
     }
@@ -92,11 +101,25 @@ const SceneItem = ({
     };
     
     return (
-      <span className={cn(
-        "absolute top-2 right-2 text-xs px-1.5 py-0.5 rounded-full",
+      <Badge className={cn(
+        "absolute top-2 right-2 text-xs",
         badgeStyles[scene.timeOfDay]
       )}>
         {timeLabels[scene.timeOfDay]}
+      </Badge>
+    );
+  };
+  
+  // Zeige Geräteinformationen mit mehr Kontext an
+  const renderDeviceInfo = () => {
+    return (
+      <span className="text-xs text-gray-500 mt-1">
+        {scene.devices} {scene.devices === 1 ? 'Gerät' : 'Geräte'} 
+        {scene.deviceTypes && scene.deviceTypes.length > 0 && (
+          <span className="text-gray-400 ml-1">
+            ({scene.deviceTypes.join(', ')})
+          </span>
+        )}
       </span>
     );
   };
@@ -111,6 +134,8 @@ const SceneItem = ({
         getButtonStyle(),
         isActive && "ring-2 ring-homepilot-primary/30"
       )}
+      aria-pressed={isActive}
+      title={`Szene: ${scene.name}${isActive ? ' (aktiv)' : ''}`}
     >
       {renderTimeOfDayBadge()}
       <div className={cn(
@@ -120,11 +145,14 @@ const SceneItem = ({
         <Icon className="h-5 w-5" />
       </div>
       <span className="text-sm font-medium">{scene.name}</span>
-      <span className="text-xs text-gray-500 mt-1">{scene.devices} {scene.devices === 1 ? 'Gerät' : 'Geräte'}</span>
+      {renderDeviceInfo()}
       {renderLastActivatedInfo()}
       {isActive && (
-        <span className="absolute bottom-2 left-2 w-2 h-2 bg-homepilot-primary rounded-full animate-pulse" 
-              title="Aktive Szene" />
+        <span 
+          className="absolute bottom-2 left-2 w-2 h-2 bg-homepilot-primary rounded-full animate-pulse" 
+          aria-hidden="true"
+          title="Aktive Szene" 
+        />
       )}
     </Button>
   );

@@ -3,6 +3,7 @@ import React, { ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { cn } from "@/lib/utils";
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 
 export interface WidgetProps {
   title: string;
@@ -20,6 +21,12 @@ export interface WidgetProps {
   onClick?: () => void;
   isInteractive?: boolean;
   elevation?: 'none' | 'xs' | 'sm' | 'md' | 'lg';
+  badge?: {
+    text: string;
+    variant?: 'default' | 'primary' | 'secondary' | 'outline' | 'destructive';
+  };
+  headerBackgroundImage?: string;
+  contextHelp?: string | ReactNode;
 }
 
 const Widget = ({ 
@@ -37,7 +44,10 @@ const Widget = ({
   actions,
   onClick,
   isInteractive = false,
-  elevation = 'sm'
+  elevation = 'sm',
+  badge,
+  headerBackgroundImage,
+  contextHelp
 }: WidgetProps) => {
   // Standardisierte Abstandswerte für verschiedene Größen
   const sizeClasses = {
@@ -94,37 +104,47 @@ const Widget = ({
     lg: "shadow-md hover:shadow-lg"
   }[elevation];
   
-  return (
-    <Card 
+  const headerWithBgImage = headerBackgroundImage ? {
+    backgroundImage: `url(${headerBackgroundImage})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    position: 'relative',
+    color: 'white',
+    padding: '2rem',
+    borderTopLeftRadius: 'var(--radius)',
+    borderTopRightRadius: 'var(--radius)',
+  } as React.CSSProperties : {};
+
+  // Overlay für Hintergrundbild-Header
+  const headerOverlay = headerBackgroundImage ? 
+    "after:absolute after:inset-0 after:bg-gradient-to-b after:from-black/60 after:to-black/40 after:z-0 after:rounded-t-lg" : "";
+
+  const CardHeaderComponent = () => (
+    <CardHeader 
       className={cn(
-        "overflow-hidden border transition-all duration-200",
-        variantClasses,
-        elevationClasses,
-        isInteractive && "cursor-pointer hover:scale-[1.01] active:scale-[0.99]",
-        className
-      )}
-      onClick={isInteractive ? onClick : undefined}
-    >
-      <CardHeader className={cn(
         sizeClasses.header,
         headerVariantClasses,
         actions && "flex-row justify-between items-start",
+        headerBackgroundImage && "relative z-10 text-white",
         headerClassName
+      )}
+      style={headerWithBgImage}
+    >
+      <div className={cn(
+        "flex items-center relative z-10",
+        actions && "flex-1"
       )}>
-        <div className={cn(
-          "flex items-center",
-          actions && "flex-1"
-        )}>
-          {icon && !isLoading && (
-            <div className={cn(
-              "mr-2 rounded-full",
-              sizeClasses.iconSize,
-              iconVariantClasses
-            )}>
-              {icon}
-            </div>
-          )}
-          <div className="flex-1">
+        {icon && !isLoading && (
+          <div className={cn(
+            "mr-2 rounded-full",
+            sizeClasses.iconSize,
+            headerBackgroundImage ? "bg-white/20 text-white" : iconVariantClasses
+          )}>
+            {icon}
+          </div>
+        )}
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
             {isLoading ? (
               <Skeleton className="h-6 w-24" />
             ) : (
@@ -137,23 +157,48 @@ const Widget = ({
               </CardTitle>
             )}
             
-            {description && !isLoading && (
-              <CardDescription className="text-sm text-muted-foreground mt-1">
-                {description}
-              </CardDescription>
-            )}
-            {description && isLoading && (
-              <Skeleton className="h-4 w-2/3 mt-1" />
+            {badge && !isLoading && (
+              <Badge variant={badge.variant || "default"} className="ml-2">
+                {badge.text}
+              </Badge>
             )}
           </div>
+          
+          {description && !isLoading && (
+            <CardDescription className={cn(
+              "text-sm mt-1",
+              headerBackgroundImage ? "text-white/80" : "text-muted-foreground"
+            )}>
+              {description}
+            </CardDescription>
+          )}
+          {description && isLoading && (
+            <Skeleton className="h-4 w-2/3 mt-1" />
+          )}
         </div>
-        
-        {actions && !isLoading && (
-          <div className="shrink-0 ml-4">
-            {actions}
-          </div>
-        )}
-      </CardHeader>
+      </div>
+      
+      {actions && !isLoading && (
+        <div className="shrink-0 ml-4 relative z-10">
+          {actions}
+        </div>
+      )}
+    </CardHeader>
+  );
+  
+  return (
+    <Card 
+      className={cn(
+        "overflow-hidden border transition-all duration-200",
+        variantClasses,
+        elevationClasses,
+        headerBackgroundImage && headerOverlay,
+        isInteractive && "cursor-pointer hover:scale-[1.01] active:scale-[0.99]",
+        className
+      )}
+      onClick={isInteractive ? onClick : undefined}
+    >
+      <CardHeaderComponent />
       
       <CardContent className={cn(
         sizeClasses.content,
@@ -167,7 +212,24 @@ const Widget = ({
             <Skeleton className="h-4 w-3/4" />
           </div>
         ) : (
-          children
+          <>
+            {children}
+            
+            {contextHelp && (
+              <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 rounded-md text-xs text-gray-600 dark:text-gray-400">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0 pt-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-homepilot-primary">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <path d="M12 16v-4"></path>
+                      <path d="M12 8h.01"></path>
+                    </svg>
+                  </div>
+                  <div className="ml-2">{contextHelp}</div>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </CardContent>
       
