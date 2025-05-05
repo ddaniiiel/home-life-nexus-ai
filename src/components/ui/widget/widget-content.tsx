@@ -11,6 +11,7 @@ interface WidgetContentProps {
   contextHelp?: React.ReactNode;
   contentClassName?: string;
   size: WidgetSize;
+  className?: string; // Hinzugefügt, um das Problem zu beheben
 }
 
 const WidgetContent: React.FC<WidgetContentProps> = ({
@@ -18,7 +19,8 @@ const WidgetContent: React.FC<WidgetContentProps> = ({
   isLoading,
   contextHelp,
   contentClassName,
-  size
+  size,
+  className, // Hinzugefügt, um das Problem zu beheben
 }) => {
   // Size-based classes
   const sizeClasses = {
@@ -28,7 +30,7 @@ const WidgetContent: React.FC<WidgetContentProps> = ({
   }[size];
   
   return (
-    <CardContent className={cn(sizeClasses, contentClassName)}>
+    <CardContent className={cn(sizeClasses, contentClassName, className)}>
       {isLoading ? (
         <div className="space-y-3">
           <Skeleton className="h-4 w-full" />

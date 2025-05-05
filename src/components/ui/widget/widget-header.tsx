@@ -7,19 +7,20 @@ import { cn } from "@/lib/utils";
 import { WidgetSize, WidgetVariant } from './types';
 
 interface WidgetHeaderProps {
-  title: string;
+  title?: string;
   description?: React.ReactNode;
   icon?: React.ReactNode;
   actions?: React.ReactNode;
   isLoading?: boolean;
   headerClassName?: string;
   size: WidgetSize;
-  variant: WidgetVariant;
+  variant?: WidgetVariant;
   headerBackgroundImage?: string;
   badge?: {
     text: string;
     variant?: 'default' | 'primary' | 'secondary' | 'outline' | 'destructive';
   };
+  className?: string; // Hinzugefügt, um das Problem zu beheben
 }
 
 const WidgetHeader: React.FC<WidgetHeaderProps> = ({
@@ -30,9 +31,10 @@ const WidgetHeader: React.FC<WidgetHeaderProps> = ({
   isLoading,
   headerClassName,
   size,
-  variant,
+  variant = 'default',
   headerBackgroundImage,
-  badge
+  badge,
+  className, // Hinzugefügt, um das Problem zu beheben
 }) => {
   // Size-based classes
   const sizeClasses = {
@@ -84,7 +86,8 @@ const WidgetHeader: React.FC<WidgetHeaderProps> = ({
         actions && "flex-row justify-between items-start",
         headerBackgroundImage && "relative z-10 text-white",
         headerOverlay,
-        headerClassName
+        headerClassName,
+        className // Hinzugefügt, um das Problem zu beheben
       )}
       style={headerWithBgImage}
     >
