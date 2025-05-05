@@ -1,23 +1,16 @@
 
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
-import { Lightbulb, Plus, Settings, Home, Thermometer, LineChart, Wifi, Zap } from 'lucide-react';
+import { Lightbulb, Plus, Settings, Home, Thermometer, LineChart, Wifi, Zap, Camera, Gauge, Server, BellRing } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import FloorPlanLayout from '@/components/FloorPlanLayout';
 import DeviceStatistics from '@/components/DeviceStatistics';
 import IoTIntegration from '@/components/IoTIntegration';
 import AutomationsPage from '@/components/smart-home/AutomationsPage';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer
-} from 'recharts';
+import SensorHistoryChart from '@/components/smart-home/SensorHistoryChart';
+import SmartHomeCamera from '@/components/smart-home/SmartHomeCamera';
 
 const SmartHome = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -68,13 +61,17 @@ const SmartHome = () => {
                 <Lightbulb className="h-4 w-4 mr-2" />
                 Geräte
               </TabsTrigger>
+              <TabsTrigger value="sensors" className="flex items-center">
+                <Gauge className="h-4 w-4 mr-2" />
+                Sensoren
+              </TabsTrigger>
+              <TabsTrigger value="cameras" className="flex items-center">
+                <Camera className="h-4 w-4 mr-2" />
+                Kameras
+              </TabsTrigger>
               <TabsTrigger value="automation" className="flex items-center">
                 <Zap className="h-4 w-4 mr-2" />
                 Automatisierung
-              </TabsTrigger>
-              <TabsTrigger value="iot" className="flex items-center">
-                <Wifi className="h-4 w-4 mr-2" />
-                IoT & Sensoren
               </TabsTrigger>
               <TabsTrigger value="analytics" className="flex items-center">
                 <LineChart className="h-4 w-4 mr-2" />
@@ -83,13 +80,92 @@ const SmartHome = () => {
             </TabsList>
             
             <TabsContent value="dashboard">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2">
-                  <FloorPlanLayout />
+              <div className="grid grid-cols-1 gap-8">
+                <Card className="shadow-md">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xl text-homepilot-secondary">Übersicht</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                      <div className="lg:col-span-2">
+                        <FloorPlanLayout />
+                      </div>
+                      <div className="space-y-6">
+                        <DeviceStatistics />
+                        <div className="bg-white dark:bg-gray-800 rounded-lg border p-4">
+                          <h3 className="font-medium text-lg mb-2">Schnellzugriff</h3>
+                          <div className="grid grid-cols-2 gap-2">
+                            <Button variant="outline" className="flex flex-col items-center py-6 h-auto text-homepilot-primary">
+                              <Lightbulb className="h-6 w-6 mb-2" />
+                              <span>Alles Ein</span>
+                            </Button>
+                            <Button variant="outline" className="flex flex-col items-center py-6 h-auto text-homepilot-primary">
+                              <Lightbulb className="h-6 w-6 mb-2" />
+                              <span>Alles Aus</span>
+                            </Button>
+                            <Button variant="outline" className="flex flex-col items-center py-6 h-auto text-homepilot-primary">
+                              <Home className="h-6 w-6 mb-2" />
+                              <span>Zuhause</span>
+                            </Button>
+                            <Button variant="outline" className="flex flex-col items-center py-6 h-auto text-homepilot-primary">
+                              <BellRing className="h-6 w-6 mb-2" />
+                              <span>Nacht</span>
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <SensorHistoryChart 
+                    title="Temperatur" 
+                    type="temperature" 
+                    unit="°C" 
+                    currentValue={21.5} 
+                    roomName="Wohnzimmer"
+                  />
+                  <SensorHistoryChart 
+                    title="Luftfeuchtigkeit" 
+                    type="humidity" 
+                    unit="%" 
+                    currentValue={62} 
+                    roomName="Wohnzimmer"
+                  />
+                  <SensorHistoryChart 
+                    title="Energieverbrauch" 
+                    type="energy" 
+                    unit="W" 
+                    currentValue={230} 
+                  />
                 </div>
-                <div>
-                  <DeviceStatistics />
-                </div>
+                
+                <Card className="shadow-md">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xl text-homepilot-secondary">Sicherheit</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <SmartHomeCamera 
+                        name="Eingangstür" 
+                        location="Eingang"
+                        imageUrl="https://images.unsplash.com/photo-1558036117-15d82a90b9b1?auto=format&fit=crop&w=1350&q=80"
+                        isRecording={false}
+                        isOnline={true}
+                        lastMotion="Vor 5 Minuten"
+                      />
+                      <SmartHomeCamera 
+                        name="Garten" 
+                        location="Hinterhof"
+                        imageUrl="https://images.unsplash.com/photo-1620219365994-f451f9108666?auto=format&fit=crop&w=1350&q=80"
+                        isRecording={true}
+                        isOnline={true}
+                        lastMotion="Jetzt"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </TabsContent>
             
@@ -137,46 +213,153 @@ const SmartHome = () => {
               </div>
             </TabsContent>
             
+            <TabsContent value="sensors">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-semibold">Sensoren & Messwerte</h2>
+                  <Button className="flex items-center">
+                    <Plus className="h-4 w-4 mr-2" /> Sensor hinzufügen
+                  </Button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <SensorHistoryChart 
+                    title="Temperatur" 
+                    type="temperature" 
+                    unit="°C" 
+                    currentValue={21.5} 
+                    roomName="Wohnzimmer"
+                  />
+                  <SensorHistoryChart 
+                    title="Temperatur" 
+                    type="temperature" 
+                    unit="°C" 
+                    currentValue={23.2} 
+                    roomName="Küche"
+                  />
+                  <SensorHistoryChart 
+                    title="Temperatur" 
+                    type="temperature" 
+                    unit="°C" 
+                    currentValue={19.8} 
+                    roomName="Schlafzimmer"
+                  />
+                  <SensorHistoryChart 
+                    title="Luftfeuchtigkeit" 
+                    type="humidity" 
+                    unit="%" 
+                    currentValue={62} 
+                    roomName="Wohnzimmer"
+                  />
+                  <SensorHistoryChart 
+                    title="Luftfeuchtigkeit" 
+                    type="humidity" 
+                    unit="%" 
+                    currentValue={58} 
+                    roomName="Küche"
+                  />
+                  <SensorHistoryChart 
+                    title="CO2" 
+                    type="co2" 
+                    unit="ppm" 
+                    currentValue={820} 
+                    roomName="Wohnzimmer"
+                  />
+                  <SensorHistoryChart 
+                    title="Helligkeit" 
+                    type="light" 
+                    unit="lux" 
+                    currentValue={630} 
+                    roomName="Wohnzimmer"
+                  />
+                  <SensorHistoryChart 
+                    title="Energieverbrauch" 
+                    type="energy" 
+                    unit="W" 
+                    currentValue={230} 
+                  />
+                  <SensorHistoryChart 
+                    title="Energieverbrauch" 
+                    type="energy" 
+                    unit="W" 
+                    currentValue={145} 
+                    roomName="Küche"
+                  />
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="cameras">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-semibold">Kameras & Überwachung</h2>
+                  <Button className="flex items-center">
+                    <Plus className="h-4 w-4 mr-2" /> Kamera hinzufügen
+                  </Button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <SmartHomeCamera 
+                    name="Eingangstür" 
+                    location="Eingang"
+                    imageUrl="https://images.unsplash.com/photo-1558036117-15d82a90b9b1?auto=format&fit=crop&w=1350&q=80"
+                    isRecording={false}
+                    isOnline={true}
+                    lastMotion="Vor 5 Minuten"
+                  />
+                  <SmartHomeCamera 
+                    name="Garten" 
+                    location="Hinterhof"
+                    imageUrl="https://images.unsplash.com/photo-1620219365994-f451f9108666?auto=format&fit=crop&w=1350&q=80"
+                    isRecording={true}
+                    isOnline={true}
+                    lastMotion="Jetzt"
+                  />
+                  <SmartHomeCamera 
+                    name="Garage" 
+                    location="Außen"
+                    imageUrl="https://images.unsplash.com/photo-1595760780346-f972eb49709f?auto=format&fit=crop&w=1350&q=80"
+                    isRecording={false}
+                    isOnline={true}
+                    lastMotion="Vor 25 Minuten"
+                  />
+                  <SmartHomeCamera 
+                    name="Wohnzimmer" 
+                    location="Innen"
+                    imageUrl="https://images.unsplash.com/photo-1600121848594-d8644e57abab?auto=format&fit=crop&w=1350&q=80"
+                    isRecording={false}
+                    isOnline={false}
+                    lastMotion="Heute, 12:45"
+                  />
+                </div>
+              </div>
+            </TabsContent>
+            
             <TabsContent value="automation">
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
                 <AutomationsPage />
               </div>
             </TabsContent>
             
-            <TabsContent value="iot">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-                <IoTIntegration />
-              </div>
-            </TabsContent>
-            
             <TabsContent value="analytics">
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
                 <h2 className="text-2xl font-semibold mb-6">Energieverbrauch</h2>
-                <div className="h-80 mb-6">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={[
-                        { month: 'Jan', strom: 120, heizung: 240 },
-                        { month: 'Feb', strom: 110, heizung: 220 },
-                        { month: 'Mär', strom: 105, heizung: 190 },
-                        { month: 'Apr', strom: 90, heizung: 150 },
-                        { month: 'Mai', strom: 85, heizung: 90 },
-                        { month: 'Jun', strom: 80, heizung: 30 },
-                      ]}
-                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="strom" name="Strom (kWh)" fill="#3b82f6" />
-                      <Bar dataKey="heizung" name="Heizung (kWh)" fill="#ef4444" />
-                    </BarChart>
-                  </ResponsiveContainer>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <SensorHistoryChart 
+                    title="Gesamtenergieverbrauch" 
+                    type="energy" 
+                    unit="kWh" 
+                    currentValue={8.2} 
+                  />
+                  <SensorHistoryChart 
+                    title="Heizungsenergie" 
+                    type="energy" 
+                    unit="kWh" 
+                    currentValue={4.5} 
+                  />
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                   <div className="border rounded-lg p-4">
                     <h3 className="text-sm text-gray-500 mb-2">Aktueller Monat</h3>
                     <p className="text-2xl font-bold">185 kWh</p>

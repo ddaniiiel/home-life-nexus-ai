@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
 import { Home, Calendar, FileText, CreditCard, Lightbulb, Phone, User, ArrowRight } from 'lucide-react';
@@ -7,6 +8,7 @@ import { Link } from 'react-router-dom';
 import Widget from '@/components/Widget';
 import { Badge } from '@/components/ui/badge';
 import SmartHomeWidget from '@/components/SmartHomeWidget';
+import LiveCoachWidget from '@/components/dashboard/LiveCoachWidget';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 
@@ -188,8 +190,13 @@ const Dashboard = () => {
             </CardContent>
           </Card>
           
-          {/* Family Members and Calendar */}
+          {/* Live Coach and Family Members */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            {/* Live Coach */}
+            <div className="lg:col-span-2">
+              <LiveCoachWidget />
+            </div>
+            
             {/* Family Members */}
             <Card className="border-green-100 dark:border-green-800 shadow-md">
               <CardContent className="p-6">
@@ -221,54 +228,54 @@ const Dashboard = () => {
                 </div>
               </CardContent>
             </Card>
-            
-            {/* Upcoming Events */}
-            <Card className="lg:col-span-2 border-green-100 dark:border-green-800 shadow-md">
-              <CardContent className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-bold text-green-700">Anstehende Termine</h2>
-                  <Button variant="outline" size="sm" asChild className="text-green-600 border-green-200 hover:bg-green-50">
-                    <Link to="/calendar">Alle anzeigen</Link>
-                  </Button>
-                </div>
-                
-                <div className="space-y-4">
-                  {upcomingEvents.map(event => (
-                    <div key={event.id} className="p-3 border border-green-100 dark:border-green-800 rounded-lg hover:shadow-md transition-shadow">
-                      <div className="flex justify-between items-start">
-                        <div className="flex items-start">
-                          <div className="bg-green-100 p-2 rounded-lg flex items-center justify-center min-w-[2.5rem] mr-3">
-                            <span className="text-green-700 font-semibold">{event.time}</span>
-                          </div>
-                          <div>
-                            <p className="font-medium">{event.title}</p>
-                            <div className="flex flex-wrap text-sm text-gray-500">
-                              <span>{event.date}</span>
-                              <span className="mx-1">•</span>
-                              <span>{event.location}</span>
-                            </div>
+          </div>
+          
+          {/* Upcoming Events */}
+          <Card className="border-green-100 dark:border-green-800 shadow-md mb-6">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-green-700">Anstehende Termine</h2>
+                <Button variant="outline" size="sm" asChild className="text-green-600 border-green-200 hover:bg-green-50">
+                  <Link to="/calendar">Alle anzeigen</Link>
+                </Button>
+              </div>
+              
+              <div className="space-y-4">
+                {upcomingEvents.map(event => (
+                  <div key={event.id} className="p-3 border border-green-100 dark:border-green-800 rounded-lg hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-start">
+                        <div className="bg-green-100 p-2 rounded-lg flex items-center justify-center min-w-[2.5rem] mr-3">
+                          <span className="text-green-700 font-semibold">{event.time}</span>
+                        </div>
+                        <div>
+                          <p className="font-medium">{event.title}</p>
+                          <div className="flex flex-wrap text-sm text-gray-500">
+                            <span>{event.date}</span>
+                            <span className="mx-1">•</span>
+                            <span>{event.location}</span>
                           </div>
                         </div>
-                        <Badge variant="outline" className="text-green-600 border-green-200">
-                          {event.person}
-                        </Badge>
                       </div>
+                      <Badge variant="outline" className="text-green-600 border-green-200">
+                        {event.person}
+                      </Badge>
                     </div>
-                  ))}
-                </div>
-                
-                <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-100 dark:border-green-800">
-                  <div className="flex items-center">
-                    <Calendar className="h-5 w-5 text-green-600 mr-2" />
-                    <h3 className="font-medium text-green-700">Diese Woche</h3>
                   </div>
-                  <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                    Insgesamt 7 weitere Termine für diese Woche geplant. Schaue im Kalender für Details.
-                  </p>
+                ))}
+              </div>
+              
+              <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-100 dark:border-green-800">
+                <div className="flex items-center">
+                  <Calendar className="h-5 w-5 text-green-600 mr-2" />
+                  <h3 className="font-medium text-green-700">Diese Woche</h3>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                  Insgesamt 7 weitere Termine für diese Woche geplant. Schaue im Kalender für Details.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
           
           {/* Quick Access Widgets */}
           <h2 className="text-xl font-bold mb-4 text-green-700">Schnellzugriff</h2>
