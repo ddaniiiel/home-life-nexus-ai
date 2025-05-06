@@ -5,44 +5,150 @@ import { Home, Calendar, FileText, CreditCard, Lightbulb, Phone, User, ArrowRigh
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import Widget from '@/components/Widget';
 import { Badge } from '@/components/ui/badge';
 import SmartHomeWidget from '@/components/SmartHomeWidget';
-import LiveCoachWidget from '@/components/dashboard/LiveCoachWidget';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { toast } from '@/components/ui/use-toast';
+import UnifiedDashboard from '@/components/dashboard/UnifiedDashboard';
+import { Task, Appointment } from '@/models/TaskAppointment';
 
 const Dashboard = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const today = new Date();
-  
-  // Sample upcoming events with improved data
-  const upcomingEvents = [
-    { 
-      id: 1, 
-      title: "Elternabend Schule", 
-      date: format(today, "eeee, dd. MMMM", { locale: de }), 
-      time: "19:00",
-      person: "Emma",
-      location: "Grundschule Am Park"
+
+  // Sample task data 
+  const [tasks, setTasks] = useState<Task[]>([
+    {
+      id: 1,
+      title: 'Wäsche waschen',
+      description: 'Dunkle Wäsche bei 40°C',
+      completed: false,
+      status: 'upcoming',
+      priority: 'medium',
+      dueDate: new Date(2025, 4, 7, 10, 0), // May 7, 2025 10:00
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      estimatedDuration: 90,
+      subtasks: [
+        { id: 1, title: 'Waschmaschine einschalten', completed: true },
+        { id: 2, title: 'Wäsche aufhängen', completed: false }
+      ],
+      recurrence: 'weekly',
+      linkedAppointmentIds: []
     },
-    { 
-      id: 2, 
-      title: "Zahnarzttermin", 
-      date: format(new Date(today.getTime() + 86400000), "eeee, dd. MMMM", { locale: de }), 
-      time: "14:30",
-      person: "Tim",
-      location: "Praxis Dr. Müller"
+    {
+      id: 2,
+      title: 'Einkaufen gehen',
+      description: 'Lebensmittel für die Woche besorgen',
+      completed: false,
+      status: 'upcoming',
+      priority: 'high',
+      dueDate: new Date(2025, 4, 6, 14, 0), // May 6, 2025 14:00
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      estimatedDuration: 60,
+      linkedAppointmentIds: [3]
     },
-    { 
-      id: 3, 
-      title: "Volleyball Training", 
-      date: format(new Date(today.getTime() + 172800000), "eeee, dd. MMMM", { locale: de }), 
-      time: "17:00",
-      person: "Sarah",
-      location: "Sporthalle Stadtmitte"
+    {
+      id: 3,
+      title: 'Rechnungen bezahlen',
+      description: 'Strom und Internet',
+      completed: true,
+      status: 'completed',
+      priority: 'high',
+      dueDate: new Date(2025, 4, 5, 10, 0), // May 5, 2025 10:00
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      id: 4,
+      title: 'Pflanzen gießen',
+      description: '',
+      completed: false,
+      status: 'upcoming',
+      priority: 'low',
+      dueDate: new Date(2025, 4, 6, 9, 0), // May 6, 2025 9:00
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      recurrence: 'daily'
+    },
+    {
+      id: 5,
+      title: 'Zahnarzttermin vorbereiten',
+      description: 'Versicherungskarte und Unterlagen bereitlegen',
+      completed: false,
+      status: 'upcoming',
+      priority: 'medium',
+      dueDate: new Date(2025, 4, 8, 8, 0), // May 8, 2025 8:00
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      linkedAppointmentIds: [1]
     }
-  ];
+  ]);
+
+  // Sample appointment data
+  const [appointments, setAppointments] = useState<Appointment[]>([
+    {
+      id: 1,
+      title: 'Zahnarzttermin',
+      description: 'Routineuntersuchung',
+      status: 'upcoming',
+      priority: 'high',
+      startDate: new Date(2025, 4, 8, 10, 0), // May 8, 2025 10:00
+      endDate: new Date(2025, 4, 8, 11, 0),   // May 8, 2025 11:00
+      location: 'Praxis Dr. Müller, Hauptstraße 15',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      weatherDependent: false,
+      transportNeeded: true,
+      relevantDocuments: ['Versicherungskarte'],
+      linkedTaskIds: [5]
+    },
+    {
+      id: 2,
+      title: 'Elternabend Schule',
+      description: 'Besprechung der Klassenfahrt',
+      status: 'upcoming',
+      priority: 'medium',
+      startDate: new Date(2025, 4, 6, 19, 0), // May 6, 2025 19:00
+      endDate: new Date(2025, 4, 6, 21, 0),   // May 6, 2025 21:00
+      location: 'Grundschule Am Park, Raum 104',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      attendees: [
+        { id: 1, name: 'Thomas', confirmed: true },
+        { id: 2, name: 'Sarah', confirmed: true }
+      ]
+    },
+    {
+      id: 3,
+      title: 'Wocheneinkauf',
+      description: 'Großeinkauf für die Familie',
+      status: 'upcoming',
+      priority: 'medium',
+      startDate: new Date(2025, 4, 6, 15, 0), // May 6, 2025 15:00
+      endDate: new Date(2025, 4, 6, 16, 30),  // May 6, 2025 16:30
+      location: 'Supermarkt Stadtmitte',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      weatherDependent: true,
+      linkedTaskIds: [2]
+    },
+    {
+      id: 4,
+      title: 'Volleyball Training',
+      description: '',
+      status: 'upcoming',
+      priority: 'low',
+      startDate: new Date(2025, 4, 7, 17, 0), // May 7, 2025 17:00
+      endDate: new Date(2025, 4, 7, 19, 0),   // May 7, 2025 19:00
+      location: 'Sporthalle Stadtmitte',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      recurrence: 'weekly'
+    }
+  ]);
   
   // Family members with more data
   const familyMembers = [
@@ -51,6 +157,36 @@ const Dashboard = () => {
     { id: 3, name: "Emma", role: "Tochter", image: "https://images.unsplash.com/photo-1590080692141-56a6aaa7cdce?auto=format&fit=crop&w=150&q=80", status: "In der Schule", lastActive: "vor 45 Min." },
     { id: 4, name: "Tim", role: "Sohn", image: "https://images.unsplash.com/photo-1599463923592-e4e6206e9e3d?auto=format&fit=crop&w=150&q=80", status: "Beim Sport", lastActive: "vor 30 Min." },
   ];
+
+  // Handlers
+  const handleTaskComplete = (id: number) => {
+    setTasks(tasks.map(task => 
+      task.id === id ? { ...task, completed: !task.completed, status: !task.completed ? 'completed' : 'upcoming' } : task
+    ));
+    
+    const task = tasks.find(t => t.id === id);
+    
+    toast({
+      title: task?.completed ? "Aufgabe als offen markiert" : "Aufgabe abgeschlossen",
+      description: `"${task?.title}" wurde als ${task?.completed ? 'offen' : 'erledigt'} markiert.`,
+    });
+  };
+
+  const handleTaskSelect = (id: number) => {
+    // In a real app, this would open a task detail view or edit form
+    toast({
+      title: "Aufgabe ausgewählt",
+      description: `Details für Aufgabe ${id} werden geöffnet.`,
+    });
+  };
+
+  const handleAppointmentSelect = (id: number) => {
+    // In a real app, this would open an appointment detail view
+    toast({
+      title: "Termin ausgewählt",
+      description: `Details für Termin ${id} werden geöffnet.`,
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -79,26 +215,17 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Next Event Alert */}
-          {upcomingEvents.length > 0 && (
-            <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center justify-between">
-              <div className="flex items-center">
-                <div className="bg-green-500 p-2 rounded-full mr-4">
-                  <Calendar className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-green-800">Nächster Termin: {upcomingEvents[0].title}</h3>
-                  <p className="text-sm text-green-700">{upcomingEvents[0].date}, {upcomingEvents[0].time} • {upcomingEvents[0].location}</p>
-                </div>
-              </div>
-              <Button size="sm" variant="outline" asChild className="border-green-500 text-green-600 hover:bg-green-100">
-                <Link to="/calendar">Details</Link>
-              </Button>
-            </div>
-          )}
-
+          {/* Unified Dashboard showing tasks and appointments together */}
+          <UnifiedDashboard
+            tasks={tasks}
+            appointments={appointments}
+            onTaskComplete={handleTaskComplete}
+            onTaskSelect={handleTaskSelect}
+            onAppointmentSelect={handleAppointmentSelect}
+          />
+          
           {/* House Overview */}
-          <Card className="mb-6 overflow-hidden border-green-100 dark:border-green-800 shadow-md">
+          <Card className="mb-6 overflow-hidden border-green-100 dark:border-green-800 shadow-md mt-6">
             <div className="relative">
               <img 
                 src="https://images.unsplash.com/photo-1558036117-15d82a90b9b1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
@@ -190,89 +317,34 @@ const Dashboard = () => {
             </CardContent>
           </Card>
           
-          {/* Live Coach and Family Members */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            {/* Live Coach */}
-            <div className="lg:col-span-2">
-              <LiveCoachWidget />
-            </div>
-            
-            {/* Family Members */}
-            <Card className="border-green-100 dark:border-green-800 shadow-md">
-              <CardContent className="p-6">
-                <h2 className="text-xl font-bold mb-4 text-green-700">Familienmitglieder</h2>
-                <div className="space-y-4">
-                  {familyMembers.map(member => (
-                    <div key={member.id} className="flex items-center space-x-4 p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-800/20 transition-colors">
-                      <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-green-200">
-                        <img 
-                          src={member.image} 
-                          alt={member.name} 
-                          className="w-full h-full object-cover" 
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{member.name}</p>
-                        <div className="flex items-center">
-                          <p className="text-sm text-gray-500 mr-2">{member.role}</p>
-                          <span className="text-xs text-gray-400">•</span>
-                          <p className="text-xs text-gray-400 ml-2">{member.lastActive}</p>
-                        </div>
-                      </div>
-                      <Badge variant={member.status === "Zuhause" ? "default" : "outline"} className={member.status === "Zuhause" ? "bg-green-500" : ""}>
-                        {member.status}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Upcoming Events */}
+          {/* Family Members */}
           <Card className="border-green-100 dark:border-green-800 shadow-md mb-6">
             <CardContent className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-green-700">Anstehende Termine</h2>
-                <Button variant="outline" size="sm" asChild className="text-green-600 border-green-200 hover:bg-green-50">
-                  <Link to="/calendar">Alle anzeigen</Link>
-                </Button>
-              </div>
-              
+              <h2 className="text-xl font-bold mb-4 text-green-700">Familienmitglieder</h2>
               <div className="space-y-4">
-                {upcomingEvents.map(event => (
-                  <div key={event.id} className="p-3 border border-green-100 dark:border-green-800 rounded-lg hover:shadow-md transition-shadow">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-start">
-                        <div className="bg-green-100 p-2 rounded-lg flex items-center justify-center min-w-[2.5rem] mr-3">
-                          <span className="text-green-700 font-semibold">{event.time}</span>
-                        </div>
-                        <div>
-                          <p className="font-medium">{event.title}</p>
-                          <div className="flex flex-wrap text-sm text-gray-500">
-                            <span>{event.date}</span>
-                            <span className="mx-1">•</span>
-                            <span>{event.location}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <Badge variant="outline" className="text-green-600 border-green-200">
-                        {event.person}
-                      </Badge>
+                {familyMembers.map(member => (
+                  <div key={member.id} className="flex items-center space-x-4 p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-800/20 transition-colors">
+                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-green-200">
+                      <img 
+                        src={member.image} 
+                        alt={member.name} 
+                        className="w-full h-full object-cover" 
+                        loading="lazy"
+                      />
                     </div>
+                    <div className="flex-1">
+                      <p className="font-medium">{member.name}</p>
+                      <div className="flex items-center">
+                        <p className="text-sm text-gray-500 mr-2">{member.role}</p>
+                        <span className="text-xs text-gray-400">•</span>
+                        <p className="text-xs text-gray-400 ml-2">{member.lastActive}</p>
+                      </div>
+                    </div>
+                    <Badge variant={member.status === "Zuhause" ? "default" : "outline"} className={member.status === "Zuhause" ? "bg-green-500" : ""}>
+                      {member.status}
+                    </Badge>
                   </div>
                 ))}
-              </div>
-              
-              <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-100 dark:border-green-800">
-                <div className="flex items-center">
-                  <Calendar className="h-5 w-5 text-green-600 mr-2" />
-                  <h3 className="font-medium text-green-700">Diese Woche</h3>
-                </div>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                  Insgesamt 7 weitere Termine für diese Woche geplant. Schaue im Kalender für Details.
-                </p>
               </div>
             </CardContent>
           </Card>
@@ -284,36 +356,6 @@ const Dashboard = () => {
             <SmartHomeWidget />
             
             {/* Calendar Quick View */}
-            <Widget 
-              title="Kalender" 
-              description="Heute und Morgen" 
-              icon={<Calendar className="h-5 w-5" />}
-              variant="primary"
-              className="shadow-md"
-            >
-              <div className="space-y-3">
-                {upcomingEvents.map(event => (
-                  <div key={event.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-blue-50 transition-colors">
-                    <div className="flex items-center">
-                      <div className="bg-blue-100 p-2 rounded-lg mr-3 min-w-[2.5rem] flex justify-center">
-                        <span className="text-blue-700 font-medium">{event.time}</span>
-                      </div>
-                      <div>
-                        <span className="font-medium">{event.title}</span>
-                        <p className="text-xs text-gray-500">{event.location}</p>
-                      </div>
-                    </div>
-                    <Badge variant="outline" className="text-xs">{event.person}</Badge>
-                  </div>
-                ))}
-                <Button className="w-full mt-2 bg-blue-500 hover:bg-blue-600" asChild>
-                  <Link to="/calendar" className="flex items-center justify-center">
-                    <span className="mr-1">Zum Kalender</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
-            </Widget>
           </div>
         </div>
       </div>
