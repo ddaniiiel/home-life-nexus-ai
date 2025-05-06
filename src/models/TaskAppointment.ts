@@ -1,4 +1,3 @@
-
 import { format } from 'date-fns';
 
 // SubTask interface for complex tasks with sub-components
@@ -69,14 +68,14 @@ export const sortByDate = (a: { startDate?: Date, dueDate?: Date }, b: { startDa
 };
 
 export const sortByPriority = (a: { priority?: Priority }, b: { priority?: Priority }) => {
-  const priorityValues: Record<Priority | undefined, number> = {
+  const priorityValues: Record<string, number> = {
     'high': 0,
     'medium': 1,
-    'low': 2,
-    undefined: 3
+    'low': 2
   };
   
-  return (priorityValues[a.priority] || 3) - (priorityValues[b.priority] || 3);
+  // Use ?? to provide a default value when priority is undefined
+  return (priorityValues[a.priority ?? ''] ?? 3) - (priorityValues[b.priority ?? ''] ?? 3);
 };
 
 export const filterUpcoming = (items: (Task | Appointment)[]) => {
