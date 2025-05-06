@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
-import { Home, Calendar, FileText, CreditCard, Lightbulb, Phone, User, ArrowRight } from 'lucide-react';
+import { Home, Calendar, FileText, CreditCard, Lightbulb, Phone, User, ArrowRight, Clock, Check, ChevronRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -11,7 +10,7 @@ import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { toast } from '@/components/ui/use-toast';
 import UnifiedDashboard from '@/components/dashboard/UnifiedDashboard';
-import { Task, Appointment } from '@/models/TaskAppointment';
+import { Task, Appointment, checkForConflicts } from '@/models/TaskAppointment';
 
 const Dashboard = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -188,13 +187,17 @@ const Dashboard = () => {
     });
   };
 
+  // Check for appointment conflicts
+  const conflicts = checkForConflicts(appointments);
+  const hasConflicts = conflicts.length > 0;
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navigation isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
       
       <div className="md:ml-64 pt-16 px-4 md:px-8 py-8">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
             <div>
               <h1 className="text-3xl font-bold text-green-700">Willkommen bei HomePilot</h1>
               <p className="text-gray-600">{format(today, "EEEE, d. MMMM yyyy", { locale: de })} • Ein schöner Tag für deine Familie</p>
@@ -215,28 +218,19 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Unified Dashboard showing tasks and appointments together */}
-          <UnifiedDashboard
-            tasks={tasks}
-            appointments={appointments}
-            onTaskComplete={handleTaskComplete}
-            onTaskSelect={handleTaskSelect}
-            onAppointmentSelect={handleAppointmentSelect}
-          />
-          
-          {/* House Overview */}
-          <Card className="mb-6 overflow-hidden border-green-100 dark:border-green-800 shadow-md mt-6">
+          {/* House Overview - Moved to the top */}
+          <Card className="mb-6 overflow-hidden border-green-100 dark:border-green-800 shadow-md">
             <div className="relative">
               <img 
                 src="https://images.unsplash.com/photo-1558036117-15d82a90b9b1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
                 alt="House Overview" 
-                className="w-full h-64 object-cover"
+                className="w-full h-72 object-cover"
                 loading="lazy"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
                 <div className="text-white">
                   <h2 className="text-2xl font-bold">Musterstraße 123</h2>
-                  <p className="text-white/80">Alle Systeme funktionieren normal</p>
+                  <p className="text-white/90">Alle Systeme funktionieren normal</p>
                 </div>
               </div>
             </div>
@@ -254,68 +248,154 @@ const Dashboard = () => {
                   </div>
                 </Link>
                 
-                <Link to="/emergency" className="block">
-                  <div className="border border-green-100 dark:border-green-800 rounded-lg p-3 text-center hover:bg-red-50 transition-colors">
-                    <div className="flex justify-center mb-2">
-                      <div className="bg-red-100 dark:bg-red-800/30 rounded-full p-2">
-                        <Phone className="h-5 w-5 text-red-600 dark:text-red-400" />
-                      </div>
-                    </div>
-                    <p className="text-sm font-medium">Notfall</p>
-                    <p className="text-xs text-gray-500">Alles OK</p>
-                  </div>
-                </Link>
-                
-                <Link to="/calendar" className="block">
-                  <div className="border border-green-100 dark:border-green-800 rounded-lg p-3 text-center hover:bg-blue-50 transition-colors">
-                    <div className="flex justify-center mb-2">
-                      <div className="bg-blue-100 dark:bg-blue-800/30 rounded-full p-2">
-                        <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                      </div>
-                    </div>
-                    <p className="text-sm font-medium">Kalender</p>
-                    <p className="text-xs text-gray-500">3 Termine heute</p>
-                  </div>
-                </Link>
-                
-                <Link to="/documents" className="block">
-                  <div className="border border-green-100 dark:border-green-800 rounded-lg p-3 text-center hover:bg-yellow-50 transition-colors">
-                    <div className="flex justify-center mb-2">
-                      <div className="bg-yellow-100 dark:bg-yellow-800/30 rounded-full p-2">
-                        <FileText className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
-                      </div>
-                    </div>
-                    <p className="text-sm font-medium">Dokumente</p>
-                    <p className="text-xs text-gray-500">2 neue</p>
-                  </div>
-                </Link>
-                
-                <Link to="/finances" className="block">
-                  <div className="border border-green-100 dark:border-green-800 rounded-lg p-3 text-center hover:bg-purple-50 transition-colors">
-                    <div className="flex justify-center mb-2">
-                      <div className="bg-purple-100 dark:bg-purple-800/30 rounded-full p-2">
-                        <CreditCard className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                      </div>
-                    </div>
-                    <p className="text-sm font-medium">Finanzen</p>
-                    <p className="text-xs text-gray-500">Alles im Budget</p>
-                  </div>
-                </Link>
-                
-                <Link to="/settings" className="block">
-                  <div className="border border-green-100 dark:border-green-800 rounded-lg p-3 text-center hover:bg-indigo-50 transition-colors">
-                    <div className="flex justify-center mb-2">
-                      <div className="bg-indigo-100 dark:bg-indigo-800/30 rounded-full p-2">
-                        <User className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                      </div>
-                    </div>
-                    <p className="text-sm font-medium">Familie</p>
-                    <p className="text-xs text-gray-500">4 Mitglieder</p>
-                  </div>
-                </Link>
+                {/* ... keep existing code (other house overview links) */}
               </div>
             </CardContent>
           </Card>
+
+          {/* Improved Appointments and Tasks Section */}
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-green-700">Aufgaben & Termine</h2>
+              {hasConflicts && (
+                <Badge variant="destructive" className="flex items-center">
+                  <Clock className="h-3 w-3 mr-1" /> Terminkonflikt gefunden
+                </Badge>
+              )}
+            </div>
+            
+            <Card className="border-green-100 dark:border-green-800 shadow-md">
+              {/* Unified Dashboard showing tasks and appointments together */}
+              <CardContent className="p-0">
+                <UnifiedDashboard
+                  tasks={tasks}
+                  appointments={appointments}
+                  onTaskComplete={handleTaskComplete}
+                  onTaskSelect={handleTaskSelect}
+                  onAppointmentSelect={handleAppointmentSelect}
+                />
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Enhanced Finances Section */}
+          <div className="mb-6">
+            <h2 className="text-xl font-bold mb-4 text-green-700 flex items-center">
+              <CreditCard className="h-5 w-5 mr-2" />
+              Finanzen im Überblick
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Monthly Summary */}
+              <Card className="border-green-100 dark:border-green-800 shadow-md">
+                <CardContent className="p-5">
+                  <h3 className="text-lg font-semibold mb-3">Monatliche Übersicht</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center pb-2 border-b border-gray-100">
+                      <span className="text-sm font-medium">Einnahmen</span>
+                      <span className="text-sm font-bold text-green-600">CHF 3'500</span>
+                    </div>
+                    <div className="flex justify-between items-center pb-2 border-b border-gray-100">
+                      <span className="text-sm font-medium">Ausgaben</span>
+                      <span className="text-sm font-bold text-red-600">CHF 2'600</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-1">
+                      <span className="text-sm font-medium">Bilanz</span>
+                      <span className="text-sm font-bold text-blue-600">CHF 900</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 pt-3 border-t border-gray-100">
+                    <Link to="/finances" className="text-green-600 hover:text-green-700 text-sm font-medium flex items-center">
+                      Vollständige Übersicht
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Budget Status */}
+              <Card className="border-green-100 dark:border-green-800 shadow-md">
+                <CardContent className="p-5">
+                  <h3 className="text-lg font-semibold mb-3">Budget Status</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Lebensmittel</span>
+                      <div className="flex items-center">
+                        <div className="w-32 h-2 bg-gray-200 rounded-full mr-2">
+                          <div className="h-full bg-green-500 rounded-full" style={{ width: '70%' }}></div>
+                        </div>
+                        <span className="text-xs">70%</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Unterhaltung</span>
+                      <div className="flex items-center">
+                        <div className="w-32 h-2 bg-gray-200 rounded-full mr-2">
+                          <div className="h-full bg-yellow-500 rounded-full" style={{ width: '90%' }}></div>
+                        </div>
+                        <span className="text-xs">90%</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Transport</span>
+                      <div className="flex items-center">
+                        <div className="w-32 h-2 bg-gray-200 rounded-full mr-2">
+                          <div className="h-full bg-red-500 rounded-full" style={{ width: '100%' }}></div>
+                        </div>
+                        <span className="text-xs">100%</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Sparen</span>
+                      <div className="flex items-center">
+                        <div className="w-32 h-2 bg-gray-200 rounded-full mr-2">
+                          <div className="h-full bg-blue-500 rounded-full" style={{ width: '50%' }}></div>
+                        </div>
+                        <span className="text-xs">50%</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Upcoming Bills */}
+              <Card className="border-green-100 dark:border-green-800 shadow-md">
+                <CardContent className="p-5">
+                  <h3 className="text-lg font-semibold mb-3">Anstehende Rechnungen</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
+                      <div>
+                        <p className="text-sm font-medium">Stromrechnung</p>
+                        <p className="text-xs text-gray-500">Fällig am 15.05.2025</p>
+                      </div>
+                      <span className="text-sm font-semibold">CHF 120</span>
+                    </div>
+                    <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
+                      <div>
+                        <p className="text-sm font-medium">Internet</p>
+                        <p className="text-xs text-gray-500">Fällig am 20.05.2025</p>
+                      </div>
+                      <span className="text-sm font-semibold">CHF 85</span>
+                    </div>
+                    <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
+                      <div>
+                        <p className="text-sm font-medium">Hypothek</p>
+                        <p className="text-xs text-gray-500">Fällig am 01.06.2025</p>
+                      </div>
+                      <span className="text-sm font-semibold">CHF 1'200</span>
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-gray-100">
+                    <Link to="/finances" className="text-green-600 hover:text-green-700 text-sm font-medium flex items-center">
+                      Alle Rechnungen anzeigen
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
           
           {/* Family Members */}
           <Card className="border-green-100 dark:border-green-800 shadow-md mb-6">
