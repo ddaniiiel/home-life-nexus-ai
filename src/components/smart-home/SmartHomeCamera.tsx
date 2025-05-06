@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Eye, EyeOff, Record, Square, Download, Camera, Cctv, MoreVertical } from 'lucide-react';
+import { Eye, EyeOff, Circle, Square, Download, Camera, Cctv, MoreVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -74,7 +74,7 @@ const SmartHomeCamera: React.FC<SmartHomeCameraProps> = ({
                 {isLive ? "Live-Ansicht ausschalten" : "Live-Ansicht einschalten"}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={toggleRecording}>
-                {recording ? <Square className="mr-2 h-4 w-4" /> : <Record className="mr-2 h-4 w-4" />}
+                {recording ? <Square className="mr-2 h-4 w-4" /> : <Circle className="mr-2 h-4 w-4" />}
                 {recording ? "Aufnahme stoppen" : "Aufnahme starten"}
               </DropdownMenuItem>
               <DropdownMenuItem>
@@ -116,7 +116,7 @@ const SmartHomeCamera: React.FC<SmartHomeCameraProps> = ({
           {isLive && recording && (
             <div className="absolute top-2 left-2">
               <Badge variant="destructive" className="animate-pulse flex items-center">
-                <Record className="h-2 w-2 mr-1" />
+                <Circle className="h-2 w-2 mr-1" />
                 REC
               </Badge>
             </div>
@@ -137,7 +137,7 @@ const SmartHomeCamera: React.FC<SmartHomeCameraProps> = ({
             size="sm" 
             onClick={toggleRecording}
           >
-            {recording ? <Square className="h-4 w-4 mr-1" /> : <Record className="h-4 w-4 mr-1" />}
+            {recording ? <Square className="h-4 w-4 mr-1" /> : <Circle className="h-4 w-4 mr-1" />}
             {recording ? "Stopp" : "Aufnehmen"}
           </Button>
         </div>
