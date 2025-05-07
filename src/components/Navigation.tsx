@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { 
@@ -19,7 +18,7 @@ const Navigation: React.FC<NavigationProps> = ({ isMobileMenuOpen, setIsMobileMe
   const isActive = (path: string) => location.pathname === path;
 
   const navLinks = [
-    { path: '/dashboard', icon: <LayoutDashboard className="h-5 w-5" />, label: 'Dashboard' },
+    { path: '/', icon: <Home className="h-5 w-5" />, label: 'HomePilot' },
     { path: '/smart-home', icon: <Lightbulb className="h-5 w-5" />, label: 'Smart Home' },
     { path: '/tasks', icon: <Calendar className="h-5 w-5" />, label: 'Aufgaben & Termine' },
     { path: '/documents', icon: <FileText className="h-5 w-5" />, label: 'Dokumente' },
@@ -76,12 +75,6 @@ const Navigation: React.FC<NavigationProps> = ({ isMobileMenuOpen, setIsMobileMe
               <Bell className="h-5 w-5" />
             </button>
             <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
-          </div>
-          <div className="ml-2 flex items-center">
-            <Avatar className="h-8 w-8 border-2 border-green-200 dark:border-green-700">
-              <AvatarImage src={userProfile.image} alt={userProfile.name} />
-              <AvatarFallback>{userProfile.name.charAt(0)}</AvatarFallback>
-            </Avatar>
           </div>
         </div>
       </header>

@@ -1,23 +1,15 @@
 
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
-import { Home, Calendar, FileText, CreditCard, Lightbulb, Phone, User, ArrowRight, Clock, Check, ChevronRight, Thermometer, Droplets, Shield, Wifi, BellRing, Lock, Power } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
-import SmartHomeWidget from '@/components/SmartHomeWidget';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { toast } from '@/components/ui/use-toast';
-import UnifiedDashboard from '@/components/dashboard/UnifiedDashboard';
 import { Task, Appointment, checkForConflicts } from '@/models/TaskAppointment';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardHouseOverview from '@/components/dashboard/DashboardHouseOverview';
-import DashboardTasksAppointments from '@/components/dashboard/DashboardTasksAppointments';
-import DashboardSmartHome from '@/components/dashboard/DashboardSmartHome';
 import DashboardFinancialOverview from '@/components/dashboard/DashboardFinancialOverview';
-import DashboardFamilyStatus from '@/components/dashboard/DashboardFamilyStatus';
+import DashboardSmartHome from '@/components/dashboard/DashboardSmartHome';
+import LiveCoachWidget from '@/components/dashboard/LiveCoachWidget';
 
 const Dashboard = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -200,9 +192,6 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navigation isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
       
-      {/* Show family status indicators in top-right corner */}
-      <DashboardFamilyStatus familyMembers={familyMembers} />
-      
       <div className="md:ml-64 pt-16 px-4 md:px-8 py-8">
         <div className="max-w-7xl mx-auto">
           {/* Welcome header */}
@@ -211,40 +200,21 @@ const Dashboard = () => {
               <h1 className="text-3xl font-bold text-green-700">Willkommen bei HomePilot</h1>
               <p className="text-gray-600">{format(today, "EEEE, d. MMMM yyyy", { locale: de })} • Ein schöner Tag für deine Familie</p>
             </div>
-            <div className="flex items-center space-x-2 mt-4 md:mt-0">
-              <Button size="sm" variant="outline" asChild className="border-green-600/20 hover:bg-green-50 hover:border-green-600/30">
-                <Link to="/tasks">
-                  <Calendar className="h-4 w-4 mr-2 text-green-600" />
-                  Aufgaben ansehen
-                </Link>
-              </Button>
-              <Button size="sm" asChild className="bg-green-600 hover:bg-green-700">
-                <Link to="/smart-home">
-                  <Lightbulb className="h-4 w-4 mr-2" />
-                  Smart Home
-                </Link>
-              </Button>
-            </div>
           </div>
 
-          {/* House Overview - Enhanced with status information */}
-          <DashboardHouseOverview />
+          {/* House Overview with integrated family members */}
+          <DashboardHouseOverview familyMembers={familyMembers} />
 
-          {/* Tasks & Appointments Section */}
-          <DashboardTasksAppointments 
-            tasks={tasks}
-            appointments={appointments}
-            hasConflicts={hasConflicts}
-            onTaskComplete={handleTaskComplete}
-            onTaskSelect={handleTaskSelect}
-            onAppointmentSelect={handleAppointmentSelect}
-          />
-          
-          {/* Condensed Financial Overview */}
-          <DashboardFinancialOverview />
+          {/* Live Coach Widget with Tasks & Appointments */}
+          <div className="mb-6">
+            <LiveCoachWidget />
+          </div>
           
           {/* Smart Home Full Width Section */}
           <DashboardSmartHome />
+          
+          {/* Condensed Financial Overview */}
+          <DashboardFinancialOverview />
         </div>
       </div>
     </div>
