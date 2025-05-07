@@ -3,8 +3,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { Thermometer, Shield, Droplets, Lightbulb, Wifi, BellRing, Power, Lock } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Thermometer, Shield, Droplets, Lightbulb, Wifi, BellRing, Power, Lock, Sun, CloudSun, Wind } from 'lucide-react';
 import { 
   Popover,
   PopoverContent,
@@ -25,6 +24,21 @@ interface DashboardHouseOverviewProps {
 }
 
 const DashboardHouseOverview: React.FC<DashboardHouseOverviewProps> = ({ familyMembers }) => {
+  // Weather data (could be fetched from an API in real implementation)
+  const weatherData = {
+    condition: 'Sonnig',
+    temperature: 22,
+    icon: <Sun className="h-5 w-5 text-yellow-400" />,
+    windSpeed: '5 km/h'
+  };
+
+  // Power usage data
+  const powerData = {
+    currentUsage: 2.8,
+    unit: 'kW',
+    trend: 'stable'
+  };
+
   return (
     <Card className="mb-6 overflow-hidden border-green-100 dark:border-green-800 shadow-md">
       <div className="relative">
@@ -35,8 +49,14 @@ const DashboardHouseOverview: React.FC<DashboardHouseOverviewProps> = ({ familyM
           loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6">
-          <div className="text-white mb-2">
-            <h2 className="text-2xl font-bold">Musterstraße 123</h2>
+          <div className="text-white mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-2xl font-bold">Musterstraße 123</h2>
+              <div className="flex items-center space-x-2">
+                {weatherData.icon}
+                <span className="text-sm">{weatherData.condition}, {weatherData.temperature}°C</span>
+              </div>
+            </div>
             <div className="flex items-center">
               <Badge className="bg-green-500 mr-2">Alles OK</Badge>
               <p className="text-white/90">Letzte Prüfung: Heute 08:15</p>
@@ -46,12 +66,12 @@ const DashboardHouseOverview: React.FC<DashboardHouseOverviewProps> = ({ familyM
           {/* Family members integrated into house overview */}
           <div className="flex items-center mb-4">
             <p className="text-white text-sm mr-3">Bewohner:</p>
-            <div className="flex -space-x-2">
+            <div className="flex space-x-3">
               {familyMembers.map((member) => (
                 <Popover key={member.id}>
                   <PopoverTrigger asChild>
                     <button className="relative group">
-                      <div className={`w-8 h-8 rounded-full overflow-hidden border-2 ${
+                      <div className={`w-10 h-10 rounded-full overflow-hidden border-2 ${
                         member.status === 'Zuhause' 
                           ? 'border-green-500' 
                           : member.status === 'Im Büro' || member.status === 'In der Schule'
@@ -117,7 +137,7 @@ const DashboardHouseOverview: React.FC<DashboardHouseOverviewProps> = ({ familyM
             </div>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-2">
             <div className="bg-white/20 backdrop-blur-sm rounded-md p-2 flex items-center">
               <Thermometer className="h-4 w-4 text-white mr-2" />
               <span className="text-sm text-white">22°C innen</span>
@@ -129,6 +149,32 @@ const DashboardHouseOverview: React.FC<DashboardHouseOverviewProps> = ({ familyM
             <div className="bg-white/20 backdrop-blur-sm rounded-md p-2 flex items-center">
               <Droplets className="h-4 w-4 text-white mr-2" />
               <span className="text-sm text-white">Luftfeuchtigkeit 45%</span>
+            </div>
+            <div className="bg-white/20 backdrop-blur-sm rounded-md p-2 flex items-center">
+              <Power className="h-4 w-4 text-white mr-2" />
+              <span className="text-sm text-white">Stromverbrauch {powerData.currentUsage} {powerData.unit}</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center mt-4 justify-between">
+            <div className="flex items-center">
+              <div className="bg-white/20 backdrop-blur-sm rounded-full p-2 mr-2">
+                <CloudSun className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-white font-medium">Lokales Wetter</p>
+                <p className="text-xs text-white/80">{weatherData.condition}, Wind: {weatherData.windSpeed}</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center">
+              <div className="bg-white/20 backdrop-blur-sm rounded-full p-2 mr-2">
+                <Power className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-white font-medium">Aktuelle Last</p>
+                <p className="text-xs text-white/80">{powerData.currentUsage} {powerData.unit} ({powerData.trend})</p>
+              </div>
             </div>
           </div>
         </div>

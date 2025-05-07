@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
-import { CreditCard, ChevronRight, Wallet } from 'lucide-react';
+import { Wallet, ChevronRight, CreditCard, Receipt, LineChart, PiggyBank } from 'lucide-react';
+import Widget from '@/components/Widget';
 
 const DashboardFinancialOverview = () => {
   return (
@@ -13,15 +13,18 @@ const DashboardFinancialOverview = () => {
       </h2>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border-green-100 dark:border-green-800 shadow-md">
-          <CardContent className="p-5">
-            <h3 className="text-lg font-semibold mb-2">Gesamtvermögen</h3>
-            <div className="flex items-end space-x-2 mb-4">
-              <span className="text-2xl font-bold">CHF 479'700</span>
+        <Widget 
+          title="Gesamtvermögen" 
+          icon={<PiggyBank className="h-5 w-5" />}
+          variant="secondary"
+        >
+          <div className="space-y-3">
+            <div className="flex items-end space-x-2 mb-2">
+              <span className="text-xl font-bold">CHF 479'700</span>
               <span className="text-green-600 text-sm">+1.4%</span>
             </div>
             
-            <div className="space-y-1 border-t pt-3">
+            <div className="space-y-2 border-t pt-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm">Swissquote</span>
                 <span className="text-sm font-medium">CHF 245'000</span>
@@ -36,49 +39,55 @@ const DashboardFinancialOverview = () => {
               </div>
             </div>
             
-            <div className="mt-4 pt-2 border-t">
-              <Link to="/finances" className="text-green-600 hover:text-green-700 text-sm font-medium flex items-center">
-                Portfolio ansehen
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+            <Link to="/finances" className="text-xs text-green-600 hover:underline mt-3 block">
+              Portfolio ansehen <ChevronRight className="h-3 w-3 inline" />
+            </Link>
+          </div>
+        </Widget>
         
-        <Card className="border-green-100 dark:border-green-800 shadow-md">
-          <CardContent className="p-5">
-            <h3 className="text-lg font-semibold mb-3">Nächste Rechnungen</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
-                <div>
-                  <p className="text-sm font-medium">Stromrechnung</p>
-                  <p className="text-xs text-gray-500">Fällig: 15.05.2025</p>
-                </div>
-                <span className="text-sm font-medium">CHF 120</span>
+        <Widget 
+          title="Nächste Rechnungen" 
+          icon={<Receipt className="h-5 w-5" />}
+          variant="secondary"
+        >
+          <div className="space-y-3">
+            <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
+              <div>
+                <p className="text-sm font-medium">Stromrechnung</p>
+                <p className="text-xs text-gray-500">Fällig: 15.05.2025</p>
               </div>
-              
-              <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
-                <div>
-                  <p className="text-sm font-medium">Internet</p>
-                  <p className="text-xs text-gray-500">Fällig: 20.05.2025</p>
-                </div>
-                <span className="text-sm font-medium">CHF 85</span>
-              </div>
+              <span className="text-sm font-medium">CHF 120</span>
             </div>
             
-            <div className="mt-4 pt-2 border-t">
-              <Link to="/finances" className="text-green-600 hover:text-green-700 text-sm font-medium flex items-center">
-                Alle Rechnungen
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Link>
+            <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
+              <div>
+                <p className="text-sm font-medium">Internet</p>
+                <p className="text-xs text-gray-500">Fällig: 20.05.2025</p>
+              </div>
+              <span className="text-sm font-medium">CHF 85</span>
             </div>
-          </CardContent>
-        </Card>
+            
+            <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
+              <div>
+                <p className="text-sm font-medium">Versicherung</p>
+                <p className="text-xs text-gray-500">Fällig: 01.06.2025</p>
+              </div>
+              <span className="text-sm font-medium">CHF 240</span>
+            </div>
+            
+            <Link to="/finances" className="text-xs text-green-600 hover:underline mt-2 block">
+              Alle Rechnungen <ChevronRight className="h-3 w-3 inline" />
+            </Link>
+          </div>
+        </Widget>
         
-        <Card className="border-green-100 dark:border-green-800 shadow-md">
-          <CardContent className="p-5">
-            <h3 className="text-lg font-semibold mb-3">Monatliches Budget</h3>
-            <div className="mb-4">
+        <Widget 
+          title="Monatliches Budget" 
+          icon={<LineChart className="h-5 w-5" />}
+          variant="secondary"
+        >
+          <div className="space-y-3">
+            <div>
               <div className="flex justify-between items-center mb-1">
                 <span className="text-sm">Verbraucht</span>
                 <span className="text-sm font-medium">CHF 3'200 / 4'000</span>
@@ -89,7 +98,7 @@ const DashboardFinancialOverview = () => {
               <div className="text-xs text-gray-500 text-right mt-1">20% verfügbar</div>
             </div>
             
-            <div className="space-y-2">
+            <div className="space-y-2 border-t pt-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm">Lebensmittel</span>
                 <span className="text-sm text-gray-600">70% verbraucht</span>
@@ -104,14 +113,11 @@ const DashboardFinancialOverview = () => {
               </div>
             </div>
             
-            <div className="mt-4 pt-2 border-t">
-              <Link to="/finances" className="text-green-600 hover:text-green-700 text-sm font-medium flex items-center">
-                Budget verwalten
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+            <Link to="/finances" className="text-xs text-green-600 hover:underline mt-2 block">
+              Budget verwalten <ChevronRight className="h-3 w-3 inline" />
+            </Link>
+          </div>
+        </Widget>
       </div>
     </div>
   );

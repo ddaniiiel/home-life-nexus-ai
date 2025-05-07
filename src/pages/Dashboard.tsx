@@ -5,7 +5,6 @@ import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { toast } from '@/components/ui/use-toast';
 import { Task, Appointment, checkForConflicts } from '@/models/TaskAppointment';
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardHouseOverview from '@/components/dashboard/DashboardHouseOverview';
 import DashboardFinancialOverview from '@/components/dashboard/DashboardFinancialOverview';
 import DashboardSmartHome from '@/components/dashboard/DashboardSmartHome';
@@ -148,12 +147,48 @@ const Dashboard = () => {
     }
   ]);
   
-  // Family members with more data
+  // Family members with more data and additional images
   const familyMembers = [
-    { id: 1, name: "Thomas", role: "Vater", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80", status: "Im Büro", lastActive: "vor 15 Min." },
-    { id: 2, name: "Sarah", role: "Mutter", image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80", status: "Zuhause", lastActive: "Jetzt" },
-    { id: 3, name: "Emma", role: "Tochter", image: "https://images.unsplash.com/photo-1590080692141-56a6aaa7cdce?auto=format&fit=crop&w=150&q=80", status: "In der Schule", lastActive: "vor 45 Min." },
-    { id: 4, name: "Tim", role: "Sohn", image: "https://images.unsplash.com/photo-1599463923592-e4e6206e9e3d?auto=format&fit=crop&w=150&q=80", status: "Beim Sport", lastActive: "vor 30 Min." },
+    { 
+      id: 1, 
+      name: "Thomas", 
+      role: "Vater", 
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80", 
+      status: "Im Büro", 
+      lastActive: "vor 15 Min." 
+    },
+    { 
+      id: 2, 
+      name: "Sarah", 
+      role: "Mutter", 
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80", 
+      status: "Zuhause", 
+      lastActive: "Jetzt" 
+    },
+    { 
+      id: 3, 
+      name: "Emma", 
+      role: "Tochter", 
+      image: "https://images.unsplash.com/photo-1590080692141-56a6aaa7cdce?auto=format&fit=crop&w=150&q=80", 
+      status: "In der Schule", 
+      lastActive: "vor 45 Min." 
+    },
+    { 
+      id: 4, 
+      name: "Tim", 
+      role: "Sohn", 
+      image: "https://images.unsplash.com/photo-1599463923592-e4e6206e9e3d?auto=format&fit=crop&w=150&q=80", 
+      status: "Beim Sport", 
+      lastActive: "vor 30 Min." 
+    },
+    { 
+      id: 5, 
+      name: "Max", 
+      role: "Hund", 
+      image: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=150&q=80", 
+      status: "Zuhause", 
+      lastActive: "vor 5 Min." 
+    },
   ];
 
   // Handlers
@@ -213,7 +248,7 @@ const Dashboard = () => {
           {/* Smart Home Full Width Section */}
           <DashboardSmartHome />
           
-          {/* Condensed Financial Overview */}
+          {/* Redesigned Financial Overview */}
           <DashboardFinancialOverview />
         </div>
       </div>

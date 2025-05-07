@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { 
-  Home, LayoutDashboard, Lightbulb, Calendar, FileText, 
+  Home, Lightbulb, Calendar, FileText, 
   CreditCard, Package, BarChart3, Settings, Menu, X, Bell, 
-  Search, User, Shield, Newspaper, LineChart
+  Search, Shield, Newspaper, LineChart
 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
