@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
 import { Home, Calendar, FileText, CreditCard, Lightbulb, Phone, User, ArrowRight, Clock, Check, ChevronRight, Thermometer, Droplets, Shield, Wifi, BellRing, Lock, Power } from 'lucide-react';
@@ -11,6 +12,12 @@ import { de } from 'date-fns/locale';
 import { toast } from '@/components/ui/use-toast';
 import UnifiedDashboard from '@/components/dashboard/UnifiedDashboard';
 import { Task, Appointment, checkForConflicts } from '@/models/TaskAppointment';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import DashboardHouseOverview from '@/components/dashboard/DashboardHouseOverview';
+import DashboardTasksAppointments from '@/components/dashboard/DashboardTasksAppointments';
+import DashboardSmartHome from '@/components/dashboard/DashboardSmartHome';
+import DashboardFinancialOverview from '@/components/dashboard/DashboardFinancialOverview';
+import DashboardFamilyStatus from '@/components/dashboard/DashboardFamilyStatus';
 
 const Dashboard = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -86,7 +93,7 @@ const Dashboard = () => {
     }
   ]);
 
-  // Sample appointment data
+  // Sample appointment data - Fixed the duplicate issue
   const [appointments, setAppointments] = useState<Appointment[]>([
     {
       id: 1,
@@ -172,7 +179,6 @@ const Dashboard = () => {
   };
 
   const handleTaskSelect = (id: number) => {
-    // In a real app, this would open a task detail view or edit form
     toast({
       title: "Aufgabe ausgewählt",
       description: `Details für Aufgabe ${id} werden geöffnet.`,
@@ -180,7 +186,6 @@ const Dashboard = () => {
   };
 
   const handleAppointmentSelect = (id: number) => {
-    // In a real app, this would open an appointment detail view
     toast({
       title: "Termin ausgewählt",
       description: `Details für Termin ${id} werden geöffnet.`,
@@ -195,8 +200,12 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navigation isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
       
+      {/* Show family status indicators in top-right corner */}
+      <DashboardFamilyStatus familyMembers={familyMembers} />
+      
       <div className="md:ml-64 pt-16 px-4 md:px-8 py-8">
         <div className="max-w-7xl mx-auto">
+          {/* Welcome header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
             <div>
               <h1 className="text-3xl font-bold text-green-700">Willkommen bei HomePilot</h1>
@@ -218,333 +227,24 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* House Overview - Enhanced with more status information */}
-          <Card className="mb-6 overflow-hidden border-green-100 dark:border-green-800 shadow-md">
-            <div className="relative">
-              <img 
-                src="https://images.unsplash.com/photo-1558036117-15d82a90b9b1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
-                alt="House Overview" 
-                className="w-full h-72 object-cover"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6">
-                <div className="text-white mb-2">
-                  <h2 className="text-2xl font-bold">Musterstraße 123</h2>
-                  <div className="flex items-center">
-                    <Badge className="bg-green-500 mr-2">Alles OK</Badge>
-                    <p className="text-white/90">Letzte Prüfung: Heute 08:15</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-2 mt-2">
-                  <div className="bg-white/20 backdrop-blur-sm rounded-md p-2 flex items-center">
-                    <Thermometer className="h-4 w-4 text-white mr-2" />
-                    <span className="text-sm text-white">22°C innen</span>
-                  </div>
-                  <div className="bg-white/20 backdrop-blur-sm rounded-md p-2 flex items-center">
-                    <Shield className="h-4 w-4 text-white mr-2" />
-                    <span className="text-sm text-white">Alarm aktiv</span>
-                  </div>
-                  <div className="bg-white/20 backdrop-blur-sm rounded-md p-2 flex items-center">
-                    <Droplets className="h-4 w-4 text-white mr-2" />
-                    <span className="text-sm text-white">Luftfeuchtigkeit 45%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <CardContent className="p-4">
-              <h3 className="font-semibold mb-3 text-green-700">Hausübersicht</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-                <Link to="/smart-home" className="block">
-                  <div className="border border-green-100 dark:border-green-800 rounded-lg p-3 text-center hover:bg-green-50 transition-colors">
-                    <div className="flex justify-center mb-2">
-                      <div className="bg-green-100 dark:bg-green-800/30 rounded-full p-2">
-                        <Lightbulb className="h-5 w-5 text-green-600 dark:text-green-400" />
-                      </div>
-                    </div>
-                    <p className="text-sm font-medium">Beleuchtung</p>
-                    <p className="text-xs text-gray-500">3 aktiv</p>
-                  </div>
-                </Link>
-                
-                <Link to="/smart-home" className="block">
-                  <div className="border border-green-100 dark:border-green-800 rounded-lg p-3 text-center hover:bg-green-50 transition-colors">
-                    <div className="flex justify-center mb-2">
-                      <div className="bg-green-100 dark:bg-green-800/30 rounded-full p-2">
-                        <Thermometer className="h-5 w-5 text-green-600 dark:text-green-400" />
-                      </div>
-                    </div>
-                    <p className="text-sm font-medium">Heizung</p>
-                    <p className="text-xs text-gray-500">22°C • Eco-Modus</p>
-                  </div>
-                </Link>
-                
-                <Link to="/smart-home" className="block">
-                  <div className="border border-green-100 dark:border-green-800 rounded-lg p-3 text-center hover:bg-green-50 transition-colors">
-                    <div className="flex justify-center mb-2">
-                      <div className="bg-green-100 dark:bg-green-800/30 rounded-full p-2">
-                        <Shield className="h-5 w-5 text-green-600 dark:text-green-400" />
-                      </div>
-                    </div>
-                    <p className="text-sm font-medium">Sicherheit</p>
-                    <p className="text-xs text-gray-500">Alarm scharf</p>
-                  </div>
-                </Link>
-                
-                <Link to="/smart-home" className="block">
-                  <div className="border border-green-100 dark:border-green-800 rounded-lg p-3 text-center hover:bg-green-50 transition-colors">
-                    <div className="flex justify-center mb-2">
-                      <div className="bg-green-100 dark:bg-green-800/30 rounded-full p-2">
-                        <Wifi className="h-5 w-5 text-green-600 dark:text-green-400" />
-                      </div>
-                    </div>
-                    <p className="text-sm font-medium">Internet</p>
-                    <p className="text-xs text-gray-500">250 Mbps • Stabil</p>
-                  </div>
-                </Link>
-                
-                <Link to="/smart-home" className="block">
-                  <div className="border border-green-100 dark:border-green-800 rounded-lg p-3 text-center hover:bg-green-50 transition-colors">
-                    <div className="flex justify-center mb-2">
-                      <div className="bg-green-100 dark:bg-green-800/30 rounded-full p-2">
-                        <BellRing className="h-5 w-5 text-green-600 dark:text-green-400" />
-                      </div>
-                    </div>
-                    <p className="text-sm font-medium">Türklingel</p>
-                    <p className="text-xs text-gray-500">2 Ereignisse heute</p>
-                  </div>
-                </Link>
-                
-                <Link to="/smart-home" className="block">
-                  <div className="border border-green-100 dark:border-green-800 rounded-lg p-3 text-center hover:bg-green-50 transition-colors">
-                    <div className="flex justify-center mb-2">
-                      <div className="bg-green-100 dark:bg-green-800/30 rounded-full p-2">
-                        <Power className="h-5 w-5 text-green-600 dark:text-green-400" />
-                      </div>
-                    </div>
-                    <p className="text-sm font-medium">Energie</p>
-                    <p className="text-xs text-gray-500">4.2 kWh heute</p>
-                  </div>
-                </Link>
-              </div>
-              
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="flex items-center p-3 bg-green-50 dark:bg-green-800/20 rounded-lg">
-                  <div className="mr-3 p-2 bg-white rounded-full">
-                    <Lock className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Alle Türen gesichert</p>
-                    <p className="text-xs text-gray-500">Letzte Aktivität: 08:45 Uhr</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center p-3 bg-green-50 dark:bg-green-800/20 rounded-lg">
-                  <div className="mr-3 p-2 bg-white rounded-full">
-                    <Droplets className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Kein Wasserverlust</p>
-                    <p className="text-xs text-gray-500">Aktueller Verbrauch: Normal</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center p-3 bg-green-50 dark:bg-green-800/20 rounded-lg">
-                  <div className="mr-3 p-2 bg-white rounded-full">
-                    <Wifi className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">12 Geräte verbunden</p>
-                    <p className="text-xs text-gray-500">Netzwerk: Optimal</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* House Overview - Enhanced with status information */}
+          <DashboardHouseOverview />
 
-          {/* Improved Appointments and Tasks Section */}
-          <div className="mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-green-700">Aufgaben & Termine</h2>
-              {hasConflicts && (
-                <Badge variant="destructive" className="flex items-center">
-                  <Clock className="h-3 w-3 mr-1" /> Terminkonflikt gefunden
-                </Badge>
-              )}
-            </div>
-            
-            <Card className="border-green-100 dark:border-green-800 shadow-md">
-              {/* Unified Dashboard showing tasks and appointments together */}
-              <CardContent className="p-0">
-                <UnifiedDashboard
-                  tasks={tasks}
-                  appointments={appointments}
-                  onTaskComplete={handleTaskComplete}
-                  onTaskSelect={handleTaskSelect}
-                  onAppointmentSelect={handleAppointmentSelect}
-                />
-              </CardContent>
-            </Card>
-          </div>
+          {/* Tasks & Appointments Section */}
+          <DashboardTasksAppointments 
+            tasks={tasks}
+            appointments={appointments}
+            hasConflicts={hasConflicts}
+            onTaskComplete={handleTaskComplete}
+            onTaskSelect={handleTaskSelect}
+            onAppointmentSelect={handleAppointmentSelect}
+          />
           
-          {/* Enhanced Finances Section */}
-          <div className="mb-6">
-            <h2 className="text-xl font-bold mb-4 text-green-700 flex items-center">
-              <CreditCard className="h-5 w-5 mr-2" />
-              Finanzen im Überblick
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Monthly Summary */}
-              <Card className="border-green-100 dark:border-green-800 shadow-md">
-                <CardContent className="p-5">
-                  <h3 className="text-lg font-semibold mb-3">Monatliche Übersicht</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center pb-2 border-b border-gray-100">
-                      <span className="text-sm font-medium">Einnahmen</span>
-                      <span className="text-sm font-bold text-green-600">CHF 3'500</span>
-                    </div>
-                    <div className="flex justify-between items-center pb-2 border-b border-gray-100">
-                      <span className="text-sm font-medium">Ausgaben</span>
-                      <span className="text-sm font-bold text-red-600">CHF 2'600</span>
-                    </div>
-                    <div className="flex justify-between items-center pt-1">
-                      <span className="text-sm font-medium">Bilanz</span>
-                      <span className="text-sm font-bold text-blue-600">CHF 900</span>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-4 pt-3 border-t border-gray-100">
-                    <Link to="/finances" className="text-green-600 hover:text-green-700 text-sm font-medium flex items-center">
-                      Vollständige Übersicht
-                      <ChevronRight className="h-4 w-4 ml-1" />
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              {/* Budget Status */}
-              <Card className="border-green-100 dark:border-green-800 shadow-md">
-                <CardContent className="p-5">
-                  <h3 className="text-lg font-semibold mb-3">Budget Status</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Lebensmittel</span>
-                      <div className="flex items-center">
-                        <div className="w-32 h-2 bg-gray-200 rounded-full mr-2">
-                          <div className="h-full bg-green-500 rounded-full" style={{ width: '70%' }}></div>
-                        </div>
-                        <span className="text-xs">70%</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Unterhaltung</span>
-                      <div className="flex items-center">
-                        <div className="w-32 h-2 bg-gray-200 rounded-full mr-2">
-                          <div className="h-full bg-yellow-500 rounded-full" style={{ width: '90%' }}></div>
-                        </div>
-                        <span className="text-xs">90%</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Transport</span>
-                      <div className="flex items-center">
-                        <div className="w-32 h-2 bg-gray-200 rounded-full mr-2">
-                          <div className="h-full bg-red-500 rounded-full" style={{ width: '100%' }}></div>
-                        </div>
-                        <span className="text-xs">100%</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Sparen</span>
-                      <div className="flex items-center">
-                        <div className="w-32 h-2 bg-gray-200 rounded-full mr-2">
-                          <div className="h-full bg-blue-500 rounded-full" style={{ width: '50%' }}></div>
-                        </div>
-                        <span className="text-xs">50%</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              {/* Upcoming Bills */}
-              <Card className="border-green-100 dark:border-green-800 shadow-md">
-                <CardContent className="p-5">
-                  <h3 className="text-lg font-semibold mb-3">Anstehende Rechnungen</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
-                      <div>
-                        <p className="text-sm font-medium">Stromrechnung</p>
-                        <p className="text-xs text-gray-500">Fällig am 15.05.2025</p>
-                      </div>
-                      <span className="text-sm font-semibold">CHF 120</span>
-                    </div>
-                    <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
-                      <div>
-                        <p className="text-sm font-medium">Internet</p>
-                        <p className="text-xs text-gray-500">Fällig am 20.05.2025</p>
-                      </div>
-                      <span className="text-sm font-semibold">CHF 85</span>
-                    </div>
-                    <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
-                      <div>
-                        <p className="text-sm font-medium">Hypothek</p>
-                        <p className="text-xs text-gray-500">Fällig am 01.06.2025</p>
-                      </div>
-                      <span className="text-sm font-semibold">CHF 1'200</span>
-                    </div>
-                  </div>
-                  <div className="mt-4 pt-3 border-t border-gray-100">
-                    <Link to="/finances" className="text-green-600 hover:text-green-700 text-sm font-medium flex items-center">
-                      Alle Rechnungen anzeigen
-                      <ChevronRight className="h-4 w-4 ml-1" />
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+          {/* Condensed Financial Overview */}
+          <DashboardFinancialOverview />
           
-          {/* Family Members */}
-          <Card className="border-green-100 dark:border-green-800 shadow-md mb-6">
-            <CardContent className="p-6">
-              <h2 className="text-xl font-bold mb-4 text-green-700">Familienmitglieder</h2>
-              <div className="space-y-4">
-                {familyMembers.map(member => (
-                  <div key={member.id} className="flex items-center space-x-4 p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-800/20 transition-colors">
-                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-green-200">
-                      <img 
-                        src={member.image} 
-                        alt={member.name} 
-                        className="w-full h-full object-cover" 
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium">{member.name}</p>
-                      <div className="flex items-center">
-                        <p className="text-sm text-gray-500 mr-2">{member.role}</p>
-                        <span className="text-xs text-gray-400">•</span>
-                        <p className="text-xs text-gray-400 ml-2">{member.lastActive}</p>
-                      </div>
-                    </div>
-                    <Badge variant={member.status === "Zuhause" ? "default" : "outline"} className={member.status === "Zuhause" ? "bg-green-500" : ""}>
-                      {member.status}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Quick Access Widgets */}
-          <h2 className="text-xl font-bold mb-4 text-green-700">Schnellzugriff</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            {/* Smart Home Widget */}
-            <SmartHomeWidget />
-            
-            {/* Calendar Quick View */}
-          </div>
+          {/* Smart Home Full Width Section */}
+          <DashboardSmartHome />
         </div>
       </div>
     </div>
