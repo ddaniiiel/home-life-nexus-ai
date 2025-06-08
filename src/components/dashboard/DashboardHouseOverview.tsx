@@ -1,14 +1,9 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Home, Thermometer, Droplets, Zap, Sun, Cloud, AlertTriangle, Users, Activity } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Link } from 'react-router-dom';
-import { Thermometer, Shield, Droplets, Lightbulb, Wifi, BellRing, Power, Lock, Sun, CloudSun, Wind } from 'lucide-react';
-import { 
-  Popover,
-  PopoverContent,
-  PopoverTrigger 
-} from '@/components/ui/popover';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 
 interface FamilyMember {
   id: number;
@@ -23,271 +18,179 @@ interface DashboardHouseOverviewProps {
   familyMembers: FamilyMember[];
 }
 
-const DashboardHouseOverview: React.FC<DashboardHouseOverviewProps> = ({ familyMembers }) => {
-  // Weather data (could be fetched from an API in real implementation)
-  const weatherData = {
-    condition: 'Sonnig',
-    temperature: 22,
-    icon: <Sun className="h-5 w-5 text-yellow-400" />,
-    windSpeed: '5 km/h'
+const DashboardHouseOverview = ({ familyMembers }: DashboardHouseOverviewProps) => {
+  // Erweiterte Haus-Status-Daten
+  const houseStatus = {
+    temperature: 21.5,
+    humidity: 45,
+    powerUsage: 2.8, // kW aktuell
+    dailyPowerUsage: 18.5, // kWh heute
+    weather: {
+      condition: 'sunny',
+      temperature: 18,
+      location: 'Zürich'
+    },
+    alerts: [
+      { type: 'temperature', message: 'Temperatur Alarm aktiv', severity: 'warning' },
+      { type: 'humidity', message: 'Luftfeuchtigkeit optimal', severity: 'info' }
+    ],
+    security: {
+      armed: true,
+      lastCheck: '14:30'
+    }
   };
 
-  // Power usage data
-  const powerData = {
-    currentUsage: 2.8,
-    unit: 'kW',
-    trend: 'stable'
+  const getWeatherIcon = (condition: string) => {
+    switch (condition) {
+      case 'sunny':
+        return <Sun className="h-5 w-5 text-yellow-500" />;
+      case 'cloudy':
+        return <Cloud className="h-5 w-5 text-gray-500" />;
+      default:
+        return <Sun className="h-5 w-5 text-yellow-500" />;
+    }
+  };
+
+  const getStatusBadgeVariant = (severity: string) => {
+    switch (severity) {
+      case 'warning':
+        return 'destructive' as const;
+      case 'info':
+        return 'secondary' as const;
+      default:
+        return 'default' as const;
+    }
   };
 
   return (
-    <Card className="mb-6 overflow-hidden border-green-100 dark:border-green-800 shadow-md">
-      <div className="relative">
-        <img 
-          src="https://images.unsplash.com/photo-1558036117-15d82a90b9b1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
-          alt="House Overview" 
-          className="w-full h-72 object-cover"
-          loading="lazy"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6">
-          <div className="text-white mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-2xl font-bold">Musterstraße 123</h2>
-              <div className="flex items-center space-x-2">
-                {weatherData.icon}
-                <span className="text-sm">{weatherData.condition}, {weatherData.temperature}°C</span>
-              </div>
-            </div>
-            <div className="flex items-center">
-              <Badge className="bg-green-500 mr-2">Alles OK</Badge>
-              <p className="text-white/90">Letzte Prüfung: Heute 08:15</p>
-            </div>
-          </div>
-          
-          {/* Family members integrated into house overview */}
-          <div className="flex items-center mb-4">
-            <p className="text-white text-sm mr-3">Bewohner:</p>
-            <div className="flex space-x-3">
+    <div className="mb-6">
+      <h2 className="text-xl font-bold mb-4 text-green-700">Hausübersicht</h2>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Familienübersicht */}
+        <Card className="lg:col-span-2 border-green-100 dark:border-green-800 shadow-md">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center text-green-700">
+              <Users className="h-5 w-5 mr-2" />
+              Familie & Bewohner
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {familyMembers.map((member) => (
-                <Popover key={member.id}>
-                  <PopoverTrigger asChild>
-                    <button className="relative group">
-                      <div className={`w-10 h-10 rounded-full overflow-hidden border-2 ${
-                        member.status === 'Zuhause' 
-                          ? 'border-green-500' 
-                          : member.status === 'Im Büro' || member.status === 'In der Schule'
-                            ? 'border-blue-500'
-                            : 'border-yellow-500'
-                      }`}>
-                        <img 
-                          src={member.image} 
-                          alt={member.name} 
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full ${
-                        member.status === 'Zuhause' 
-                          ? 'bg-green-500' 
-                          : member.status === 'Im Büro' || member.status === 'In der Schule'
-                            ? 'bg-blue-500'
-                            : 'bg-yellow-500'
-                      } border border-white`}></div>
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-64 p-4" align="center">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200">
-                        <img 
-                          src={member.image} 
-                          alt={member.name} 
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-medium">{member.name}</h4>
-                        <p className="text-sm text-gray-500">{member.role}</p>
-                      </div>
-                    </div>
-                    <div className="mt-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-500">Status:</span>
-                        <Badge className={
-                          member.status === 'Zuhause' 
-                            ? 'bg-green-500' 
-                            : member.status === 'Im Büro' || member.status === 'In der Schule'
-                              ? 'bg-blue-500'
-                              : 'bg-yellow-500'
-                        }>
-                          {member.status}
-                        </Badge>
-                      </div>
-                      <div className="flex justify-between items-center mt-1">
-                        <span className="text-sm text-gray-500">Aktiv:</span>
-                        <span className="text-sm">{member.lastActive}</span>
-                      </div>
-                    </div>
-                    <div className="mt-4 pt-3 border-t border-gray-100">
-                      <Link to={`/family/${member.id}`} className="w-full flex items-center justify-between text-sm text-green-600 hover:underline">
-                        <span>Details ansehen</span>
-                      </Link>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                <div key={member.id} className="flex flex-col items-center space-y-2 p-3 rounded-lg bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900 transition-colors">
+                  <div className="relative">
+                    <OptimizedImage
+                      src={member.image}
+                      alt={member.name}
+                      className="w-16 h-16 rounded-full object-cover border-2 border-green-200 dark:border-green-700"
+                      priority={true}
+                    />
+                    <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${
+                      member.status === 'Zuhause' ? 'bg-green-500' : 
+                      member.status === 'Im Büro' ? 'bg-blue-500' :
+                      member.status === 'In der Schule' ? 'bg-yellow-500' :
+                      member.status === 'Beim Sport' ? 'bg-orange-500' : 'bg-gray-500'
+                    }`} />
+                  </div>
+                  <div className="text-center">
+                    <p className="font-medium text-sm">{member.name}</p>
+                    <p className="text-xs text-gray-500">{member.role}</p>
+                    <p className="text-xs text-gray-600 mt-1">{member.status}</p>
+                    <p className="text-xs text-gray-400">{member.lastActive}</p>
+                  </div>
+                </div>
               ))}
             </div>
-          </div>
-          
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-2">
-            <div className="bg-white/20 backdrop-blur-sm rounded-md p-2 flex items-center">
-              <Thermometer className="h-4 w-4 text-white mr-2" />
-              <span className="text-sm text-white">22°C innen</span>
-            </div>
-            <div className="bg-white/20 backdrop-blur-sm rounded-md p-2 flex items-center">
-              <Shield className="h-4 w-4 text-white mr-2" />
-              <span className="text-sm text-white">Alarm aktiv</span>
-            </div>
-            <div className="bg-white/20 backdrop-blur-sm rounded-md p-2 flex items-center">
-              <Droplets className="h-4 w-4 text-white mr-2" />
-              <span className="text-sm text-white">Luftfeuchtigkeit 45%</span>
-            </div>
-            <div className="bg-white/20 backdrop-blur-sm rounded-md p-2 flex items-center">
-              <Power className="h-4 w-4 text-white mr-2" />
-              <span className="text-sm text-white">Stromverbrauch {powerData.currentUsage} {powerData.unit}</span>
-            </div>
-          </div>
-          
-          <div className="flex items-center mt-4 justify-between">
-            <div className="flex items-center">
-              <div className="bg-white/20 backdrop-blur-sm rounded-full p-2 mr-2">
-                <CloudSun className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <p className="text-sm text-white font-medium">Lokales Wetter</p>
-                <p className="text-xs text-white/80">{weatherData.condition}, Wind: {weatherData.windSpeed}</p>
+          </CardContent>
+        </Card>
+
+        {/* Haus-Status */}
+        <Card className="border-green-100 dark:border-green-800 shadow-md">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center text-green-700">
+              <Home className="h-5 w-5 mr-2" />
+              Haus-Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Wetter */}
+            <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
+              <div className="flex items-center space-x-3">
+                {getWeatherIcon(houseStatus.weather.condition)}
+                <div>
+                  <p className="font-medium text-sm">Wetter {houseStatus.weather.location}</p>
+                  <p className="text-xs text-gray-600">{houseStatus.weather.temperature}°C • Sonnig</p>
+                </div>
               </div>
             </div>
-            
-            <div className="flex items-center">
-              <div className="bg-white/20 backdrop-blur-sm rounded-full p-2 mr-2">
-                <Power className="h-5 w-5 text-white" />
+
+            {/* Temperatur & Luftfeuchtigkeit */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-2 rounded bg-gray-50 dark:bg-gray-800">
+                <div className="flex items-center space-x-2">
+                  <Thermometer className="h-4 w-4 text-red-500" />
+                  <span className="text-sm">Temperatur</span>
+                </div>
+                <span className="font-medium">{houseStatus.temperature}°C</span>
               </div>
-              <div>
-                <p className="text-sm text-white font-medium">Aktuelle Last</p>
-                <p className="text-xs text-white/80">{powerData.currentUsage} {powerData.unit} ({powerData.trend})</p>
+
+              <div className="flex items-center justify-between p-2 rounded bg-gray-50 dark:bg-gray-800">
+                <div className="flex items-center space-x-2">
+                  <Droplets className="h-4 w-4 text-blue-500" />
+                  <span className="text-sm">Luftfeuchtigkeit</span>
+                </div>
+                <span className="font-medium">{houseStatus.humidity}%</span>
               </div>
             </div>
-          </div>
-        </div>
+
+            {/* Stromverbrauch */}
+            <div className="p-3 bg-yellow-50 dark:bg-yellow-950 rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center space-x-2">
+                  <Zap className="h-4 w-4 text-yellow-600" />
+                  <span className="text-sm font-medium">Stromverbrauch</span>
+                </div>
+                <Activity className="h-4 w-4 text-yellow-600" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span>Aktuell:</span>
+                  <span className="font-medium">{houseStatus.powerUsage} kW</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Heute:</span>
+                  <span className="font-medium">{houseStatus.dailyPowerUsage} kWh</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Status-Meldungen */}
+            <div className="space-y-2">
+              {houseStatus.alerts.map((alert, index) => (
+                <Badge 
+                  key={index} 
+                  variant={getStatusBadgeVariant(alert.severity)}
+                  className="w-full justify-center text-xs py-1"
+                >
+                  {alert.severity === 'warning' && <AlertTriangle className="h-3 w-3 mr-1" />}
+                  {alert.message}
+                </Badge>
+              ))}
+            </div>
+
+            {/* Sicherheitsstatus */}
+            <div className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-950 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <span className="text-sm">Sicherheit aktiv</span>
+              </div>
+              <span className="text-xs text-gray-500">seit {houseStatus.security.lastCheck}</span>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-      <CardContent className="p-4">
-        <h3 className="font-semibold mb-3 text-green-700">Hausübersicht</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-          <Link to="/smart-home" className="block">
-            <div className="border border-green-100 dark:border-green-800 rounded-lg p-3 text-center hover:bg-green-50 transition-colors">
-              <div className="flex justify-center mb-2">
-                <div className="bg-green-100 dark:bg-green-800/30 rounded-full p-2">
-                  <Lightbulb className="h-5 w-5 text-green-600 dark:text-green-400" />
-                </div>
-              </div>
-              <p className="text-sm font-medium">Beleuchtung</p>
-              <p className="text-xs text-gray-500">3 aktiv</p>
-            </div>
-          </Link>
-          
-          <Link to="/smart-home" className="block">
-            <div className="border border-green-100 dark:border-green-800 rounded-lg p-3 text-center hover:bg-green-50 transition-colors">
-              <div className="flex justify-center mb-2">
-                <div className="bg-green-100 dark:bg-green-800/30 rounded-full p-2">
-                  <Thermometer className="h-5 w-5 text-green-600 dark:text-green-400" />
-                </div>
-              </div>
-              <p className="text-sm font-medium">Heizung</p>
-              <p className="text-xs text-gray-500">22°C • Eco-Modus</p>
-            </div>
-          </Link>
-          
-          <Link to="/smart-home" className="block">
-            <div className="border border-green-100 dark:border-green-800 rounded-lg p-3 text-center hover:bg-green-50 transition-colors">
-              <div className="flex justify-center mb-2">
-                <div className="bg-green-100 dark:bg-green-800/30 rounded-full p-2">
-                  <Shield className="h-5 w-5 text-green-600 dark:text-green-400" />
-                </div>
-              </div>
-              <p className="text-sm font-medium">Sicherheit</p>
-              <p className="text-xs text-gray-500">Alarm scharf</p>
-            </div>
-          </Link>
-          
-          <Link to="/smart-home" className="block">
-            <div className="border border-green-100 dark:border-green-800 rounded-lg p-3 text-center hover:bg-green-50 transition-colors">
-              <div className="flex justify-center mb-2">
-                <div className="bg-green-100 dark:bg-green-800/30 rounded-full p-2">
-                  <Wifi className="h-5 w-5 text-green-600 dark:text-green-400" />
-                </div>
-              </div>
-              <p className="text-sm font-medium">Internet</p>
-              <p className="text-xs text-gray-500">250 Mbps • Stabil</p>
-            </div>
-          </Link>
-          
-          <Link to="/smart-home" className="block">
-            <div className="border border-green-100 dark:border-green-800 rounded-lg p-3 text-center hover:bg-green-50 transition-colors">
-              <div className="flex justify-center mb-2">
-                <div className="bg-green-100 dark:bg-green-800/30 rounded-full p-2">
-                  <BellRing className="h-5 w-5 text-green-600 dark:text-green-400" />
-                </div>
-              </div>
-              <p className="text-sm font-medium">Türklingel</p>
-              <p className="text-xs text-gray-500">2 Ereignisse heute</p>
-            </div>
-          </Link>
-          
-          <Link to="/smart-home" className="block">
-            <div className="border border-green-100 dark:border-green-800 rounded-lg p-3 text-center hover:bg-green-50 transition-colors">
-              <div className="flex justify-center mb-2">
-                <div className="bg-green-100 dark:bg-green-800/30 rounded-full p-2">
-                  <Power className="h-5 w-5 text-green-600 dark:text-green-400" />
-                </div>
-              </div>
-              <p className="text-sm font-medium">Energie</p>
-              <p className="text-xs text-gray-500">4.2 kWh heute</p>
-            </div>
-          </Link>
-        </div>
-        
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex items-center p-3 bg-green-50 dark:bg-green-800/20 rounded-lg">
-            <div className="mr-3 p-2 bg-white rounded-full">
-              <Lock className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium">Alle Türen gesichert</p>
-              <p className="text-xs text-gray-500">Letzte Aktivität: 08:45 Uhr</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center p-3 bg-green-50 dark:bg-green-800/20 rounded-lg">
-            <div className="mr-3 p-2 bg-white rounded-full">
-              <Droplets className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium">Kein Wasserverlust</p>
-              <p className="text-xs text-gray-500">Aktueller Verbrauch: Normal</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center p-3 bg-green-50 dark:bg-green-800/20 rounded-lg">
-            <div className="mr-3 p-2 bg-white rounded-full">
-              <Wifi className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium">12 Geräte verbunden</p>
-              <p className="text-xs text-gray-500">Netzwerk: Optimal</p>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    </div>
   );
 };
 

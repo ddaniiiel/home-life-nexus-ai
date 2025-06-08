@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, lazy } from 'react';
 import Navigation from '@/components/Navigation';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -8,11 +7,17 @@ import { Task, Appointment, checkForConflicts } from '@/models/TaskAppointment';
 import DashboardHouseOverview from '@/components/dashboard/DashboardHouseOverview';
 import DashboardFinancialOverview from '@/components/dashboard/DashboardFinancialOverview';
 import DashboardSmartHome from '@/components/dashboard/DashboardSmartHome';
-import LiveCoachWidget from '@/components/dashboard/LiveCoachWidget';
+import { LazyComponent, usePerformanceMonitor } from '@/components/performance/LazyComponent';
+
+// Lazy loading für schwere Komponenten
+const LiveCoachWidget = lazy(() => import('@/components/dashboard/LiveCoachWidget'));
 
 const Dashboard = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const today = new Date();
+  
+  // Performance Monitoring
+  usePerformanceMonitor();
 
   // Sample task data 
   const [tasks, setTasks] = useState<Task[]>([
@@ -169,7 +174,7 @@ const Dashboard = () => {
       id: 3, 
       name: "Emma", 
       role: "Tochter", 
-      image: "https://images.unsplash.com/photo-1590080692141-56a6aaa7cdce?auto=format&fit=crop&w=150&q=80", 
+      image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80", 
       status: "In der Schule", 
       lastActive: "vor 45 Min." 
     },
@@ -188,6 +193,14 @@ const Dashboard = () => {
       image: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=150&q=80", 
       status: "Zuhause", 
       lastActive: "vor 5 Min." 
+    },
+    { 
+      id: 6, 
+      name: "Luna", 
+      role: "Katze", 
+      image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=150&q=80", 
+      status: "Schläft", 
+      lastActive: "vor 2 Std." 
     },
   ];
 
@@ -240,9 +253,11 @@ const Dashboard = () => {
           {/* House Overview with integrated family members */}
           <DashboardHouseOverview familyMembers={familyMembers} />
 
-          {/* Live Coach Widget with Tasks & Appointments */}
+          {/* Live Coach Widget with Lazy Loading */}
           <div className="mb-6">
-            <LiveCoachWidget />
+            <LazyComponent fallback={<div className="h-96 bg-white dark:bg-gray-800 rounded-lg border animate-pulse" />}>
+              <LiveCoachWidget />
+            </LazyComponent>
           </div>
           
           {/* Smart Home Full Width Section */}
