@@ -37,7 +37,11 @@ export const usePerformanceMonitor = () => {
             console.log('LCP:', entry.startTime);
           }
           if (entry.entryType === 'first-input') {
-            console.log('FID:', entry.processingStart - entry.startTime);
+            // Type guard to ensure we have a PerformanceEventTiming entry
+            const eventEntry = entry as PerformanceEventTiming;
+            if (eventEntry.processingStart) {
+              console.log('FID:', eventEntry.processingStart - eventEntry.startTime);
+            }
           }
         });
       });
