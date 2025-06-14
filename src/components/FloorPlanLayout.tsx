@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
-import { Lightbulb, ThermometerIcon, Lock, Video, Fan, DoorClosed } from 'lucide-react';
+import { Lightbulb, ThermometerIcon, Video, Fan, DoorClosed, Maximize, Minimize } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface DeviceProps {
   id: number;
@@ -29,6 +30,8 @@ const FloorPlanLayout = () => {
     { id: 10, name: 'Küche Thermostat', type: 'thermostat', isOn: true, position: { x: 80, y: 40 }, room: 'Küche', value: 22 },
     { id: 11, name: 'Terrassentür', type: 'door', isOn: false, position: { x: 15, y: 40 }, room: 'Terrasse' },
   ]);
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
 
   const toggleDevice = (id: number) => {
     setDevices(devices.map(device => 
@@ -39,47 +42,81 @@ const FloorPlanLayout = () => {
   const getDeviceIcon = (type: string, isOn: boolean, value?: number) => {
     switch (type) {
       case 'light':
-        return <Lightbulb className={cn("h-5 w-5", isOn ? "text-yellow-400" : "text-gray-400")} />;
+        return <Lightbulb className={cn("h-5 w-5", isOn ? "text-yellow-300" : "text-gray-400")} />;
       case 'thermostat':
         return (
           <div className="relative flex items-center justify-center">
-            <ThermometerIcon className={cn("h-5 w-5", isOn ? "text-red-500" : "text-gray-400")} />
-            {value && isOn && (
-              <span className="absolute -bottom-5 text-xs font-medium bg-white bg-opacity-75 px-1 rounded text-red-500">
+            <ThermometerIcon className={cn("h-5 w-5", isOn ? "text-red-400" : "text-gray-400")} />
+            {value && (
+              <span className={cn("absolute -bottom-5 text-xs font-medium px-1 rounded", isOn ? "text-red-400" : "text-gray-400")}>
                 {value}°C
               </span>
             )}
           </div>
         );
       case 'door':
-        return <DoorClosed className={cn("h-5 w-5", isOn ? "text-green-500" : "text-red-500")} />;
+        return <DoorClosed className={cn("h-5 w-5", isOn ? "text-green-400" : "text-red-400")} />;
       case 'camera':
-        return <Video className={cn("h-5 w-5", isOn ? "text-blue-500" : "text-gray-400")} />;
+        return <Video className={cn("h-5 w-5", isOn ? "text-blue-400" : "text-gray-400")} />;
       case 'fan':
-        return <Fan className={cn("h-5 w-5", isOn ? "text-blue-400" : "text-gray-400", isOn && "animate-spin")} style={isOn ? { animationDuration: '3s' } : {}} />;
+        return <Fan className={cn("h-5 w-5", isOn ? "text-cyan-400" : "text-gray-400", isOn && "animate-spin")} style={isOn ? { animationDuration: '3s' } : {}} />;
       default:
         return <Lightbulb className="h-5 w-5 text-gray-400" />;
     }
   };
 
-  // Define rooms for the floor plan
-  const rooms = [
-    { name: 'Wohnzimmer', path: 'M10,30 L45,30 L45,70 L10,70 Z', style: 'fill:rgb(240,240,240);stroke:rgb(200,200,200)', devices: devices.filter(d => d.room === 'Wohnzimmer') },
-    { name: 'Küche', path: 'M45,30 L90,30 L90,60 L45,60 Z', style: 'fill:rgb(240,240,240);stroke:rgb(200,200,200)', devices: devices.filter(d => d.room === 'Küche') },
-    { name: 'Bad', path: 'M70,60 L90,60 L90,85 L70,85 Z', style: 'fill:rgb(220,242,255);stroke:rgb(200,200,200)', devices: devices.filter(d => d.room === 'Bad') },
-    { name: 'Schlafzimmer', path: 'M10,70 L70,70 L70,85 L10,85 Z', style: 'fill:rgb(240,240,240);stroke:rgb(200,200,200)', devices: devices.filter(d => d.room === 'Schlafzimmer') },
-    { name: 'Flur', path: 'M45,10 L55,10 L55,30 L45,30 Z', style: 'fill:rgb(245,245,245);stroke:rgb(200,200,200)', devices: devices.filter(d => d.room === 'Flur') },
-    { name: 'Terrasse', path: 'M0,30 L10,30 L10,70 L0,70 Z', style: 'fill:rgb(200,230,200);stroke:rgb(180,180,180);stroke-dasharray:2,1', devices: devices.filter(d => d.room === 'Terrasse') },
+  const roomDefinitions = [
+    { name: 'Wohnzimmer', path: 'M10,30 L45,30 L45,70 L10,70 Z', baseClass: 'fill-gray-100/80 dark:fill-gray-800/80', hoverClass: 'fill-gray-200/90 dark:fill-gray-700/90' },
+    { name: 'Küche', path: 'M45,30 L90,30 L90,60 L45,60 Z', baseClass: 'fill-gray-100/80 dark:fill-gray-800/80', hoverClass: 'fill-gray-200/90 dark:fill-gray-700/90' },
+    { name: 'Bad', path: 'M70,60 L90,60 L90,85 L70,85 Z', baseClass: 'fill-blue-50/80 dark:fill-blue-900/40', hoverClass: 'fill-blue-100/90 dark:fill-blue-900/60' },
+    { name: 'Schlafzimmer', path: 'M10,70 L70,70 L70,85 L10,85 Z', baseClass: 'fill-gray-100/80 dark:fill-gray-800/80', hoverClass: 'fill-gray-200/90 dark:fill-gray-700/90' },
+    { name: 'Flur', path: 'M45,10 L55,10 L55,30 L45,30 Z', baseClass: 'fill-gray-200/80 dark:fill-gray-700/80', hoverClass: 'fill-gray-300/90 dark:fill-gray-600/90' },
+    { name: 'Terrasse', path: 'M0,30 L10,30 L10,70 L0,70 Z', baseClass: 'fill-green-50/80 dark:fill-green-900/40', hoverClass: 'fill-green-100/90 dark:fill-green-900/60' },
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4">Wohnungslayout</h2>
-      <div className="relative w-full border rounded-lg overflow-hidden" style={{ paddingTop: '66.67%' }}> {/* 3:2 aspect ratio */}
-        <div className="absolute inset-0 bg-gray-100 dark:bg-gray-700">
+    <div className={cn(
+      "w-full transition-all duration-300 ease-in-out",
+      isFullScreen 
+        ? "fixed inset-0 z-50 bg-background p-4 sm:p-8 flex flex-col" 
+        : "relative"
+    )}>
+      <div className="flex justify-between items-center mb-4 shrink-0">
+        <h2 className="text-2xl font-bold text-homepilot-secondary">Wohnungsgrundriss</h2>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" onClick={() => setIsFullScreen(!isFullScreen)} className="text-gray-500 hover:text-gray-900 dark:hover:text-gray-100">
+                {isFullScreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{isFullScreen ? "Ansicht verkleinern" : "Vollbildansicht"}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+
+      <div className={cn("relative w-full rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700/50 shadow-inner", 
+          isFullScreen ? "flex-grow" : "h-[350px] md:h-[500px] lg:h-[600px]")}>
+        <div className="absolute inset-0">
           <svg width="100%" height="100%" viewBox="0 0 100 100" className="rounded-md">
+            <defs>
+              <filter id="drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="0.5"/>
+                <feOffset dx="0" dy="0.5" result="offsetblur"/>
+                <feComponentTransfer>
+                  <feFuncA type="linear" slope="0.3"/>
+                </feComponentTransfer>
+                <feMerge> 
+                  <feMergeNode/>
+                  <feMergeNode in="SourceGraphic"/> 
+                </feMerge>
+              </filter>
+            </defs>
+            
             {/* Grid lines for visual reference */}
-            <g stroke="rgba(200,200,200,0.2)" strokeWidth="0.2">
+            <g stroke="rgba(200,200,200,0.1)" strokeWidth="0.2">
               {Array.from({ length: 10 }).map((_, i) => (
                 <React.Fragment key={i}>
                   <line x1={i * 10} y1="0" x2={i * 10} y2="100" />
@@ -89,24 +126,27 @@ const FloorPlanLayout = () => {
             </g>
             
             {/* Rooms */}
-            {rooms.map((room, index) => (
-              <g key={index}>
+            {roomDefinitions.map((room, index) => (
+              <g key={index} 
+                 onMouseEnter={() => setHoveredRoom(room.name)} 
+                 onMouseLeave={() => setHoveredRoom(null)}
+                 style={{ filter: 'url(#drop-shadow)' }}>
                 <path
                   d={room.path}
-                  style={{ fill: room.style.split(':')[1].split(';')[0], stroke: room.style.split(':')[2].split(';')[0] }}
-                  className="hover:fill-blue-50 dark:hover:fill-blue-900/30 transition-colors duration-200"
-                  strokeWidth={room.style.includes('stroke-dasharray') ? 0.5 : 0.8}
-                  strokeDasharray={room.style.includes('stroke-dasharray') ? "2,1" : ""}
-                >
-                  <title>{room.name}</title>
-                </path>
+                  className={cn(
+                    "stroke-gray-400/50 dark:stroke-gray-500/50 transition-all duration-300",
+                    hoveredRoom === room.name ? room.hoverClass : room.baseClass
+                  )}
+                  strokeWidth={hoveredRoom === room.name ? 1.2 : 0.8}
+                  strokeDasharray={room.name === 'Terrasse' ? "2,1" : ""}
+                />
                 <text
-                  x={room.name === 'Terrasse' ? 5 : room.name === 'Flur' ? 50 : parseInt(room.path.split(' ')[1]) + 5}
-                  y={room.name === 'Terrasse' ? 50 : room.name === 'Flur' ? 20 : parseInt(room.path.split(' ')[2]) + 5}
-                  fontSize="3"
-                  textAnchor={room.name === 'Terrasse' || room.name === 'Flur' ? 'middle' : 'start'}
-                  fill="#888888"
-                  className="pointer-events-none"
+                  x={room.name === 'Terrasse' ? 5 : room.name === 'Flur' ? 50 : parseInt(room.path.split(' ')[1]) + (room.name === 'Wohnzimmer' ? 17.5 : room.name === 'Küche' ? 22.5 : room.name === 'Bad' ? 10 : 30) }
+                  y={room.name === 'Terrasse' ? 50 : room.name === 'Flur' ? 20 : parseInt(room.path.split(' ')[2]) + (room.name === 'Küche' ? 15 : 10)}
+                  fontSize={isFullScreen ? "3" : "4"}
+                  textAnchor="middle"
+                  fill="#555"
+                  className="pointer-events-none font-semibold dark:fill-gray-300 transition-all"
                 >
                   {room.name}
                 </text>
@@ -115,11 +155,7 @@ const FloorPlanLayout = () => {
             
             {/* Front door */}
             <line x1="50" y1="10" x2="40" y2="10" stroke="brown" strokeWidth="1.5" />
-            
-            {/* Terrace door */}
             <line x1="10" y1="40" x2="10" y2="50" stroke="brown" strokeWidth="1.5" />
-            
-            {/* Windows */}
             <line x1="0" y1="40" x2="0" y2="60" stroke="lightblue" strokeWidth="1.5" />
             <line x1="25" y1="85" x2="45" y2="85" stroke="lightblue" strokeWidth="1.5" />
             <line x1="75" y1="85" x2="85" y2="85" stroke="lightblue" strokeWidth="1.5" />
@@ -129,10 +165,11 @@ const FloorPlanLayout = () => {
             {devices.map((device) => (
               <foreignObject
                 key={device.id}
-                x={`${device.position.x - 3}%`}
-                y={`${device.position.y - 3}%`}
-                width="6%"
-                height="6%"
+                x={`${device.position.x - 3.5}%`}
+                y={`${device.position.y - 3.5}%`}
+                width="7%"
+                height="7%"
+                className="transition-transform duration-300 hover:scale-110"
               >
                 <TooltipProvider>
                   <Tooltip>
@@ -141,122 +178,87 @@ const FloorPlanLayout = () => {
                         variant="ghost"
                         size="icon"
                         className={cn(
-                          "w-full h-full rounded-full p-0",
-                          device.isOn 
-                            ? device.type === 'light' ? "bg-yellow-100 dark:bg-yellow-900/30" 
-                            : device.type === 'thermostat' ? "bg-red-100 dark:bg-red-900/30" 
-                            : device.type === 'door' ? (device.isOn ? "bg-green-100 dark:bg-green-900/30" : "bg-red-100 dark:bg-red-900/30")
-                            : device.type === 'camera' ? "bg-blue-100 dark:bg-blue-900/30"
-                            : device.type === 'fan' ? "bg-blue-100 dark:bg-blue-900/30"
-                            : "bg-gray-200 dark:bg-gray-700"
-                          : "bg-gray-200 dark:bg-gray-700"
+                          "w-full h-full rounded-full p-0 flex items-center justify-center",
+                          "border border-white/20 shadow-lg",
+                          "bg-black/10 dark:bg-white/10 backdrop-blur-sm",
+                          device.isOn ? "opacity-100" : "opacity-60"
                         )}
                         onClick={() => toggleDevice(device.id)}
                       >
                         {getDeviceIcon(device.type, device.isOn, device.value)}
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent side="top" className="z-50">
+                    <TooltipContent side="top" className="z-50 bg-black/70 text-white border-0">
                       <div className="text-center">
                         <p className="font-medium">{device.name}</p>
                         <p className="text-xs">{device.isOn ? 'Aktiv' : 'Inaktiv'}</p>
-                        {device.value && <p className="text-xs">{device.value}°C</p>}
+                        {device.type === 'thermostat' && device.value && <p className="text-xs">{device.value}°C</p>}
                       </div>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </foreignObject>
             ))}
-
-            {/* Add a legend for device types */}
-            <foreignObject x="1" y="90" width="98" height="9">
-              <div className="flex items-center justify-center space-x-4 text-xs">
-                <div className="flex items-center">
-                  <div className="w-3 h-3 rounded-full bg-yellow-400 mr-1"></div>
-                  <span>Licht</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 rounded-full bg-red-500 mr-1"></div>
-                  <span>Thermostat</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 rounded-full bg-green-500 mr-1"></div>
-                  <span>Türen</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 rounded-full bg-blue-500 mr-1"></div>
-                  <span>Kamera</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 rounded-full bg-blue-400 mr-1"></div>
-                  <span>Ventilator</span>
-                </div>
-              </div>
-            </foreignObject>
           </svg>
         </div>
       </div>
       
-      <div className="mt-4 grid grid-cols-3 sm:grid-cols-5 gap-2">
-        {rooms.slice(0, 5).map(room => (
-          <Button 
-            key={room.name} 
-            variant="outline" 
-            className="text-sm"
-            size="sm"
-          >
-            {room.name}
-          </Button>
-        ))}
-      </div>
-
-      <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="p-3 border rounded-lg">
-          <div className="text-sm font-medium mb-1 flex items-center">
-            <Lightbulb className="h-4 w-4 mr-1" />
-            <span>Beleuchtung</span>
-          </div>
-          <p className="text-xl font-bold">
-            {devices.filter(d => d.type === 'light' && d.isOn).length}/{devices.filter(d => d.type === 'light').length} <span className="text-sm font-normal text-gray-500">aktiv</span>
-          </p>
-        </div>
-        
-        <div className="p-3 border rounded-lg">
-          <div className="text-sm font-medium mb-1 flex items-center">
-            <ThermometerIcon className="h-4 w-4 mr-1" />
-            <span>Durchschnittstemp.</span>
-          </div>
-          <p className="text-xl font-bold">
-            {Math.round(devices.filter(d => d.type === 'thermostat' && d.value && d.isOn).reduce((sum, d) => sum + (d.value || 0), 0) / 
-              devices.filter(d => d.type === 'thermostat' && d.value && d.isOn).length)}°C
-          </p>
-        </div>
-        
-        <div className="p-3 border rounded-lg">
-          <div className="text-sm font-medium mb-1 flex items-center">
-            <DoorClosed className="h-4 w-4 mr-1" />
-            <span>Türen</span>
-          </div>
-          <p className="text-xl font-bold">
-            {!devices.some(d => d.type === 'door' && !d.isOn) ? 
-              <span className="text-green-500">Alle geschlossen</span> : 
-              <span className="text-red-500">Einige geöffnet</span>
-            }
-          </p>
-        </div>
-        
-        <div className="p-3 border rounded-lg">
-          <div className="text-sm font-medium mb-1 flex items-center">
-            <Video className="h-4 w-4 mr-1" />
-            <span>Sicherheit</span>
-          </div>
-          <p className="text-xl font-bold">
-            {devices.filter(d => d.type === 'camera' && d.isOn).length > 0 ? 
-              <span className="text-green-500">Aktiv</span> : 
-              <span className="text-red-500">Inaktiv</span>
-            }
-          </p>
-        </div>
+      <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card className="bg-white/50 dark:bg-black/20">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Beleuchtung</CardTitle>
+                  <Lightbulb className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                  <div className="text-2xl font-bold">
+                      {devices.filter(d => d.type === 'light' && d.isOn).length}/{devices.filter(d => d.type === 'light').length}
+                  </div>
+                  <p className="text-xs text-muted-foreground">aktiv</p>
+              </CardContent>
+          </Card>
+          <Card className="bg-white/50 dark:bg-black/20">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Durchschnittstemp.</CardTitle>
+                  <ThermometerIcon className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                  <div className="text-2xl font-bold">
+                    {Math.round(devices.filter(d => d.type === 'thermostat' && d.value && d.isOn).reduce((sum, d) => sum + (d.value || 0), 0) / 
+                      (devices.filter(d => d.type === 'thermostat' && d.value && d.isOn).length || 1))}°C
+                  </div>
+                  <p className="text-xs text-muted-foreground">in aktiven Räumen</p>
+              </CardContent>
+          </Card>
+          <Card className="bg-white/50 dark:bg-black/20">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Türen</CardTitle>
+                  <DoorClosed className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {!devices.some(d => d.type === 'door' && !d.isOn) ? 
+                    <span className="text-green-500">Sicher</span> : 
+                    <span className="text-red-500">Offen</span>
+                  }
+                </div>
+                <p className="text-xs text-muted-foreground">Status aller Türen</p>
+              </CardContent>
+          </Card>
+          <Card className="bg-white/50 dark:bg-black/20">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Sicherheit</CardTitle>
+                  <Video className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {devices.filter(d => d.type === 'camera' && d.isOn).length > 0 ? 
+                    <span className="text-green-500">Aktiv</span> : 
+                    <span className="text-red-500">Inaktiv</span>
+                  }
+                </div>
+                <p className="text-xs text-muted-foreground">Kameraüberwachung</p>
+              </CardContent>
+          </Card>
       </div>
     </div>
   );
