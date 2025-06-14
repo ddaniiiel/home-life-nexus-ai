@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Using base Card for structural flexibility
 import { Home, Thermometer, Droplets, Zap, Sun, Cloud, AlertTriangle, Users, Activity } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { OptimizedImage } from '@/components/ui/optimized-image';
@@ -64,13 +64,13 @@ const DashboardHouseOverview = ({ familyMembers }: DashboardHouseOverviewProps) 
 
   return (
     <div className="mb-6">
-      <h2 className="text-xl font-bold mb-4 text-green-700">Hausübersicht</h2>
+      <h2 className="text-xl font-bold mb-4 text-homepilot-primary">Hausübersicht</h2>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Familienübersicht */}
-        <Card className="lg:col-span-2 border-green-100 dark:border-green-800 shadow-md">
+        <Card className="lg:col-span-2 border-homepilot-accent dark:border-homepilot-secondary/40 shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 rounded-lg">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center text-green-700">
+            <CardTitle className="flex items-center text-homepilot-primary">
               <Users className="h-5 w-5 mr-2" />
               Familie & Bewohner
             </CardTitle>
@@ -95,9 +95,9 @@ const DashboardHouseOverview = ({ familyMembers }: DashboardHouseOverviewProps) 
                   </div>
                   <div className="text-center">
                     <p className="font-medium text-sm">{member.name}</p>
-                    <p className="text-xs text-gray-500">{member.role}</p>
-                    <p className="text-xs text-gray-600 mt-1">{member.status}</p>
-                    <p className="text-xs text-gray-400">{member.lastActive}</p>
+                    <p className="text-xs text-muted-foreground">{member.role}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{member.status}</p>
+                    <p className="text-xs text-muted-foreground/80">{member.lastActive}</p> {/* Adjusted opacity for tertiary info */}
                   </div>
                 </div>
               ))}
@@ -106,9 +106,9 @@ const DashboardHouseOverview = ({ familyMembers }: DashboardHouseOverviewProps) 
         </Card>
 
         {/* Haus-Status */}
-        <Card className="border-green-100 dark:border-green-800 shadow-md">
+        <Card className="border-homepilot-accent dark:border-homepilot-secondary/40 shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 rounded-lg">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center text-green-700">
+            <CardTitle className="flex items-center text-homepilot-primary">
               <Home className="h-5 w-5 mr-2" />
               Haus-Status
             </CardTitle>
@@ -120,7 +120,7 @@ const DashboardHouseOverview = ({ familyMembers }: DashboardHouseOverviewProps) 
                 {getWeatherIcon(houseStatus.weather.condition)}
                 <div>
                   <p className="font-medium text-sm">Wetter {houseStatus.weather.location}</p>
-                  <p className="text-xs text-gray-600">{houseStatus.weather.temperature}°C • Sonnig</p>
+                  <p className="text-xs text-muted-foreground">{houseStatus.weather.temperature}°C • Sonnig</p>
                 </div>
               </div>
             </div>
@@ -185,7 +185,7 @@ const DashboardHouseOverview = ({ familyMembers }: DashboardHouseOverviewProps) 
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                 <span className="text-sm">Sicherheit aktiv</span>
               </div>
-              <span className="text-xs text-gray-500">seit {houseStatus.security.lastCheck}</span>
+              <span className="text-xs text-muted-foreground">seit {houseStatus.security.lastCheck}</span>
             </div>
           </CardContent>
         </Card>

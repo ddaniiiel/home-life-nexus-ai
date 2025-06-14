@@ -1,3 +1,4 @@
+
 import React, { useState, lazy } from 'react';
 import Navigation from '@/components/Navigation';
 import { format } from 'date-fns';
@@ -5,12 +6,16 @@ import { de } from 'date-fns/locale';
 import { toast } from '@/components/ui/use-toast';
 import { Task, Appointment, checkForConflicts } from '@/models/TaskAppointment';
 import DashboardHouseOverview from '@/components/dashboard/DashboardHouseOverview';
-import DashboardFinancialOverview from '@/components/dashboard/DashboardFinancialOverview';
-import DashboardSmartHome from '@/components/dashboard/DashboardSmartHome';
+// import DashboardFinancialOverview from '@/components/dashboard/DashboardFinancialOverview'; // Lazy loaded
+// import DashboardSmartHome from '@/components/dashboard/DashboardSmartHome'; // Lazy loaded
 import { LazyComponent, usePerformanceMonitor } from '@/components/performance/LazyComponent';
+import { Skeleton } from '@/components/ui/skeleton'; // For custom skeletons
 
 // Lazy loading für schwere Komponenten
 const LiveCoachWidget = lazy(() => import('@/components/dashboard/LiveCoachWidget'));
+const DashboardFinancialOverview = lazy(() => import('@/components/dashboard/DashboardFinancialOverview'));
+const DashboardSmartHome = lazy(() => import('@/components/dashboard/DashboardSmartHome'));
+
 
 const Dashboard = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -236,6 +241,7 @@ const Dashboard = () => {
   const conflicts = checkForConflicts(appointments);
   const hasConflicts = conflicts.length > 0;
 
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navigation isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
@@ -245,8 +251,8 @@ const Dashboard = () => {
           {/* Welcome header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-green-700">Willkommen bei HomePilot</h1>
-              <p className="text-gray-600">{format(today, "EEEE, d. MMMM yyyy", { locale: de })} • Ein schöner Tag für deine Familie</p>
+              <h1 className="text-3xl font-bold text-homepilot-primary">Willkommen bei HomePilot</h1>
+              <p className="text-gray-600 dark:text-gray-400">{format(today, "EEEE, d. MMMM yyyy", { locale: de })} • Ein schöner Tag für deine Familie</p>
             </div>
           </div>
 
@@ -255,16 +261,37 @@ const Dashboard = () => {
 
           {/* Live Coach Widget with Lazy Loading */}
           <div className="mb-6">
-            <LazyComponent fallback={<div className="h-96 bg-white dark:bg-gray-800 rounded-lg border animate-pulse" />}>
+            <LazyComponent fallback={
+              <div className="w-full h-96 bg-card rounded-lg border animate-pulse flex items-center justify-center">
+                <Skeleton className="w-[95%] h-[90%]" />
+              </div>
+            }>
               <LiveCoachWidget />
             </LazyComponent>
           </div>
           
           {/* Smart Home Full Width Section */}
-          <DashboardSmartHome />
+          <div className="mb-6">
+            <LazyComponent fallback={
+              <div className="w-full h-[450px] bg-card rounded-lg border animate-pulse flex items-center justify-center">
+                <Skeleton className="w-[95%] h-[90%]" />
+              </div>
+            }>
+              <DashboardSmartHome />
+            </LazyComponent>
+          </div>
           
           {/* Redesigned Financial Overview */}
-          <DashboardFinancialOverview />
+          <div className="mb-6">
+            <LazyComponent fallback={
+              <div className="w-full h-[400px] bg-card rounded-lg border animate-pulse flex items-center justify-center">
+                <Skeleton className="w-[95%] h-[90%]" />
+              </div>
+            }>
+              <DashboardFinancialOverview />
+            </LazyComponent>
+          </div>
+
         </div>
       </div>
     </div>
