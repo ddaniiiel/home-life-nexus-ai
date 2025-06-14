@@ -1,7 +1,6 @@
-
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import Navigation from '@/components/Navigation';
-import { Lightbulb, Plus, Settings, Home, Thermometer, LineChart, Wifi, Zap, Camera, Gauge, Server, BellRing } from 'lucide-react';
+import { Lightbulb, Plus, Settings, Home, Thermometer, LineChart, Wifi, Zap, Camera, Gauge, Server, BellRing, LightbulbOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,23 +10,39 @@ import IoTIntegration from '@/components/IoTIntegration';
 import AutomationsPage from '@/components/smart-home/AutomationsPage';
 import SensorHistoryChart from '@/components/smart-home/SensorHistoryChart';
 import SmartHomeCamera from '@/components/smart-home/SmartHomeCamera';
+import { Device, QuickScene } from '@/components/types/smart-home';
+import { SmartHomeWidgetItem } from '@/components/SmartHomeWidgetItem';
+
+const SceneItem = lazy(() => import('@/components/smart-home/SceneItem'));
 
 const SmartHome = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [devices, setDevices] = useState([
-    { id: 1, name: 'Wohnzimmer Licht', type: 'light', isOn: false, room: 'Wohnzimmer' },
-    { id: 2, name: 'Küche Licht', type: 'light', isOn: true, room: 'Küche' },
-    { id: 3, name: 'Bad Licht', type: 'light', isOn: false, room: 'Bad' },
-    { id: 4, name: 'Schlafzimmer Licht', type: 'light', isOn: false, room: 'Schlafzimmer' },
-    { id: 5, name: 'Wohnzimmer Thermostat', type: 'thermostat', isOn: true, temp: 21, room: 'Wohnzimmer' },
-    { id: 6, name: 'Küche Thermostat', type: 'thermostat', isOn: true, temp: 22, room: 'Küche' },
-    { id: 7, name: 'Eingangstür', type: 'lock', isOn: true, room: 'Eingang' },
-    { id: 8, name: 'Überwachungskamera', type: 'camera', isOn: true, room: 'Außen' },
+  const [devices, setDevices] = useState<Device[]>([
+    { id: 1, name: 'Wohnzimmer Licht', type: 'light', isOn: false, room: 'Wohnzimmer', icon: Lightbulb, color: 'yellow', brightness: 80 },
+    { id: 2, name: 'Küche Licht', type: 'light', isOn: true, room: 'Küche', icon: Lightbulb, color: 'yellow', brightness: 70 },
+    { id: 3, name: 'Bad Licht', type: 'light', isOn: false, room: 'Bad', icon: Lightbulb, color: 'yellow', brightness: 60 },
+    { id: 4, name: 'Schlafzimmer Licht', type: 'light', isOn: false, room: 'Schlafzimmer', icon: Lightbulb, color: 'yellow', brightness: 60 },
+    { id: 5, name: 'Wohnzimmer Thermostat', type: 'thermostat', isOn: true, temp: 21, room: 'Wohnzimmer', icon: Thermometer, color: 'blue' },
+    { id: 6, name: 'Küche Thermostat', type: 'thermostat', isOn: true, temp: 22, room: 'Küche', icon: Thermometer, color: 'blue' },
+    { id: 7, name: 'Eingangstür', type: 'lock', isOn: true, room: 'Eingang', icon: Zap, color: 'green' },
+    { id: 8, name: 'Überwachungskamera', type: 'camera', isOn: true, room: 'Außen', icon: Camera, color: 'blue' },
   ]);
 
   const toggleDevice = (id: number) => {
     setDevices(devices.map(device => 
       device.id === id ? { ...device, isOn: !device.isOn } : device
+    ));
+  };
+  
+  const adjustBrightness = (id: number, value: number[]) => {
+    setDevices(devices.map(device => 
+      device.id === id ? { ...device, brightness: value[0] } : device
+    ));
+  };
+  
+  const adjustTemperature = (id: number, value: number[]) => {
+    setDevices(devices.map(device => 
+      device.id === id ? { ...device, temp: value[0] } : device
     ));
   };
 
@@ -37,6 +52,13 @@ const SmartHome = () => {
   const filteredDevices = selectedRoom === 'Alle' 
     ? devices 
     : devices.filter(device => device.room === selectedRoom);
+
+  const quickScenes: QuickScene[] = [
+    { id: 1, name: 'Alles Ein', icon: Lightbulb, devices: devices.filter(d => d.type === 'light').length },
+    { id: 2, name: 'Alles Aus', icon: LightbulbOff, devices: devices.filter(d => d.type === 'light').length },
+    { id: 3, name: 'Zuhause', icon: Home, devices: 6 },
+    { id: 4, name: 'Nacht', icon: BellRing, devices: 2 },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -94,23 +116,12 @@ const SmartHome = () => {
                         <DeviceStatistics />
                         <div className="bg-white dark:bg-gray-800 rounded-lg border p-4">
                           <h3 className="font-medium text-lg mb-2">Schnellzugriff</h3>
-                          <div className="grid grid-cols-2 gap-2">
-                            <Button variant="outline" className="flex flex-col items-center py-6 h-auto text-homepilot-primary">
-                              <Lightbulb className="h-6 w-6 mb-2" />
-                              <span>Alles Ein</span>
-                            </Button>
-                            <Button variant="outline" className="flex flex-col items-center py-6 h-auto text-homepilot-primary">
-                              <Lightbulb className="h-6 w-6 mb-2" />
-                              <span>Alles Aus</span>
-                            </Button>
-                            <Button variant="outline" className="flex flex-col items-center py-6 h-auto text-homepilot-primary">
-                              <Home className="h-6 w-6 mb-2" />
-                              <span>Zuhause</span>
-                            </Button>
-                            <Button variant="outline" className="flex flex-col items-center py-6 h-auto text-homepilot-primary">
-                              <BellRing className="h-6 w-6 mb-2" />
-                              <span>Nacht</span>
-                            </Button>
+                          <div className="grid grid-cols-2 gap-3">
+                            <Suspense fallback={<div className="p-4 text-center col-span-2">Lade Szenen...</div>}>
+                              {quickScenes.map(scene => (
+                                <SceneItem key={scene.id} scene={scene} variant="colored" />
+                              ))}
+                            </Suspense>
                           </div>
                         </div>
                       </div>
@@ -191,23 +202,15 @@ const SmartHome = () => {
                   ))}
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {filteredDevices.map((device) => (
-                    <div 
-                      key={device.id} 
-                      className="p-4 border rounded-lg flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      <div>
-                        <p className="font-medium">{device.name}</p>
-                        <p className="text-sm text-gray-500">{device.room}</p>
-                      </div>
-                      <Button 
-                        variant={device.isOn ? "default" : "outline"}
-                        onClick={() => toggleDevice(device.id)}
-                      >
-                        {device.isOn ? 'Ein' : 'Aus'}
-                      </Button>
-                    </div>
+                    <SmartHomeWidgetItem
+                      key={device.id}
+                      device={device}
+                      toggleDevice={toggleDevice}
+                      adjustBrightness={adjustBrightness}
+                      adjustTemperature={adjustTemperature}
+                    />
                   ))}
                 </div>
               </div>
