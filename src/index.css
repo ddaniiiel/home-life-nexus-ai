@@ -14,27 +14,28 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 122 39% 49%;
+    --primary: 122 39% 49%; /* HomePilot Green */
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 122 42% 39%;
+    --secondary: 122 42% 39%; /* Darker HomePilot Green */
     --secondary-foreground: 210 40% 98%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 120 47% 85%;
+    --accent: 120 47% 85%; /* Light HomePilot Green */
     --accent-foreground: 122 42% 39%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
+    --border: 214.3 31.8% 91.4%; /* Light gray for borders */
     --input: 214.3 31.8% 91.4%;
-    --ring: 122 39% 49%;
+    --ring: 122 39% 49%; /* HomePilot Green for focus rings */
 
-    --radius: 0.75rem;
+    --radius: 0.75rem; /* Consistent rounded corners (12px) */
 
+    /* Sidebar specific colors, can be refined if sidebar is styled */
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 122 39% 49%;
@@ -46,16 +47,16 @@
   }
 
   .dark {
-    --background: 222.2 47.4% 11.2%;
+    --background: 222.2 47.4% 11.2%; /* Dark background */
     --foreground: 210 40% 98%;
 
-    --card: 222.2 47.4% 11.2%;
+    --card: 222.2 47.4% 11.2%; /* Dark card background */
     --card-foreground: 210 40% 98%;
 
     --popover: 222.2 47.4% 11.2%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 122 39% 49%;
+    --primary: 122 39% 49%; 
     --primary-foreground: 222.2 47.4% 11.2%;
 
     --secondary: 122 42% 39%;
@@ -64,16 +65,17 @@
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 120 47% 20%;
+    --accent: 120 47% 20%; /* Darker accent for dark mode */
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
+    --border: 217.2 32.6% 17.5%; /* Darker border for dark mode */
     --input: 217.2 32.6% 17.5%;
     --ring: 122 39% 49%;
     
+    /* Sidebar specific colors for dark mode */
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 122 39% 49%;
@@ -87,12 +89,14 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border; /* Apply base border color */
   }
 
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    /* Consider using a system font stack for Apple-like typography if not already default */
+    /* font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; */
   }
 }
 
@@ -102,18 +106,23 @@
   }
   
   .feature-card {
-    @apply bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700;
+    /* Unified card styling with subtle shadow and border */
+    @apply bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 dark:border-gray-700;
   }
   
   .widget-card {
-    @apply bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm hover:shadow transition-all duration-300 border border-gray-100 dark:border-gray-700;
+    /* Unified card styling */
+    @apply bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 dark:border-gray-700;
   }
 
   .card-accent {
+    /* This creates a noticeable gradient, use sparingly for Apple-style */
     @apply bg-gradient-to-r from-homepilot-accent/20 to-homepilot-accent/10 border-homepilot-accent/30;
   }
 
   .icon-container {
-    @apply w-10 h-10 flex items-center justify-center rounded-full bg-homepilot-primary/10 text-homepilot-primary;
+    /* Subtle icon container styling */
+    @apply w-10 h-10 flex items-center justify-center rounded-lg bg-homepilot-primary/10 text-homepilot-primary;
   }
 }
+

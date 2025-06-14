@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
 import { FileText, Search, Plus, Folder, File, BarChart, Upload, X } from 'lucide-react';
@@ -103,6 +102,10 @@ const Documents = () => {
               description: `${uploadFiles.length} Datei(en) wurden erfolgreich hochgeladen.`,
             });
             setUploadFiles([]);
+            // Reset category selection after successful upload
+            setNewCategory(''); 
+            // Consider closing the dialog here if a DialogClose reference is available
+            // document.getElementById('closeDialogButton')?.click(); // If you add an ID to DialogClose
           }, 500);
           return 100;
         }
@@ -117,64 +120,64 @@ const Documents = () => {
       
       <div className="md:ml-64 pt-16 px-4 md:px-8 py-8">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center mb-8">
-            <div className="bg-homepilot-primary bg-opacity-10 p-3 rounded-full mr-4">
+          <div className="flex items-center mb-10">
+            <div className="bg-homepilot-primary bg-opacity-10 p-3 rounded-lg mr-4">
               <FileText className="h-8 w-8 text-homepilot-primary" />
             </div>
-            <h1 className="text-3xl font-bold">Dokumente</h1>
+            <h1 className="text-3xl font-semibold text-gray-800 dark:text-gray-100">Dokumente</h1>
           </div>
           
           <Tabs defaultValue="files" className="space-y-8">
-            <TabsList>
-              <TabsTrigger value="files" className="flex items-center">
+            <TabsList className="grid w-full grid-cols-3 md:w-auto md:inline-flex md:gap-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+              <TabsTrigger value="files" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm data-[state=active]:text-homepilot-primary rounded-md px-3 py-1.5 text-sm font-medium transition-all data-[state=inactive]:hover:bg-gray-200 dark:data-[state=inactive]:hover:bg-gray-700/70 flex items-center justify-center">
                 <File className="h-4 w-4 mr-2" />
                 Dateien
               </TabsTrigger>
-              <TabsTrigger value="categories" className="flex items-center">
+              <TabsTrigger value="categories" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm data-[state=active]:text-homepilot-primary rounded-md px-3 py-1.5 text-sm font-medium transition-all data-[state=inactive]:hover:bg-gray-200 dark:data-[state=inactive]:hover:bg-gray-700/70 flex items-center justify-center">
                 <Folder className="h-4 w-4 mr-2" />
                 Kategorien
               </TabsTrigger>
-              <TabsTrigger value="reports" className="flex items-center">
+              <TabsTrigger value="reports" className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm data-[state=active]:text-homepilot-primary rounded-md px-3 py-1.5 text-sm font-medium transition-all data-[state=inactive]:hover:bg-gray-200 dark:data-[state=inactive]:hover:bg-gray-700/70 flex items-center justify-center">
                 <BarChart className="h-4 w-4 mr-2" />
                 Berichte
               </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="files">
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                  <div className="relative w-full md:w-1/3">
+            <TabsContent value="files" className="animate-fade-in">
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 mb-8">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+                  <div className="relative w-full md:w-2/5">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input 
                       placeholder="Dokumente suchen..." 
-                      className="pl-10" 
+                      className="pl-10 rounded-md bg-gray-50 dark:bg-gray-700/50 focus:bg-white dark:focus:bg-gray-700" 
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </div>
                   
-                  <div className="flex space-x-2">
-                    <Button variant="outline">
+                  <div className="flex space-x-3">
+                    <Button variant="outline" className="rounded-md border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
                       <Folder className="h-4 w-4 mr-2" /> Neuer Ordner
                     </Button>
                     
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button>
+                        <Button className="rounded-md bg-homepilot-primary hover:bg-homepilot-secondary">
                           <Plus className="h-4 w-4 mr-2" /> Upload
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-md">
-                        <DialogHeader>
-                          <DialogTitle>Dokumente hochladen</DialogTitle>
+                      <DialogContent className="sm:max-w-lg p-6 rounded-xl">
+                        <DialogHeader className="mb-4">
+                          <DialogTitle className="text-xl font-semibold text-gray-800 dark:text-gray-100">Dokumente hochladen</DialogTitle>
                         </DialogHeader>
                         
-                        <div className="space-y-4">
-                          <div className="border-2 border-dashed rounded-lg p-6 text-center">
-                            <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                            <p className="mb-2 text-sm">Dateien hier ablegen oder</p>
+                        <div className="space-y-6">
+                          <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-8 text-center bg-gray-50 dark:bg-gray-700/50">
+                            <Upload className="h-10 w-10 mx-auto text-gray-400 dark:text-gray-500 mb-3" />
+                            <p className="mb-3 text-sm text-gray-600 dark:text-gray-300">Dateien hier ablegen oder</p>
                             <Label htmlFor="document-upload" className="cursor-pointer">
-                              <span className="bg-homepilot-primary text-white px-4 py-2 rounded text-sm">Durchsuchen</span>
+                              <span className="bg-homepilot-primary text-white px-5 py-2.5 rounded-md text-sm font-medium hover:bg-homepilot-secondary transition-colors">Durchsuchen</span>
                               <Input 
                                 id="document-upload" 
                                 type="file" 
@@ -186,17 +189,18 @@ const Documents = () => {
                           </div>
                           
                           {uploadFiles.length > 0 && (
-                            <div className="space-y-2">
-                              <p className="text-sm font-medium">Ausgewählte Dateien:</p>
+                            <div className="space-y-3">
+                              <p className="text-sm font-medium text-gray-700 dark:text-gray-200">Ausgewählte Dateien:</p>
                               {uploadFiles.map((file, index) => (
-                                <div key={index} className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 p-2 rounded">
-                                  <div className="flex items-center">
-                                    <File className="h-4 w-4 mr-2 text-gray-500" />
-                                    <span className="text-sm truncate max-w-[200px]">{file.name}</span>
+                                <div key={index} className="flex items-center justify-between bg-gray-100 dark:bg-gray-700 p-3 rounded-md">
+                                  <div className="flex items-center min-w-0">
+                                    <File className="h-5 w-5 mr-3 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                                    <span className="text-sm text-gray-700 dark:text-gray-200 truncate">{file.name}</span>
                                   </div>
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
+                                    className="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 h-8 w-8"
                                     onClick={() => removeFile(index)}
                                   >
                                     <X className="h-4 w-4" />
@@ -207,38 +211,39 @@ const Documents = () => {
                           )}
                           
                           {isUploading && (
-                            <div className="space-y-2">
-                              <div className="flex justify-between text-xs">
+                            <div className="space-y-2 pt-2">
+                              <div className="flex justify-between text-xs text-gray-600 dark:text-gray-300">
                                 <span>Uploading...</span>
                                 <span>{uploadProgress}%</span>
                               </div>
-                              <Progress value={uploadProgress} className="w-full" />
+                              <Progress value={uploadProgress} className="w-full h-2" />
                             </div>
                           )}
                           
                           {uploadFiles.length > 0 && !isUploading && (
-                            <div className="space-y-3">
-                              <div className="flex flex-col space-y-2">
-                                <Label htmlFor="doc-category">Kategorie</Label>
-                                <Select onValueChange={setNewCategory}>
-                                  <SelectTrigger id="doc-category">
+                            <div className="space-y-4 pt-2">
+                              <div className="flex flex-col space-y-1.5">
+                                <Label htmlFor="doc-category" className="text-sm font-medium text-gray-700 dark:text-gray-200">Kategorie</Label>
+                                <Select onValueChange={setNewCategory} value={newCategory}>
+                                  <SelectTrigger id="doc-category" className="rounded-md bg-gray-50 dark:bg-gray-700/50 focus:bg-white dark:focus:bg-gray-700">
                                     <SelectValue placeholder="Kategorie auswählen" />
                                   </SelectTrigger>
-                                  <SelectContent>
+                                  <SelectContent className="rounded-md">
                                     <SelectItem value="Verträge">Verträge</SelectItem>
                                     <SelectItem value="Energieverbrauch">Energieverbrauch</SelectItem>
                                     <SelectItem value="Finanzen">Finanzen</SelectItem>
                                     <SelectItem value="Versicherung">Versicherung</SelectItem>
                                     <SelectItem value="Wohnen">Wohnen</SelectItem>
+                                    {/* Add an option to clear selection or keep it as is */}
                                   </SelectContent>
                                 </Select>
                               </div>
                               
-                              <div className="flex justify-end gap-3">
+                              <div className="flex justify-end gap-3 pt-2">
                                 <DialogClose asChild>
-                                  <Button variant="outline">Abbrechen</Button>
+                                  <Button variant="outline" className="rounded-md">Abbrechen</Button>
                                 </DialogClose>
-                                <Button onClick={simulateUpload}>
+                                <Button onClick={simulateUpload} className="rounded-md bg-homepilot-primary hover:bg-homepilot-secondary">
                                   Hochladen
                                 </Button>
                               </div>
@@ -253,37 +258,39 @@ const Documents = () => {
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Kategorie</TableHead>
-                        <TableHead>Größe</TableHead>
-                        <TableHead>Geändert</TableHead>
-                        <TableHead className="text-right">Aktionen</TableHead>
+                      <TableRow className="border-b border-gray-200 dark:border-gray-700">
+                        <TableHead className="py-4 px-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</TableHead>
+                        <TableHead className="py-4 px-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kategorie</TableHead>
+                        <TableHead className="py-4 px-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Größe</TableHead>
+                        <TableHead className="py-4 px-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Geändert</TableHead>
+                        <TableHead className="py-4 px-4 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aktionen</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {filteredDocuments.length > 0 ? (
                         filteredDocuments.map((doc) => (
-                          <TableRow key={doc.id}>
-                            <TableCell>
+                          <TableRow key={doc.id} className="border-b border-gray-100 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                            <TableCell className="py-4 px-4">
                               <div className="flex items-center">
-                                <File className="h-5 w-5 text-gray-400 mr-3" />
-                                <span className="font-medium text-gray-900 dark:text-gray-100">{doc.name}</span>
+                                <File className="h-5 w-5 text-homepilot-primary mr-3 flex-shrink-0" />
+                                <span className="font-medium text-gray-800 dark:text-gray-100">{doc.name}</span>
                               </div>
                             </TableCell>
-                            <TableCell>{doc.category}</TableCell>
-                            <TableCell>{doc.size}</TableCell>
-                            <TableCell>
+                            <TableCell className="py-4 px-4 text-gray-600 dark:text-gray-300">{doc.category}</TableCell>
+                            <TableCell className="py-4 px-4 text-gray-600 dark:text-gray-300">{doc.size}</TableCell>
+                            <TableCell className="py-4 px-4 text-gray-600 dark:text-gray-300">
                               {new Date(doc.modified).toLocaleDateString('de-CH')}
                             </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex justify-end space-x-2">
+                            <TableCell className="py-4 px-4 text-right">
+                              <div className="flex justify-end space-x-1">
                                 <Button 
                                   variant="ghost" 
                                   size="icon"
+                                  className="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-500 h-9 w-9"
                                   onClick={() => downloadDocument(doc.id)}
+                                  title="Herunterladen"
                                 >
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                                     <polyline points="7 10 12 15 17 10" />
                                     <line x1="12" x2="12" y1="15" y2="3" />
@@ -292,9 +299,11 @@ const Documents = () => {
                                 <Button 
                                   variant="ghost" 
                                   size="icon"
+                                  className="text-gray-500 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-500 h-9 w-9"
                                   onClick={() => shareDocument(doc.id)}
+                                  title="Teilen"
                                 >
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <circle cx="18" cy="5" r="3" />
                                     <circle cx="6" cy="12" r="3" />
                                     <circle cx="18" cy="19" r="3" />
@@ -308,8 +317,9 @@ const Documents = () => {
                         ))
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                            {searchQuery ? 'Keine Dokumente gefunden.' : 'Keine Dokumente vorhanden.'}
+                          <TableCell colSpan={5} className="text-center py-12 text-gray-500 dark:text-gray-400">
+                            <FileText size={48} className="mx-auto mb-4 opacity-50" />
+                            {searchQuery ? 'Keine Dokumente für Ihre Suche gefunden.' : 'Noch keine Dokumente vorhanden.'}
                           </TableCell>
                         </TableRow>
                       )}
@@ -319,11 +329,11 @@ const Documents = () => {
               </div>
             </TabsContent>
             
-            <TabsContent value="categories">
+            <TabsContent value="categories" className="animate-fade-in">
               <DocumentCategorization />
             </TabsContent>
             
-            <TabsContent value="reports">
+            <TabsContent value="reports" className="animate-fade-in">
               <EnergyAnalysis />
             </TabsContent>
           </Tabs>
