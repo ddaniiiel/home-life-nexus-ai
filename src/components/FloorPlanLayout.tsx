@@ -66,12 +66,12 @@ const FloorPlanLayout = () => {
   };
 
   const roomDefinitions = [
-    { name: 'Wohnzimmer', path: 'M10,30 L45,30 L45,70 L10,70 Z', baseClass: 'fill-gray-100/80 dark:fill-gray-800/80', hoverClass: 'fill-gray-200/90 dark:fill-gray-700/90' },
-    { name: 'Küche', path: 'M45,30 L90,30 L90,60 L45,60 Z', baseClass: 'fill-gray-100/80 dark:fill-gray-800/80', hoverClass: 'fill-gray-200/90 dark:fill-gray-700/90' },
-    { name: 'Bad', path: 'M70,60 L90,60 L90,85 L70,85 Z', baseClass: 'fill-blue-50/80 dark:fill-blue-900/40', hoverClass: 'fill-blue-100/90 dark:fill-blue-900/60' },
-    { name: 'Schlafzimmer', path: 'M10,70 L70,70 L70,85 L10,85 Z', baseClass: 'fill-gray-100/80 dark:fill-gray-800/80', hoverClass: 'fill-gray-200/90 dark:fill-gray-700/90' },
-    { name: 'Flur', path: 'M45,10 L55,10 L55,30 L45,30 Z', baseClass: 'fill-gray-200/80 dark:fill-gray-700/80', hoverClass: 'fill-gray-300/90 dark:fill-gray-600/90' },
-    { name: 'Terrasse', path: 'M0,30 L10,30 L10,70 L0,70 Z', baseClass: 'fill-green-50/80 dark:fill-green-900/40', hoverClass: 'fill-green-100/90 dark:fill-green-900/60' },
+    { name: 'Wohnzimmer', path: 'M10,30 L45,30 L45,70 L10,70 Z', textPosition: { x: 27.5, y: 52 }, baseClass: 'fill-gray-100/80 dark:fill-gray-800/80', hoverClass: 'fill-homepilot-accent/60 dark:fill-homepilot-primary/30' },
+    { name: 'Küche', path: 'M45,30 L90,30 L90,60 L45,60 Z', textPosition: { x: 67.5, y: 47 }, baseClass: 'fill-gray-100/80 dark:fill-gray-800/80', hoverClass: 'fill-homepilot-accent/60 dark:fill-homepilot-primary/30' },
+    { name: 'Bad', path: 'M70,60 L90,60 L90,85 L70,85 Z', textPosition: { x: 80, y: 74.5 }, baseClass: 'fill-blue-50/80 dark:fill-blue-900/40', hoverClass: 'fill-blue-100/90 dark:fill-blue-900/60' },
+    { name: 'Schlafzimmer', path: 'M10,70 L70,70 L70,85 L10,85 Z', textPosition: { x: 40, y: 79.5 }, baseClass: 'fill-gray-100/80 dark:fill-gray-800/80', hoverClass: 'fill-homepilot-accent/60 dark:fill-homepilot-primary/30' },
+    { name: 'Flur', path: 'M45,10 L55,10 L55,30 L45,30 Z', textPosition: { x: 50, y: 22 }, baseClass: 'fill-gray-200/80 dark:fill-gray-700/80', hoverClass: 'fill-gray-300/90 dark:fill-gray-600/90' },
+    { name: 'Terrasse', path: 'M0,30 L10,30 L10,70 L0,70 Z', textPosition: { x: 5, y: 52 }, baseClass: 'fill-green-50/80 dark:fill-green-900/40', hoverClass: 'fill-green-100/90 dark:fill-green-900/60' },
   ];
 
   return (
@@ -102,11 +102,11 @@ const FloorPlanLayout = () => {
         <div className="absolute inset-0">
           <svg width="100%" height="100%" viewBox="0 0 100 100" className="rounded-md">
             <defs>
-              <filter id="drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur in="SourceAlpha" stdDeviation="0.5"/>
-                <feOffset dx="0" dy="0.5" result="offsetblur"/>
+              <filter id="drop-shadow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="1"/>
+                <feOffset dx="0" dy="1" result="offsetblur"/>
                 <feComponentTransfer>
-                  <feFuncA type="linear" slope="0.3"/>
+                  <feFuncA type="linear" slope="0.2"/>
                 </feComponentTransfer>
                 <feMerge> 
                   <feMergeNode/>
@@ -141,10 +141,11 @@ const FloorPlanLayout = () => {
                   strokeDasharray={room.name === 'Terrasse' ? "2,1" : ""}
                 />
                 <text
-                  x={room.name === 'Terrasse' ? 5 : room.name === 'Flur' ? 50 : parseInt(room.path.split(' ')[1]) + (room.name === 'Wohnzimmer' ? 17.5 : room.name === 'Küche' ? 22.5 : room.name === 'Bad' ? 10 : 30) }
-                  y={room.name === 'Terrasse' ? 50 : room.name === 'Flur' ? 20 : parseInt(room.path.split(' ')[2]) + (room.name === 'Küche' ? 15 : 10)}
+                  x={room.textPosition.x}
+                  y={room.textPosition.y}
                   fontSize={isFullScreen ? "3" : "4"}
                   textAnchor="middle"
+                  alignmentBaseline="middle"
                   fill="#555"
                   className="pointer-events-none font-semibold dark:fill-gray-300 transition-all"
                 >
@@ -169,7 +170,10 @@ const FloorPlanLayout = () => {
                 y={`${device.position.y - 3.5}%`}
                 width="7%"
                 height="7%"
-                className="transition-transform duration-300 hover:scale-110"
+                className={cn(
+                  "transition-all duration-300 hover:scale-110",
+                  hoveredRoom && device.room !== hoveredRoom && "opacity-30 blur-sm",
+                )}
               >
                 <TooltipProvider>
                   <Tooltip>
@@ -204,7 +208,7 @@ const FloorPlanLayout = () => {
       </div>
       
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="bg-white/50 dark:bg-black/20">
+          <Card className="bg-white/50 dark:bg-black/20 backdrop-blur-sm border-white/20">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Beleuchtung</CardTitle>
                   <Lightbulb className="h-4 w-4 text-muted-foreground" />
@@ -216,7 +220,7 @@ const FloorPlanLayout = () => {
                   <p className="text-xs text-muted-foreground">aktiv</p>
               </CardContent>
           </Card>
-          <Card className="bg-white/50 dark:bg-black/20">
+          <Card className="bg-white/50 dark:bg-black/20 backdrop-blur-sm border-white/20">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Durchschnittstemp.</CardTitle>
                   <ThermometerIcon className="h-4 w-4 text-muted-foreground" />
@@ -229,7 +233,7 @@ const FloorPlanLayout = () => {
                   <p className="text-xs text-muted-foreground">in aktiven Räumen</p>
               </CardContent>
           </Card>
-          <Card className="bg-white/50 dark:bg-black/20">
+          <Card className="bg-white/50 dark:bg-black/20 backdrop-blur-sm border-white/20">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Türen</CardTitle>
                   <DoorClosed className="h-4 w-4 text-muted-foreground" />
@@ -244,7 +248,7 @@ const FloorPlanLayout = () => {
                 <p className="text-xs text-muted-foreground">Status aller Türen</p>
               </CardContent>
           </Card>
-          <Card className="bg-white/50 dark:bg-black/20">
+          <Card className="bg-white/50 dark:bg-black/20 backdrop-blur-sm border-white/20">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Sicherheit</CardTitle>
                   <Video className="h-4 w-4 text-muted-foreground" />
