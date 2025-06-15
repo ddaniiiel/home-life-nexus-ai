@@ -58,7 +58,7 @@ const Navigation: React.FC<NavigationProps> = ({ isMobileMenuOpen, setIsMobileMe
             {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
           <Link to="/" className="flex items-center">
-            <div className="bg-green-500 text-white p-2 rounded mr-2">
+            <div className="bg-homepilot-primary text-white p-2 rounded mr-2">
               <Home className="h-5 w-5" />
             </div>
             <span className="text-xl font-bold text-gray-800 dark:text-gray-200">HomePilot</span>
